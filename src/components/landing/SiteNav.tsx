@@ -69,7 +69,10 @@ export function SiteNav({ shopName, user, social }: { shopName: string; user: Se
         <Link
           href="/"
           className={cn(
-            "min-w-0 truncate font-display font-semibold tracking-[0.02em] text-primary transition-all duration-300 hover:text-foreground",
+            // Fraunces 600 kelime markasını kalınlaştırıp lockup'ı genişletiyordu; 500
+            // editoryal ağırlığı korur (gövde `font-variation-settings` kuralı kalkınca
+            // yardımcı sınıf ilk kez gerçekten uygulanıyor).
+            "min-w-0 truncate font-display font-medium tracking-[0.02em] text-primary transition-all duration-300 hover:text-foreground",
             shrunk ? "text-base sm:text-xl" : "text-base sm:text-2xl",
           )}
         >

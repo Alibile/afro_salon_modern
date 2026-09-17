@@ -1,17 +1,27 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { animate, useInView, useMotionValue, useReducedMotion } from "motion/react";
 import { formatCount } from "@/lib/motion-utils";
 
 /**
- * Görüş alanına girince 0'dan `value`'ya sayan rakam. Görünen sayaç sunucuda da
- * 0'dan başlar, yani hidrasyondan önce ve sonra aynı şeyi gösterir — "99 → 0"
- * çakması olmaz. Hareket kapalıysa hiç saymaz, doğrudan son değeri gösterir.
+ * Hidrasyon algılama: sunucu anlık görüntüsü `false`, istemcininki `true`.
+ * Abonelik gerekmez — değer bir kez değişir, onu da React hidrasyondan sonra
+ * kendisi yeniden okur. (Efektte `setState` çağırmanın lint'siz karşılığı.)
+ */
+const subscribeNever = () => () => {};
+
+/**
+ * Görüş alanına girince 0'dan `value`'ya sayan rakam.
  *
- * Gerçek değer her zaman HTML'de durur (görsel olarak gizli metin): arama
- * motoru, ekran okuyucu ve JavaScript çalışmayan tarayıcı doğru sayıyı görür.
- * Sayaç `aria-hidden` olduğu için ara değerler ekran okuyucuya okunmaz.
+ * Sunucu çıktısı ve hidrasyon anı gerçek değeri basar: JavaScript hiç
+ * çalışmazsa sayfada "0" değil, doğru sayı kalır. Sıfırdan sayma ancak istemci
+ * bağlandıktan sonra başlar (`hydrated`), yani hidrasyon uyuşmazlığı olmaz.
+ * Hareket kapalıysa hiç saymaz, doğrudan son değeri gösterir.
+ *
+ * Gerçek değer ayrıca görsel olarak gizli metinde durur: arama motoru ve ekran
+ * okuyucu doğru sayıyı görür. Sayaç `aria-hidden` olduğu için ara değerler
+ * ekran okuyucuya okunmaz.
  */
 export function CountUp({
   value,
@@ -34,9 +44,10 @@ export function CountUp({
   const reduced = useReducedMotion();
   const progress = useMotionValue(0);
   const [counted, setCounted] = useState(0);
-  // Hareket kapalıyken gösterilen değer bir durum değil, bir türetme: efektle
-  // "düzeltmek" fazladan bir çizim turu demek olurdu.
-  const display = reduced ? value : counted;
+  const hydrated = useSyncExternalStore(subscribeNever, () => true, () => false);
+  // Hareket kapalıyken (ya da istemci henüz bağlanmamışken) gösterilen değer bir
+  // durum değil, bir türetme: efektle "düzeltmek" fazladan bir çizim turu olurdu.
+  const display = reduced || !hydrated ? value : counted;
 
   useEffect(() => {
     if (!inView || reduced) return;

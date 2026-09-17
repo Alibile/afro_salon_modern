@@ -29,6 +29,17 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="tr" suppressHydrationWarning className={`${manrope.variable} ${fraunces.variable} ${bebas.variable}`}>
+      <head>
+        {/*
+         * JavaScript kapalıyken Motion hiç bağlanmaz ve sunucudan gelen satır içi
+         * başlangıç stili (`opacity: 0`, `translateY`) DOM'da kalırdı: hero'nun
+         * altındaki her bölüm görünmezdi. Bu kural içeriği ilk boyamada yerine
+         * oturtur — animasyon olmaz, ama metin ve görseller eksiksiz görünür.
+         */}
+        <noscript>
+          <style>{`[data-reveal]{opacity:1!important;transform:none!important}[data-parallax]{transform:none!important}`}</style>
+        </noscript>
+      </head>
       <body className="min-h-dvh">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}

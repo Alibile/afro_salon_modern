@@ -15,7 +15,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
           <Parallax className="absolute inset-x-0 -top-12 -bottom-12" range={36} speed={1} ariaHidden>
             <AfroPattern variant="kente" size={84} opacity={0.12} />
           </Parallax>
-          <Link href="/" className="relative font-display text-2xl font-semibold tracking-[0.02em]">
+          <Link href="/" className="relative font-display text-2xl font-medium tracking-[0.02em]">
             {settings.shopName}
           </Link>
           <Reveal className="relative">

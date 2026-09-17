@@ -136,17 +136,23 @@ Saf yardımcılar (`src/lib/motion-utils.ts`: `staggerDelay`, `clampParallax`,
 
 Erişilebilirlik: `prefers-reduced-motion: reduce` açıkken Motion animasyonları
 kapatır; ayrıca `globals.css` içindeki `[data-reveal]` / `[data-parallax]`
-kuralları sunucudan gelen başlangıç stilini ilk boyamada geçersiz kılar, yani
-içerik JavaScript hiç çalışmasa bile görünür ve yerindedir. Hero'nun açılış
-sırası bilinçli olarak CSS'tir (`.rise`): sayfanın en büyük boyaması hidrasyonu
-beklemez.
+kuralları sunucudan gelen başlangıç stilini ilk boyamada geçersiz kılar.
+JavaScript hiç çalışmadığında aynı iki kural `layout.tsx` içindeki `<noscript>`
+bloğundan gelir: animasyon olmaz, ama içerik görünür ve yerindedir. `CountUp`
+gerçek değeri sunucuda basar, sıfırdan sayma yalnızca hidrasyondan sonra
+başlar. Hero'nun açılış sırası bilinçli olarak CSS'tir (`.rise`): sayfanın en
+büyük boyaması hidrasyonu beklemez.
+
+Ölçüm: ana sayfanın Lighthouse mobil performans puanı **96** (`--preset=perf`,
+üretim derlemesi; ham çıktı
+`.superpowers/sdd/2026-09-17-afro-salon-tur3/lighthouse.json`).
 
 ## Fotoğraflar
 
 Afro Salon erkek müşterilere özel hizmetler sunmaktadır.
 
 Landing page'deki görsel alanlar `public/landing/` altındaki dosyalardan
-okunur. Dosya yoksa yerine africa geometrik desenli zarif bir yer tutucu
+okunur. Dosya yoksa yerine afrika geometrik desenli zarif bir yer tutucu
 render edilir; kırık görsel çıkmaz. Depoda şu an duran fotoğraflar,
 ücretsiz ve ticari kullanıma açık lisanslı (Unsplash License / Pexels
 License) stok fotoğraflardır — her dosyanın fotoğrafçısı ve kaynak URL'si

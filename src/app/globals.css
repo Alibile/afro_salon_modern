@@ -85,9 +85,15 @@
 @layer base {
   * { @apply border-border outline-ring/50; }
   html { overflow-x: hidden; scroll-behavior: smooth; }
+  /*
+   * Gövdede `font-variation-settings` yazılmaz: bu özellik `font-weight`'i
+   * eziyor ve miras alındığı için sayfadaki bütün `font-medium` /
+   * `font-semibold` / `font-bold` yardımcı sınıflarını 400'e düşürüyordu.
+   * Değişken eksenler yalnızca onları gerçekten isteyen sınıflarda
+   * (`.display-*`, `.editorial-note`, `.panel-typography`) ayarlanır.
+   */
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-variation-settings: "wght" 400;
   }
   /* Fraunces değişken: büyük puntoda yüksek `opsz` ince tırnak/kalın gövde
      kontrastını açar, küçük puntoda kapanır. Kapitaller biraz nefes ister. */
@@ -112,6 +118,12 @@
    */
   [data-reveal] { opacity: 1 !important; transform: none !important; }
   [data-parallax] { transform: none !important; }
+  /*
+   * `.rise` süresi yukarıdaki kuralla sıfırlanır ama gecikmesi satır içi stille
+   * verilir (`Hero`): `both` dolgusu yüzünden öğe gecikme boyunca `opacity: 0`
+   * kalırdı. Negatif gecikme animasyonu bitmiş sayar; içerik ilk karede yerinde.
+   */
+  .rise { animation-delay: -0.01ms !important; }
 }
 
 @layer components {

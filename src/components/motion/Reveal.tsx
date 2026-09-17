@@ -11,8 +11,9 @@ export type RevealTag = "div" | "section" | "header" | "figure" | "p" | "span" |
  *
  * Hareket azaltılmışsa içerik ilk boyamada görünür başlar: istemcide
  * `initial={false}` ile opaklık 0 adımı hiç kurulmaz, sunucudan gelen satır içi
- * stili de `globals.css` içindeki `[data-reveal]` kuralı geçersiz kılar — yani
- * metin JavaScript hiç çalışmasa bile gizlenmez.
+ * stili de `globals.css` içindeki `[data-reveal]` kuralı geçersiz kılar.
+ * JavaScript hiç çalışmazsa aynı işi `layout.tsx` içindeki `<noscript>` kuralı
+ * yapar — animasyon olmaz, ama metin gizli kalmaz.
  */
 export function Reveal({
   children,
