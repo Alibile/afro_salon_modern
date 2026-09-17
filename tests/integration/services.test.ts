@@ -31,4 +31,12 @@ describe("services actions", () => {
     await toggleService(c.data.id, false, { actor: admin });
     expect((await prisma.service.findUnique({ where: { id: c.data.id } }))?.isActive).toBe(false);
   });
+  it("upsert non-existent returns not found", async () => {
+    const r = await upsertService({ id: "yok", name: "Saç", durationMinutes: 30, priceLira: 400, sortOrder: 1 }, { actor: admin });
+    expect(r).toEqual({ ok: false, error: "Hizmet bulunamadı" });
+  });
+  it("toggle non-existent returns not found", async () => {
+    const r = await toggleService("yok", false, { actor: admin });
+    expect(r).toEqual({ ok: false, error: "Hizmet bulunamadı" });
+  });
 });
