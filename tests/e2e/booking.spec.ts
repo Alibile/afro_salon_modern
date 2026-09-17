@@ -75,6 +75,14 @@ test.describe.serial("randevu akışı", () => {
 });
 
 test.describe("landing", () => {
+  // "iletişim formu mesaj gönderir" testi yeniden denenmemelidir: sunucu IP
+  // başına dakikada 3 gönderime izin verir, `resetRateLimit()` yalnızca sunucu
+  // sürecinden çağrılabildiği için e2e'den erişilemez ve Playwright her koşuda
+  // aynı IP'den (localhost) gelir. Yeniden deneme, ilk denemenin doldurduğu
+  // sayaç yüzünden "Çok fazla deneme" ile kalıcı kırmızıya düşerdi; testin tek
+  // gönderimi, global-setup sonrası yeniden başlayan sunucuda her zaman geçer.
+  test.describe.configure({ retries: 0 });
+
   test("menüden Hakkımızda bölümüne gidilir", async ({ page }) => {
     await page.goto("/");
     // Mobil genişlikte bağlantılar hamburger menüsünün arkasındadır.

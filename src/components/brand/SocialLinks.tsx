@@ -9,6 +9,11 @@ export function whatsappUrl(whatsapp: string, text?: string) {
   return text ? `https://wa.me/${digits}?text=${encodeURIComponent(text)}` : `https://wa.me/${digits}`;
 }
 
+/** `tel:` bağlantısı boşluk kabul etmez; ayarlardaki telefon serbest biçimde yazılabilir. */
+export function telHref(phone: string) {
+  return `tel:${phone.replace(/\s/g, "")}`;
+}
+
 export function hasSocial(s: SocialSettings) {
   return Boolean(s.instagram.trim() || s.facebook.trim() || s.whatsapp.trim());
 }

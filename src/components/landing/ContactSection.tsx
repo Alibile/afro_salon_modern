@@ -1,5 +1,5 @@
 import { ContactForm } from "./ContactForm";
-import { whatsappUrl } from "@/components/brand/SocialLinks";
+import { telHref, whatsappUrl } from "@/components/brand/SocialLinks";
 import { cn } from "@/lib/utils";
 
 export function ContactSection({
@@ -22,7 +22,6 @@ export function ContactSection({
   services: string[];
 }) {
   const maps = mapsUrl.trim() || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
-  const tel = phone.replace(/\s/g, "");
   const links = [
     email.trim() ? { key: "email", label: "E-posta", text: email.trim(), href: `mailto:${email.trim()}`, external: false } : null,
     whatsapp.trim()
@@ -52,7 +51,7 @@ export function ContactSection({
             <h3 className="display-md">NEREDEYİZ</h3>
             <p className="mt-6 font-display text-3xl leading-tight tracking-wide">{address}</p>
             <a
-              href={`tel:${tel}`}
+              href={telHref(phone)}
               className="mt-4 inline-block border-b-2 border-primary pb-1 font-display text-3xl tracking-wide text-primary transition-colors hover:border-foreground hover:text-foreground"
             >
               {phone}

@@ -11,6 +11,9 @@ function normalizeInstagram(value: string): string {
 
 const trimmedText = () => z.string().transform((v) => v.trim());
 
+/** Adresler doğrudan `href` olarak render edildiğinden yalnızca http(s) kabul edilir. */
+const HTTP_PROTOCOL = /^https?$/;
+
 export const settingsSchema = z.object({
   shopName: z.string().trim().min(1, "Dükkan adı gerekli").max(60),
   address: z.string().trim().max(200),
@@ -22,14 +25,14 @@ export const settingsSchema = z.object({
 
   email: trimmedText().pipe(z.email("Geçersiz e-posta").or(z.literal(""))),
   instagram: trimmedText().transform(normalizeInstagram).pipe(z.url("Geçersiz Instagram adresi").or(z.literal(""))),
-  facebook: trimmedText().pipe(z.url("Geçersiz Facebook adresi").or(z.literal(""))),
+  facebook: trimmedText().pipe(z.url({ protocol: HTTP_PROTOCOL, error: "Geçersiz Facebook adresi" }).or(z.literal(""))),
   whatsapp: trimmedText().pipe(
     z
       .string()
       .regex(/^\d{10,15}$/, "WhatsApp numarası ülke koduyla, sadece rakam olmalı (örn. 905551112233)")
       .or(z.literal("")),
   ),
-  mapsUrl: trimmedText().pipe(z.url("Geçersiz harita adresi").or(z.literal(""))),
+  mapsUrl: trimmedText().pipe(z.url({ protocol: HTTP_PROTOCOL, error: "Geçersiz harita adresi" }).or(z.literal(""))),
 
   aboutTitle: z.string().trim().max(100),
   aboutText: z.string().trim().max(500),

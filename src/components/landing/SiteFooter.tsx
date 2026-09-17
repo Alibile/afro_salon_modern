@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AfroPattern } from "@/components/brand/AfroPattern";
-import { SocialLinks, type SocialSettings } from "@/components/brand/SocialLinks";
+import { SocialLinks, telHref, type SocialSettings } from "@/components/brand/SocialLinks";
 import { SECTION_LINKS } from "./sections";
 import { logoutAction } from "@/actions/auth";
 import type { SessionUser } from "@/lib/auth-helpers";
@@ -107,7 +107,7 @@ export function SiteFooter({
             <address className="mt-4 space-y-2.5 not-italic">
               <p className="text-primary-foreground/90">{address}</p>
               <p>
-                <a href={`tel:${phone.replace(/\s/g, "")}`} className={LINK}>
+                <a href={telHref(phone)} className={LINK}>
                   {phone}
                 </a>
               </p>

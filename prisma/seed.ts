@@ -1,4 +1,6 @@
 import "dotenv/config";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
@@ -130,7 +132,7 @@ async function main() {
 
 // Yalnızca `tsx prisma/seed.ts` ile doğrudan çalıştırıldığında main()'i tetikle;
 // dosya bir test tarafından import edildiğinde (runSeed'i almak için) otomatik çalışmasın.
-const isCliEntry = process.argv[1] !== undefined && import.meta.url === `file://${process.argv[1]}`;
+const isCliEntry = process.argv[1] !== undefined && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
 if (isCliEntry) {
   main().catch((e) => {
     console.error(e);

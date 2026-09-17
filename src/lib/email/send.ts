@@ -121,7 +121,9 @@ export async function sendContactMessage(input: { name: string; phone: string; m
         services: input.services,
       }),
     );
-    await deliver(to, `Siteden yeni mesaj · ${input.name}`, html);
+    // Ad alanındaki satır sonu/çoklu boşluk konu satırını bozabildiğinden tek boşluğa indirilir.
+    const subjectName = input.name.replace(/\s+/g, " ").trim();
+    await deliver(to, `Siteden yeni mesaj · ${subjectName}`, html);
   } catch (e) {
     console.error("[email:error]", e);
   }

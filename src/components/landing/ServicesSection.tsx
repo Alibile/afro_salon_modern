@@ -1,3 +1,4 @@
+import { telHref } from "@/components/brand/SocialLinks";
 import { formatKurus } from "@/lib/money";
 
 export type ServiceRowItem = { id: string; name: string; durationMinutes: number; priceKurus: number };
@@ -15,7 +16,7 @@ export function ServicesSection({ services, phone }: { services: ServiceRowItem[
         {services.length === 0 ? (
           <p className="text-muted-foreground md:col-span-8">
             Fiyat listesi güncelleniyor. Bu arada salonu arayabilirsin:{" "}
-            <a href={`tel:${phone.replace(/\s/g, "")}`} className="underline underline-offset-4">{phone}</a>
+            <a href={telHref(phone)} className="underline underline-offset-4">{phone}</a>
           </p>
         ) : (
           <ul className="border-t border-border md:col-span-8">

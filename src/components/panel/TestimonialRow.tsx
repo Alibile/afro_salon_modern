@@ -1,21 +1,10 @@
 "use client";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { toggleTestimonial, deleteTestimonial } from "@/actions/testimonials";
+import { DeleteButton } from "./DeleteButton";
 import { TestimonialForm } from "./TestimonialForm";
 
 type T = { id: string; name: string; text: string; rating: number; sortOrder: number; isActive: boolean };
@@ -54,30 +43,12 @@ export function TestimonialRow({ testimonial }: { testimonial: T }) {
             >
               {testimonial.isActive ? "Pasife al" : "Aktif et"}
             </Button>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button size="sm" variant="destructive" disabled={pending}>Sil</Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Silinsin mi?</AlertDialogTitle>
-                  <AlertDialogDescription>Bu yorum kalıcı olarak silinecek. Bu işlem geri alınamaz.</AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Vazgeç</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() => start(async () => {
-                      const r = await deleteTestimonial(testimonial.id);
-                      if (!r.ok) { toast.error(r.error); return; }
-                      toast.success("Yorum silindi");
-                      router.refresh();
-                    })}
-                  >
-                    Sil
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <DeleteButton
+              title="Yorum silinsin mi?"
+              description={`"${testimonial.name}" yorumu kalıcı olarak silinecek. Bu işlem geri alınamaz.`}
+              onConfirm={() => deleteTestimonial(testimonial.id)}
+              successMessage="Yorum silindi"
+            />
           </div>
         </div>
       )}

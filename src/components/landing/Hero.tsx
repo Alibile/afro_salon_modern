@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { AfroPattern } from "@/components/brand/AfroPattern";
+import { telHref } from "@/components/brand/SocialLinks";
 import { ImageSlot } from "@/components/brand/ImageSlot";
 import type { ShopStatus } from "@/lib/shop-status";
 import { cn } from "@/lib/utils";
@@ -35,7 +36,7 @@ export function Hero({ status, address, phone }: { status: ShopStatus; address: 
           </div>
           <div className="mt-12 border-t border-border pt-5 text-sm text-muted-foreground">
             <p>{address}</p>
-            <a href={`tel:${phone.replace(/\s/g, "")}`} className="mt-1 inline-block underline underline-offset-4 hover:text-foreground">
+            <a href={telHref(phone)} className="mt-1 inline-block underline underline-offset-4 hover:text-foreground">
               {phone}
             </a>
           </div>

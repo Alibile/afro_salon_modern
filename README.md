@@ -33,7 +33,7 @@ http://localhost:3000 adresinde açılır.
 - `/panel/randevular` — tüm randevular (berber zamanlaması)
 - `/panel/izinler` — berber izinleri (barber)
 - `/panel/musteriler` — tüm müşteriler (admin)
-- `/panel/hizmetler` — hizmet listesi, fiyat ve süre (sıralamadan sil/düzenle; hard delete kuralı: geçmiş randevusu olan hizmetler sadece pasifleştirilebilir)
+- `/panel/hizmetler` — hizmet listesi, fiyat ve süre (sıralamadan sil/düzenle; hard delete kuralı: geçmiş randevusu olan hizmetler sadece pasifleştirilebilir). Fiyat için satır içi düzenleme: listede fiyata tıklayıp yeni değeri yazıp Enter'a basmak yeterli; Esc vazgeçer, alan boş bırakılırsa kayıt yapılmaz
 - `/panel/berberler` — berber listesi (sıralamadan sil/düzenle; hard delete kuralı: geçmiş randevusu olan berberler sadece pasifleştirilebilir)
 - `/panel/profil` — kendi profil bilgileri ve şifre değişimi (tüm personel)
 - `/panel/yorumlar` — müşteri yorumları yönetimi: ekle/düzenle/aktif-pasif geçişi (admin)
@@ -68,6 +68,7 @@ Landing page'deki iletişim formundan (`#iletisim`) gelen mesajlar:
 - IP anahtarı sırayla `x-vercel-forwarded-for`, `x-real-ip` ve `x-forwarded-for`'un **son** hop'undan okunur (istemcinin uydurabildiği ilk hop kullanılmaz); hiçbiri yoksa `local`
 - E-posta gönderimi: `settings.email` hedefine (boşsa `EMAIL_FROM`); test/env yoksa `[email:skipped]` loglanır
 - Bu endpoint anonim erişime açık (yetki kontrolü yok)
+- Sayaçlar hafıza içidir ve tek sunucu örneği varsayar; birden fazla örnekle (ya da her isteği yeni bir sunucusuz örnekte çalıştıran ortamlarda) çalıştırılacaksa ortak bir depoya (Redis vb.) taşınmalıdır. Süreç yeniden başladığında sayaç sıfırlanır
 
 ## Testler
 
@@ -82,9 +83,9 @@ Landing page'deki iletişim formundan (`#iletisim`) gelen mesajlar:
 | DATABASE_URL | Postgres bağlantısı |
 | AUTH_SECRET, AUTH_URL | Auth.js |
 | RESEND_API_KEY, EMAIL_FROM | E-posta; boşsa gönderim atlanır ve loglanır |
-| SEED_PASSWORD | Seed kullanıcılarının şifresi (admin, berber); boşsa `Sifre123!` kullanılır |
+| SEED_PASSWORD | Seed kullanıcılarının şifresi (admin, berber); boşsa `Sifre123!` kullanılır. `NODE_ENV=production` iken boşsa seed hata verir |
 | R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET | Cloudflare R2; bucket public erişim açık ve CORS'ta PUT izinli olmalı |
-| NEXT_PUBLIC_R2_PUBLIC_URL | R2 public alan adı; tarayıcıda da okunduğu için NEXT_PUBLIC_ önekli. `next.config.ts` içindeki `remotePatterns` ile uyumlu olmalı |
+| NEXT_PUBLIC_R2_PUBLIC_URL | R2 public alan adı; tarayıcıda da okunduğu için NEXT_PUBLIC_ önekli. `next.config.ts` içindeki `remotePatterns` ile uyumlu olmalı. Boşsa yalnızca `landing/` ve `seed/` anahtarları yerelden servis edilir; panelden yüklenen fotoğraflar için R2 gerekir |
 
 ## R2 CORS
 
