@@ -51,7 +51,10 @@ Saat dilimi: tüm hesaplar `Europe/Istanbul`, DB'de UTC saklanır.
 **User**: id, name, email (unique), passwordHash, phone?, role
 (`CUSTOMER` | `BARBER` | `ADMIN`), createdAt.
 
-**Barber**: id, userId (1-1 User), displayName, bio?, avatarUrl?, isActive.
+**Barber**: id, userId (1-1 User), bio?, photoKey (R2 anahtarı, zorunlu),
+isActive. Berberin tam adı `User.name` alanından gelir (ad soyad, zorunlu);
+ayrı bir displayName yok. Profil fotoğrafı zorunludur, R2'ye yüklenir ve
+müşteri tarafındaki berber kartında gösterilir.
 
 **Service**: id, name, durationMinutes, priceKurus (integer), isActive,
 sortOrder. Silme yok, pasife alınır.
@@ -89,7 +92,8 @@ Ana sayfa (`/`) doğrudan randevu alma ekranıdır. Üstte dükkan adı, adres,
 telefon; altında 3 adımlı wizard:
 
 1. **Hizmet seç**: aktif hizmetler, çoklu seçim, toplam süre/fiyat anlık.
-2. **Berber seç**: aktif berber kartları (foto, ad, bio, son 3 kesim fotoğrafı).
+2. **Berber seç**: aktif berber kartları (profil fotoğrafı, ad soyad, bio, son 3
+   kesim fotoğrafı).
 3. **Saat seç ve onayla**: bugünün uygun başlangıç saatleri buton olarak.
    Giriş yoksa burada giriş/kayıt formu açılır, seçimler korunur (URL query).
    "Randevuyu Onayla" → kayıt → onay e-postası → `/randevularim`.
@@ -145,8 +149,9 @@ arayın: {telefon}". Altında geçmiş randevular ve müşterinin kesim fotoğra
 2. **Randevular** (`/panel/randevular`): tüm kayıtlar, tarih/berber/durum
    filtresi.
 3. **Hizmetler** (`/panel/hizmetler`, admin): CRUD, aktif/pasif, sıra numarası.
-4. **Berberler** (`/panel/berberler`, admin): ekle (ad, e-posta, geçici şifre,
-   foto), aktif/pasif, 7 günlük çalışma saati grid'i.
+4. **Berberler** (`/panel/berberler`, admin): ekle (ad soyad, e-posta, geçici
+   şifre, profil fotoğrafı zorunlu; R2 presign ile yüklenir), düzenle (ad,
+   bio, fotoğraf değiştir), aktif/pasif, 7 günlük çalışma saati grid'i.
 5. **İzinler** (`/panel/izinler`): saat aralığı veya tam gün. Mevcut randevuyla
    çakışırsa uyarır, engellemez.
 6. **Müşteriler** (`/panel/musteriler`): arama, detayda geçmiş + fotoğraf
