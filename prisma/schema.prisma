@@ -173,3 +173,18 @@ model Testimonial {
   sortOrder Int      @default(0)
   createdAt DateTime @default(now()) @db.Timestamptz(3)
 }
+
+/// Landing sayfasındaki galeri: panelden yönetilir, kesim fotoğraflarından (HaircutPhoto) bağımsızdır.
+model GalleryPhoto {
+  id         String   @id @default(cuid())
+  storageKey String
+  caption    String   @default("")
+  tags       String[] @default([])
+  width      Int
+  height     Int
+  sortOrder  Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([isActive, sortOrder])
+}

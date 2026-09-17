@@ -23,12 +23,19 @@ function client() {
 
 const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp"]);
 
-export async function createPresignedUpload(kind: "barber" | "haircut", contentType: string, contentLength: number): Promise<{ url: string; key: string }> {
+/**
+ * Yükleme türü -> depodaki klasör. Klasör adı türden türetilmez ("gallerys/"
+ * olmasın diye) ve presign ucundaki `kind` listesiyle aynı kaynaktan gelir.
+ */
+export const UPLOAD_FOLDERS = { barber: "barbers", haircut: "haircuts", gallery: "gallery" } as const;
+export type UploadKind = keyof typeof UPLOAD_FOLDERS;
+
+export async function createPresignedUpload(kind: UploadKind, contentType: string, contentLength: number): Promise<{ url: string; key: string }> {
   if (!ALLOWED.has(contentType)) throw new UploadValidationError("Sadece JPEG, PNG veya WebP yüklenebilir");
   if (!Number.isInteger(contentLength) || contentLength <= 0) throw new UploadValidationError("Dosya boyutu okunamadı");
   if (contentLength > MAX_UPLOAD_BYTES) throw new UploadValidationError("Dosya en fazla 8 MB olabilir");
   const ext = contentType === "image/png" ? "png" : contentType === "image/webp" ? "webp" : "jpg";
-  const key = `${kind}s/${randomUUID()}.${ext}`;
+  const key = `${UPLOAD_FOLDERS[kind]}/${randomUUID()}.${ext}`;
   // ContentLength imzaya dahil: yüklenen dosya bildirilen boyuttan büyük olamaz.
   const cmd = new PutObjectCommand({ Bucket: process.env.R2_BUCKET, Key: key, ContentType: contentType, ContentLength: contentLength });
   const url = await getSignedUrl(client(), cmd, { expiresIn: 300 });

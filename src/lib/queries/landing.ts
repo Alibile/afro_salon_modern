@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
 import { getActiveBarbers, getActiveServices } from "@/lib/queries/booking";
 import { getShopStatus } from "@/lib/shop-status";
+import { getGalleryData } from "@/lib/queries/gallery";
 
 export const DAY_LABELS = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
 const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
@@ -21,7 +22,7 @@ export async function getLandingData(now: Date = new Date()) {
     getActiveServices(),
     getActiveBarbers(),
     prisma.workingHours.findMany({ where: { barber: { isActive: true } }, select: { dayOfWeek: true, isOff: true, startTime: true, endTime: true } }),
-    prisma.haircutPhoto.findMany({ orderBy: { createdAt: "desc" }, take: 8, select: { id: true, storageKey: true } }),
+    getGalleryData(),
     prisma.testimonial.findMany({
       where: { isActive: true },
       orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],

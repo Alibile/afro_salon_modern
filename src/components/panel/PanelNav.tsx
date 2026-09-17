@@ -12,6 +12,7 @@ const ITEMS = [
   { href: "/panel/hizmetler", label: "Hizmetler", admin: true },
   { href: "/panel/berberler", label: "Berberler", admin: true },
   { href: "/panel/yorumlar", label: "Yorumlar", admin: true },
+  { href: "/panel/galeri", label: "Galeri", admin: true },
   { href: "/panel/ayarlar", label: "Ayarlar", admin: true },
 ];
 

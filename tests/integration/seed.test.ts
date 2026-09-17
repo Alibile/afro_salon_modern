@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { prisma } from "@/lib/db";
 import { Role } from "@/generated/prisma/enums";
-import { runSeed, DEFAULT_LANDING_CONTENT, LEGACY_ABOUT_TEXT, LEGACY_NADIA_TEXT } from "../../prisma/seed";
+import { runSeed, DEFAULT_LANDING_CONTENT, DEFAULT_GALLERY, LEGACY_ABOUT_TEXT, LEGACY_NADIA_TEXT } from "../../prisma/seed";
 
 describe("runSeed", () => {
   it("eski seed/ yer tutucu fotoğraf anahtarını landing/ ile değiştirir, gerçek yüklenmiş anahtara dokunmaz", async () => {
@@ -43,6 +43,23 @@ describe("runSeed", () => {
     expect(barberCount).toBe(2);
     expect(serviceCount).toBe(4);
     expect(testimonialCount).toBe(3);
+    expect(await prisma.galleryPhoto.count()).toBe(DEFAULT_GALLERY.length);
+  });
+
+  it("galeri fotoğraflarını gerçek boyut ve etiketleriyle ekler, düzenlenmiş kaydın üzerine yazmaz", async () => {
+    await runSeed(prisma);
+    const first = await prisma.galleryPhoto.findFirstOrThrow({ where: { storageKey: "landing/gallery-1.jpg" } });
+    expect(first.width).toBe(1367);
+    expect(first.height).toBe(1367);
+    expect(first.tags).toEqual(["Fade", "Line-up"]);
+    expect(first.isActive).toBe(true);
+
+    await prisma.galleryPhoto.update({ where: { id: first.id }, data: { caption: "Panelden yazıldı", tags: ["Fade"] } });
+    await runSeed(prisma);
+    const again = await prisma.galleryPhoto.findUniqueOrThrow({ where: { id: first.id } });
+    expect(again.caption).toBe("Panelden yazıldı");
+    expect(again.tags).toEqual(["Fade"]);
+    expect(await prisma.galleryPhoto.count()).toBe(DEFAULT_GALLERY.length);
   });
 
   it("eski (Tur 3 öncesi) varsayılan aboutText'i yeni erkek odaklı metne taşır, özel metne dokunmaz", async () => {

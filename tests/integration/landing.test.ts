@@ -6,20 +6,24 @@ import { getLandingData } from "@/lib/queries/landing";
 const NOW = new Date("2026-09-17T07:00:00Z");
 
 describe("getLandingData", () => {
-  it("returns services, barbers, status and newest 8 gallery photos", async () => {
+  it("returns services, barbers, status and the managed gallery", async () => {
     const { barber } = await createBarber();
     const c = await createCustomer();
     await createService({ name: "Saç", sortOrder: 2 });
     await createService({ name: "Sakal", sortOrder: 1 });
+    // Kesim fotoğrafları müşterinin özel arşividir; landing galerisine karışmamalı.
     for (let i = 0; i < 10; i++) {
       await prisma.haircutPhoto.create({ data: { customerId: c.id, barberId: barber.id, storageKey: `haircuts/${i}.jpg`, createdAt: new Date(Date.UTC(2026, 8, 1 + i)) } });
     }
+    await prisma.galleryPhoto.create({ data: { storageKey: "landing/gallery-2.jpg", caption: "Twist", tags: ["Twist"], width: 1600, height: 1600, sortOrder: 1 } });
+    await prisma.galleryPhoto.create({ data: { storageKey: "landing/gallery-1.jpg", caption: "Fade", tags: ["Fade", "Twist"], width: 1367, height: 1367, sortOrder: 0 } });
+    await prisma.galleryPhoto.create({ data: { storageKey: "landing/gallery-3.jpg", tags: ["Örgü"], width: 1600, height: 1600, sortOrder: 2, isActive: false } });
     const d = await getLandingData(NOW);
     expect(d.status.text).toBe("Bugün açık · 09:00–19:00");
     expect(d.services.map((s) => s.name)).toEqual(["Sakal", "Saç"]);
     expect(d.barbers).toHaveLength(1);
-    expect(d.gallery).toHaveLength(8);
-    expect(d.gallery[0].storageKey).toBe("haircuts/9.jpg");
+    expect(d.gallery.photos.map((p) => p.storageKey)).toEqual(["landing/gallery-1.jpg", "landing/gallery-2.jpg"]);
+    expect(d.gallery.tags).toEqual(["Fade", "Twist"]);
     expect(d.weeklyHours).toHaveLength(7);
     expect(d.weeklyHours[0]).toEqual({ dayLabel: "Pazartesi", text: "09:00–19:00" });
     expect(d.weeklyHours[6]).toEqual({ dayLabel: "Pazar", text: "Kapalı" });

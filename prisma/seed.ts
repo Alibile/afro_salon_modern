@@ -33,6 +33,23 @@ export const DEFAULT_LANDING_CONTENT = {
   yearsExperience: 10,
 };
 
+/**
+ * Galerinin başlangıç içeriği: `public/landing/` altındaki stok fotoğraflar.
+ * Genişlik/yükseklik dosyaların gerçek pikselleridir (masonry oranı buna dayanır).
+ * `storageKey` benzersiz kabul edilir: seed tekrar çalışsa da satır çoğalmaz,
+ * panelden düzenlenmiş başlık/etiketlerin üzerine yazılmaz.
+ */
+export const DEFAULT_GALLERY = [
+  { file: "gallery-1.jpg", width: 1367, height: 1367, caption: "Keskin geçişli fade", tags: ["Fade", "Line-up"] },
+  { file: "gallery-2.jpg", width: 1600, height: 1600, caption: "Twist ve dolgun sakal", tags: ["Twist", "Sakal"] },
+  { file: "gallery-3.jpg", width: 1600, height: 1600, caption: "Örgüde son düzeltme", tags: ["Örgü", "Sakal"] },
+  { file: "gallery-4.jpg", width: 1600, height: 1600, caption: "Uzun örgü, net hat", tags: ["Örgü", "Line-up"] },
+  { file: "gallery-5.jpg", width: 1600, height: 1600, caption: "Doğal hacimli afro", tags: ["Afro"] },
+  { file: "gallery-6.jpg", width: 1600, height: 1600, caption: "Şekillendirilmiş afro", tags: ["Afro", "Sakal"] },
+  { file: "gallery-7.jpg", width: 1600, height: 1600, caption: "Yüksek afro, temiz hat", tags: ["Afro", "Line-up"] },
+  { file: "gallery-8.jpg", width: 1600, height: 1600, caption: "Afro ve sakal bakımı", tags: ["Afro", "Sakal"] },
+];
+
 const DEFAULT_TESTIMONIALS = [
   { name: "Emre K.", text: "Fade kesim tam istediğim gibi oldu, ekip çok ilgili. Kesinlikle tekrar geleceğim.", rating: 5, sortOrder: 1 },
   { name: "Derrick B.", text: "Örgü konusunda gerçekten usta bir ekip. Randevu almak da çok kolaydı.", rating: 5, sortOrder: 2 },
@@ -152,6 +169,17 @@ export async function runSeed(client: PrismaClient) {
     }
     const exists = await client.testimonial.findFirst({ where: { name: t.name } });
     if (!exists) await client.testimonial.create({ data: t });
+  }
+
+  // Galeri: her fotoğraf storageKey'ine göre bir kez eklenir (idempotent).
+  for (const [i, g] of DEFAULT_GALLERY.entries()) {
+    const storageKey = `landing/${g.file}`;
+    const exists = await client.galleryPhoto.findFirst({ where: { storageKey } });
+    if (!exists) {
+      await client.galleryPhoto.create({
+        data: { storageKey, caption: g.caption, tags: g.tags, width: g.width, height: g.height, sortOrder: i },
+      });
+    }
   }
 
   const shown = process.env.SEED_PASSWORD?.trim() ? "SEED_PASSWORD değeri" : DEFAULT_SEED_PASSWORD;

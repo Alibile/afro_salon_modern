@@ -1,12 +1,31 @@
-import Image from "next/image";
+import { Suspense } from "react";
 import { ImageSlot } from "@/components/brand/ImageSlot";
-import { publicUrl } from "@/lib/storage-public";
 import type { PatternVariant } from "@/components/brand/AfroPattern";
+import type { GalleryPhoto } from "@/lib/gallery-utils";
+import { GalleryBrowser } from "./gallery/GalleryBrowser";
 
 const VARIANTS: PatternVariant[] = ["kente", "mud", "tarak"];
 
-export function GallerySection({ photos }: { photos: { id: string; storageKey: string }[] }) {
-  const slots = photos.length > 0 ? photos : Array.from({ length: 8 }, (_, i) => ({ id: `slot-${i}`, storageKey: "" }));
+/** Panelde hiç fotoğraf yoksa bölüm boş kalmaz: desenli yer tutucular durur. */
+function PatternPlaceholder() {
+  return (
+    <ul className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-4">
+      {Array.from({ length: 8 }, (_, i) => (
+        <li key={i} className="relative aspect-square overflow-hidden bg-secondary">
+          <ImageSlot
+            name={`gallery-${i + 1}.jpg`}
+            alt="Galeri fotoğrafı için ayrılmış alan"
+            variant={VARIANTS[i % VARIANTS.length]}
+            sizes="(min-width: 768px) 25vw, 50vw"
+            label={i === 0 ? "Fotoğraflar yakında" : null}
+          />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export function GallerySection({ photos, tags }: { photos: GalleryPhoto[]; tags: string[] }) {
   return (
     <section id="galeri" className="scroll-mt-20 border-b border-border">
       <div className="mx-auto max-w-6xl px-5 py-16 md:py-24">
@@ -16,29 +35,13 @@ export function GallerySection({ photos }: { photos: { id: string; storageKey: s
             Salonda çekilmiş son kesimler. İsim paylaşmıyoruz, yalnızca işi gösteriyoruz.
           </p>
         </div>
-        <ul className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-4">
-          {slots.map((p, i) => (
-            <li key={p.id} className="relative aspect-square overflow-hidden bg-secondary">
-              {p.storageKey ? (
-                <Image
-                  src={publicUrl(p.storageKey)}
-                  alt="Salonda yapılmış bir kesim"
-                  fill
-                  sizes="(min-width: 768px) 25vw, 50vw"
-                  className="object-cover"
-                />
-              ) : (
-                <ImageSlot
-                  name={`gallery-${i + 1}.jpg`}
-                  alt="Galeri fotoğrafı için ayrılmış alan"
-                  variant={VARIANTS[i % VARIANTS.length]}
-                  sizes="(min-width: 768px) 25vw, 50vw"
-                  label={i === 0 ? "Fotoğraflar yakında" : null}
-                />
-              )}
-            </li>
-          ))}
-        </ul>
+        {photos.length === 0 ? (
+          <PatternPlaceholder />
+        ) : (
+          <Suspense fallback={<div className="mt-8 h-96" aria-hidden />}>
+            <GalleryBrowser photos={photos} tags={tags} />
+          </Suspense>
+        )}
       </div>
     </section>
   );

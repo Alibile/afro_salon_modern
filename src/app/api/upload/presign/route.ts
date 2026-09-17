@@ -4,7 +4,7 @@ import { getSessionUser } from "@/lib/auth-helpers";
 import { createPresignedUpload, UploadValidationError } from "@/lib/storage";
 
 const bodySchema = z.object({
-  kind: z.enum(["barber", "haircut"]),
+  kind: z.enum(["barber", "haircut", "gallery"]),
   contentType: z.string(),
   contentLength: z.number().int().positive(),
 });
