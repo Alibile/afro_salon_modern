@@ -45,4 +45,10 @@ describe("timeoff", () => {
     expect((await deleteTimeOff(r.data.id, { actor: asBarber(b2.user, b2.barber.id) })).ok).toBe(false);
     expect((await deleteTimeOff(r.data.id, { actor: asBarber(b1.user, b1.barber.id) })).ok).toBe(true);
   });
+
+  it("admin creating time off for nonexistent barber fails", async () => {
+    const admin: SessionUser = { id: "a", name: "Admin", email: "a@t", role: "ADMIN", barberId: null };
+    const r = await createTimeOff({ barberId: "yok", date: "2026-09-17", allDay: true }, { actor: admin });
+    expect(r).toEqual({ ok: false, error: "Berber bulunamadı" });
+  });
 });

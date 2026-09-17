@@ -21,6 +21,9 @@ export async function createTimeOff(input: TimeOffInput, opts: { actor?: Session
   const { barberId, date, allDay, startTime, endTime, reason } = parsed.data;
   if (actor.role === "BARBER" && actor.barberId !== barberId) return fail("Yetkiniz yok");
 
+  const barber = await prisma.barber.findUnique({ where: { id: barberId } });
+  if (!barber) return fail("Berber bulunamadı");
+
   const startsAt = allDay ? shopDateTime(date, "00:00") : shopDateTime(date, startTime!);
   const endsAt = allDay ? addMinutes(shopDateTime(date, "00:00"), 24 * 60) : shopDateTime(date, endTime!);
 
