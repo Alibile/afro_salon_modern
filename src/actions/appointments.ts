@@ -6,6 +6,7 @@ import { getSessionUser } from "@/lib/auth-helpers";
 import { addMinutes } from "@/lib/time";
 import { getTodayAvailability } from "@/lib/queries/booking";
 import { createAppointmentSchema, type CreateAppointmentInput } from "@/schemas/booking";
+import { getSettings } from "@/lib/settings";
 
 const SLOT_TAKEN = "Bu saat az önce doldu, lütfen başka bir saat seçin";
 const SLOT_INVALID = "Bu saat artık uygun değil, lütfen başka bir saat seçin";
@@ -65,4 +66,26 @@ export async function createAppointment(
     if (isOverlapError || isWriteConflict) return fail(SLOT_TAKEN);
     throw e;
   }
+}
+
+export async function cancelAppointmentByCustomer(
+  appointmentId: string,
+  opts: { now?: Date; customerId?: string } = {},
+): Promise<ActionResult<void>> {
+  const customerId = opts.customerId ?? (await getSessionUser())?.id;
+  if (!customerId) return fail("Giriş yapmalısınız");
+  const now = opts.now ?? new Date();
+
+  const appt = await prisma.appointment.findFirst({ where: { id: appointmentId, customerId } });
+  if (!appt) return fail("Randevu bulunamadı");
+  if (appt.status !== "SCHEDULED") return fail("Bu randevu zaten iptal edilmiş veya tamamlanmış");
+
+  const settings = await getSettings();
+  const windowMs = settings.cancellationWindowMinutes * 60_000;
+  if (appt.startsAt.getTime() - now.getTime() < windowMs) {
+    return fail(`Randevuya ${settings.cancellationWindowMinutes} dakikadan az kaldığı için iptal edilemez, lütfen dükkanı arayın`);
+  }
+
+  await prisma.appointment.update({ where: { id: appt.id }, data: { status: "CANCELLED", cancelledBy: "CUSTOMER" } });
+  return ok(undefined);
 }
