@@ -13,7 +13,6 @@ jobs:
       DATABASE_URL: postgresql://afro:afro@localhost:5433/afro_salon_test
       AUTH_SECRET: ci-secret
       AUTH_URL: http://localhost:3000
-      CI: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

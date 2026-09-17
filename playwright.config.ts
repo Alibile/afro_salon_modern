@@ -6,7 +6,7 @@ export default defineConfig({
   globalSetup: "./tests/e2e/global-setup.ts",
   use: { baseURL: "http://localhost:3100", ...devices["Pixel 7"], channel: process.env.CI ? undefined : "chrome" },
   webServer: {
-    command: "dotenv -e .env.test -- next dev -p 3100",
+    command: "dotenv -e .env.test --override -- next dev -p 3100",
     url: "http://localhost:3100",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
