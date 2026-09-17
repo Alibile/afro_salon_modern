@@ -12,5 +12,16 @@ export default defineConfig({
     setupFiles: ["tests/integration/setup.ts"],
     fileParallelism: false,
     testTimeout: 20000,
+    server: {
+      deps: {
+        // next-auth statically imports "next/server" without an extension.
+        // "next" has no package.json "exports" map, so Vitest's default
+        // externalization uses Node's strict ESM resolver, which requires an
+        // exact file match and fails on the extensionless specifier. Inlining
+        // these packages routes them through Vite's resolver instead, which
+        // handles this correctly.
+        inline: [/next-auth/, /^next$/, /@auth\/core/],
+      },
+    },
   },
 });
