@@ -15,12 +15,14 @@ import { updateOwnProfileAs, changeOwnPasswordAs } from "@/actions/impl/profile"
 const asBarber = (u: { id: string; name: string; email: string }, barberId: string): SessionUser => ({ ...u, role: "BARBER", barberId });
 const asAdmin = (u: { id: string; name: string; email: string }): SessionUser => ({ ...u, role: "ADMIN", barberId: null });
 const customer: SessionUser = { id: "c1", name: "Müşteri", email: "c@t", role: "CUSTOMER", barberId: null };
+// createPresignedUpload'ın ürettiği biçim: barbers/<uuid>.<uzantı>
+const uploadedKey = "barbers/3f1d2c44-0a5b-4c7e-9f11-2b6d8e7a0c31.jpg";
 
 describe("profile actions", () => {
   it("barber updates own name, phone, bio and photo", async () => {
     const { user, barber } = await createBarber();
     const actor = asBarber(user, barber.id);
-    const r = await updateOwnProfileAs(actor, { name: "Yeni İsim", phone: "5551112233", bio: "Fade ustası", photoKey: "barbers/new.jpg" });
+    const r = await updateOwnProfileAs(actor, { name: "Yeni İsim", phone: "5551112233", bio: "Fade ustası", photoKey: uploadedKey });
     expect(r.ok).toBe(true);
 
     const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
@@ -28,7 +30,7 @@ describe("profile actions", () => {
     expect(dbUser?.name).toBe("Yeni İsim");
     expect(dbUser?.phone).toBe("5551112233");
     expect(dbBarber?.bio).toBe("Fade ustası");
-    expect(dbBarber?.photoKey).toBe("barbers/new.jpg");
+    expect(dbBarber?.photoKey).toBe(uploadedKey);
     expect(deleteObject).toHaveBeenCalledWith("barbers/test.jpg");
   });
 
@@ -42,6 +44,45 @@ describe("profile actions", () => {
     const dbBarber2 = await prisma.barber.findUnique({ where: { id: barber2.id } });
     expect(dbUser2?.name).toBe(user2.name);
     expect(dbBarber2?.bio).toBe(barber2.bio);
+  });
+
+  it("refuses a photo key that is not this barber's own upload", async () => {
+    const { user, barber } = await createBarber();
+    const actor = asBarber(user, barber.id);
+    vi.mocked(deleteObject).mockClear();
+    const r = await updateOwnProfileAs(actor, { name: user.name, phone: "", bio: "", photoKey: "landing/team-1.jpg" });
+    expect(r).toEqual({ ok: false, error: "Geçersiz fotoğraf anahtarı" });
+    const dbBarber = await prisma.barber.findUnique({ where: { id: barber.id } });
+    expect(dbBarber?.photoKey).toBe(barber.photoKey);
+    expect(deleteObject).not.toHaveBeenCalled();
+  });
+
+  it("refuses claiming another barber's landing/ key", async () => {
+    const { user, barber } = await createBarber();
+    const { barber: other } = await createBarber();
+    await prisma.barber.update({ where: { id: other.id }, data: { photoKey: "landing/team-2.jpg" } });
+    const actor = asBarber(user, barber.id);
+    const r = await updateOwnProfileAs(actor, { name: user.name, phone: "", bio: "", photoKey: "landing/team-2.jpg" });
+    expect(r).toEqual({ ok: false, error: "Geçersiz fotoğraf anahtarı" });
+    expect((await prisma.barber.findUnique({ where: { id: other.id } }))?.photoKey).toBe("landing/team-2.jpg");
+  });
+
+  it("refuses a path-traversal style key", async () => {
+    const { user, barber } = await createBarber();
+    const actor = asBarber(user, barber.id);
+    const r = await updateOwnProfileAs(actor, { name: user.name, phone: "", bio: "", photoKey: "barbers/../haircuts/gizli.jpg" });
+    expect(r).toEqual({ ok: false, error: "Geçersiz fotoğraf anahtarı" });
+    expect((await prisma.barber.findUnique({ where: { id: barber.id } }))?.photoKey).toBe(barber.photoKey);
+  });
+
+  it("keeps a legacy landing/ key when it is unchanged", async () => {
+    const { user, barber } = await createBarber();
+    await prisma.barber.update({ where: { id: barber.id }, data: { photoKey: "landing/team-1.jpg" } });
+    const actor = asBarber(user, barber.id);
+    const r = await updateOwnProfileAs(actor, { name: "Aynı Anahtar", phone: "", bio: "", photoKey: "landing/team-1.jpg" });
+    expect(r.ok).toBe(true);
+    const dbBarber = await prisma.barber.findUnique({ where: { id: barber.id } });
+    expect(dbBarber?.photoKey).toBe("landing/team-1.jpg");
   });
 
   it("does not delete R2 photo when key unchanged", async () => {

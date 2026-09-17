@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { ok, fail, type ActionResult } from "@/lib/action-result";
 import type { SessionUser } from "@/lib/auth-helpers";
 import { asStaffActor } from "@/lib/staff-scope";
-import { userProfileSchema, barberProfileSchema, changePasswordSchema, type UserProfileInput, type BarberProfileInput, type ChangePasswordInput } from "@/schemas/profile";
+import { userProfileSchema, barberProfileSchema, changePasswordSchema, isUploadedBarberPhotoKey, type UserProfileInput, type BarberProfileInput, type ChangePasswordInput } from "@/schemas/profile";
 import { deleteObject } from "@/lib/storage";
 
 export async function updateOwnProfileAs(actorInput: SessionUser | null, input: UserProfileInput | BarberProfileInput): Promise<ActionResult<void>> {
@@ -16,6 +16,9 @@ export async function updateOwnProfileAs(actorInput: SessionUser | null, input: 
     const { name, phone, bio, photoKey } = parsed.data;
     const existing = await prisma.barber.findUnique({ where: { id: actor.barberId } });
     if (!existing) return fail("Berber bulunamadı");
+    // Anahtar ya bu kullanıcının kendi yüklemesinden gelmiş olmalı ya da
+    // değişmemiş olmalı; başka bir nesnenin anahtarı kabul edilmez.
+    if (photoKey !== existing.photoKey && !isUploadedBarberPhotoKey(photoKey)) return fail("Geçersiz fotoğraf anahtarı");
     await prisma.$transaction([
       prisma.user.update({ where: { id: actor.id }, data: { name, phone: phone || null } }),
       prisma.barber.update({ where: { id: actor.barberId }, data: { bio: bio || null, photoKey } }),
