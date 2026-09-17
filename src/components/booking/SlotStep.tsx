@@ -15,7 +15,10 @@ export function SlotStep({ barberId, durationMinutes, selected, onSelect }: { ba
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setData(null);
     fetch(`/api/availability?barberId=${barberId}&duration=${durationMinutes}`, { cache: "no-store" })
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error("Saatler yüklenemedi");
+        return r.json();
+      })
       .then((d) => alive && setData(d))
       .catch(() => alive && setError("Saatler yüklenemedi"));
     return () => { alive = false; };

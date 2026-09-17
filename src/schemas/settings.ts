@@ -7,6 +7,6 @@ export const settingsSchema = z.object({
   cancellationWindowMinutes: z.coerce.number().int().min(0).max(1440),
   minLeadMinutes: z.coerce.number().int().min(0).max(240),
   slotStepMinutes: z.coerce.number().int().refine((n) => [5, 10, 15, 20, 30, 60].includes(n), "Slot adımı 5, 10, 15, 20, 30 veya 60 olmalı"),
-  notifyBarberOnBooking: z.coerce.boolean(),
+  notifyBarberOnBooking: z.boolean(),
 });
 export type SettingsInput = z.infer<typeof settingsSchema>;

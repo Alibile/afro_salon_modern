@@ -15,7 +15,7 @@ export const updateBarberSchema = z.object({
   name: z.string().trim().min(3, "Ad soyad en az 3 karakter").max(80),
   bio: z.string().trim().max(200).optional().or(z.literal("")),
   photoKey: z.string().min(1, "Profil fotoğrafı zorunlu"),
-  isActive: z.coerce.boolean(),
+  isActive: z.boolean(),
 });
 export type UpdateBarberInput = z.infer<typeof updateBarberSchema>;
 

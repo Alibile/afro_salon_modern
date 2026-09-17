@@ -26,12 +26,12 @@ export function computeSlots(input: AvailabilityInput): Date[] {
   const slots: Date[] = [];
 
   for (const w of workingIntervals) {
-    const windowEnd = addMinutes(dayStart, w.endMinutes);
+    // Döngü koşulu (m + durationMinutes <= w.endMinutes) slotun çalışma
+    // aralığı içinde bittiğini zaten garanti eder.
     for (let m = w.startMinutes; m + durationMinutes <= w.endMinutes; m += slotStepMinutes) {
       const start = addMinutes(dayStart, m);
       const end = addMinutes(start, durationMinutes);
       if (start < earliest) continue;
-      if (end > windowEnd) break;
       const candidate = { start, end };
       if (busy.some((b) => overlaps(candidate, b))) continue;
       slots.push(start);
