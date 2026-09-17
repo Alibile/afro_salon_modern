@@ -64,7 +64,8 @@ Panelden `/panel/ayarlar` sayfasında aşağıdaki bilgiler düzenlenebilir:
 
 Landing page'deki iletişim formundan (`#iletisim`) gelen mesajlar:
 - Doğrulama: ad (2-60 karakter), telefon (opsiyonel), mesaj (10-1000 karakter), honeypot alan (`website`)
-- Rate limit: IP başına dakikada 3 istek (hafıza içi)
+- Rate limit: IP başına dakikada 3 istek, ek olarak tüm form için saatte 60 istek (hafıza içi)
+- IP anahtarı sırayla `x-vercel-forwarded-for`, `x-real-ip` ve `x-forwarded-for`'un **son** hop'undan okunur (istemcinin uydurabildiği ilk hop kullanılmaz); hiçbiri yoksa `local`
 - E-posta gönderimi: `settings.email` hedefine (boşsa `EMAIL_FROM`); test/env yoksa `[email:skipped]` loglanır
 - Bu endpoint anonim erişime açık (yetki kontrolü yok)
 
