@@ -18,7 +18,7 @@ export const proxy = auth((req) => {
 
   if (pathname.startsWith("/randevularim") && !user) {
     const url = new URL("/giris", req.nextUrl);
-    url.searchParams.set("next", pathname);
+    url.searchParams.set("next", pathname + search);
     return NextResponse.redirect(url);
   }
 
