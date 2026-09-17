@@ -1,4 +1,5 @@
 import { getLandingData, DAY_LABELS } from "@/lib/queries/landing";
+import { getSessionUser } from "@/lib/auth-helpers";
 import { shopDayOfWeek } from "@/lib/time";
 import { Hero } from "@/components/landing/Hero";
 import { ServicesSection } from "@/components/landing/ServicesSection";
@@ -11,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 export default async function LandingPage() {
   const now = new Date();
-  const { settings, status, services, barbers, gallery, weeklyHours } = await getLandingData(now);
+  const [{ settings, status, services, barbers, gallery, weeklyHours }, user] = await Promise.all([getLandingData(now), getSessionUser()]);
   return (
     <>
       <Hero status={status} address={settings.address} phone={settings.phone} />
@@ -27,7 +28,7 @@ export default async function LandingPage() {
         weeklyHours={weeklyHours}
         todayLabel={DAY_LABELS[shopDayOfWeek(now)]}
       />
-      <SiteFooter shopName={settings.shopName} />
+      <SiteFooter shopName={settings.shopName} user={user} />
     </>
   );
 }

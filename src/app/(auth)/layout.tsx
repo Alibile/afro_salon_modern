@@ -7,7 +7,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
   return (
     <div className="grid min-h-dvh grid-cols-1 md:grid-cols-2">
       <aside className="relative flex flex-col justify-between gap-10 overflow-hidden bg-primary p-6 text-primary-foreground md:p-12">
-        <AfroPattern variant="kente" size={84} opacity={0.14} />
+        <AfroPattern variant="kente" size={84} opacity={0.12} />
         <Link href="/" className="relative font-display text-2xl tracking-[0.14em]">
           {settings.shopName}
         </Link>
