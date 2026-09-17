@@ -7,9 +7,9 @@ import { formatShopDate } from "@/lib/time";
 export const dynamic = "force-dynamic";
 
 export default async function MusterilerPage(props: { searchParams: Promise<{ q?: string }> }) {
-  await requireStaff();
+  const user = await requireStaff();
   const { q = "" } = await props.searchParams;
-  const customers = await searchCustomers(q);
+  const customers = await searchCustomers(user, q);
   return (
     <div className="space-y-4">
       <h1 className="text-3xl">Müşteriler</h1>

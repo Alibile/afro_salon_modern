@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 export default async function MusteriDetayPage(props: { params: Promise<{ id: string }> }) {
   const user = await requireStaff();
   const { id } = await props.params;
-  const [c, settings, barbers] = await Promise.all([getCustomerDetail(id), getSettings(), user.role === "ADMIN" ? listBarbersForAdmin() : Promise.resolve([])]);
+  const [c, settings, barbers] = await Promise.all([getCustomerDetail(user, id), getSettings(), user.role === "ADMIN" ? listBarbersForAdmin() : Promise.resolve([])]);
   if (!c) notFound();
   return (
     <div className="space-y-6">
