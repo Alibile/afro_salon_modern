@@ -88,8 +88,10 @@ ama tek güvence bu constraint'tir.
 
 ## 4. Müşteri akışı
 
-Ana sayfa (`/`) doğrudan randevu alma ekranıdır. Üstte dükkan adı, adres,
-telefon; altında 3 adımlı wizard:
+Ana sayfa (`/`) bir **landing page**'dir (bkz. §6). Randevu alma ekranı
+`/randevu` rotasındadır; landing'deki "Bugün randevu al" çağrısı oraya götürür.
+`/randevu` sayfasında üstte dükkan adı ve bugünkü açık/kapalı durumu; altında
+3 adımlı wizard:
 
 1. **Hizmet seç**: aktif hizmetler, çoklu seçim, toplam süre/fiyat anlık.
 2. **Berber seç**: aktif berber kartları (profil fotoğrafı, ad soyad, bio, son 3
@@ -164,16 +166,52 @@ ile oluşturulur.
 
 ## 6. Görsel tasarım
 
+**Yön: editoryal.** Dergi hissi; büyük display tipografi, bol boşluk, asimetrik
+yerleşim, ince çizgiler. Sıradan "AI şablonu" görünümü (ortalanmış hero +
+üç kart + mor gradyan) açıkça istenmiyor.
+
 - **Afrika esintili yumuşak palet**: terracotta (birincil), hardal/ochre
   (vurgu), sıcak kum bej (açık zemin), derin kahve (koyu zemin ve metin),
   zeytin yeşili (başarı/ikincil vurgu). Sert siyah yok.
 - **Light/dark mod**: sistem tercihine göre otomatik, üstte manuel anahtar.
   Tailwind CSS değişkenleriyle tek yerden tanımlı.
-- **Tipografi**: başlıklarda karakterli display font (Google Fonts), gövdede
-  Inter. Basit, sade, bol boşluk.
-- **Mobil öncelikli**: büyük dokunma alanları, masaüstünde ortalanmış dar
-  kolon. Yatay kaydırma yok.
+- **Tipografi**: display font (Bebas Neue) büyük başlıklarda; gövde Inter;
+  editoryal vurgu için tek bir serif italik yüz eklenebilir. Basit, sade.
+- **Desen**: Afrika geometrik motiflerinden (kente/mudcloth esintili) inline
+  SVG desen bileşeni; zemin dokusu ve bölüm ayırıcı olarak düşük kontrastta.
+- **Görseller**: Gerçek fotoğraf henüz yok. `public/landing/` altında belirli
+  dosya adları için slotlar tanımlanır (hero, galeri); dosya yoksa desen/renk
+  bloklu zarif bir yer tutucu render edilir. Kullanıcı fotoğrafları sonra
+  ekler.
+- **Mobil öncelikli**: büyük dokunma alanları, masaüstünde geniş editoryal
+  grid, mobilde tek kolon. Yatay kaydırma yok.
 - **Panel**: nötr, shadcn/ui varsayılanları, aynı palet daha soluk.
+
+### Landing page (`/`) bölümleri
+
+1. **Hero**: salon adı, editoryal manşet (afro saç tasarımı vurgusu), bugün
+   açık/kapalı durumu ("Bugün açık · 09:00–19:00" / "Bugün kapalıyız"), büyük
+   "Bugün randevu al" butonu → `/randevu`. Görsel slot: `public/landing/hero.jpg`.
+2. **Hizmetler ve fiyatlar**: panelden yönetilen aktif hizmetler; ad, süre,
+   fiyat; liste/tablo hissi, kart yığını değil.
+3. **Ekip**: aktif berberler; profil fotoğrafı, ad soyad, bio, kısa
+   "randevu al" bağlantısı (`/randevu?b=<id>`).
+4. **Galeri**: en yeni 8 kesim fotoğrafı (HaircutPhoto, tüm müşteriler; ad
+   gösterilmez). Boşsa desenli yer tutucu ızgara.
+5. **Konum ve iletişim**: adres, telefon (tıklanabilir `tel:`), haftalık
+   çalışma saatleri özeti (aktif berberlerin birleşimi), harita bağlantısı
+   (Google Maps arama linki, embed yok).
+6. **Footer**: salon adı, giriş/kayıt/panel bağlantıları, tema anahtarı.
+
+### Giriş / kayıt sayfaları
+
+Ayrık iki kolon (masaüstü): sol editoryal panel (desen + kısa manşet), sağ
+form. Mobilde tek kolon. Form mantığı (Auth.js, action'lar) değişmez.
+
+### Randevu (`/randevu`) ve Randevularım
+
+Aynı görsel dile göre yeniden stillenir; adım başlıkları büyük display
+tipografi, slot butonları belirgin, yapışkan özet çubuğu korunur.
 
 ## 7. E-posta
 
@@ -195,7 +233,7 @@ ile oluşturulur.
 ```
 prisma/schema.prisma, migrations/, seed.ts
 src/app/
-  (musteri)/page.tsx, randevularim/
+  (musteri)/page.tsx (landing), randevu/, randevularim/
   (auth)/giris/, kayit/
   panel/ bugun, randevular, hizmetler, berberler, izinler, musteriler, ayarlar
   api/upload/presign/

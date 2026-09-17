@@ -5026,7 +5026,7 @@ git push
 - Create: `playwright.config.ts`, `tests/e2e/booking.spec.ts`, `tests/e2e/global-setup.ts`
 
 **Interfaces:**
-- Consumes: seed hesapları (`admin@afrosalon.local / Sifre123!`, `kwame@afrosalon.local / Sifre123!`), test DB.
+- Consumes: seed hesapları (`admin@afrosalon.local / Sifre123!`, `kwame@afrosalon.local / Sifre123!`), test DB. Task 18 sonrası randevu akışı `/randevu` rotasındadır; `/` landing page'dir. Ek e2e: `/` açılır, "Bugün randevu al" bağlantısı `/randevu`'ya götürür.
 
 - [ ] **Step 1: Kurulum**
 
@@ -5078,7 +5078,7 @@ const customer = { name: "E2E Müşteri", email: `e2e-${stamp}@test.local`, pass
 
 test.describe.serial("randevu akışı", () => {
   test("müşteri kayıt olur ve bugün için randevu alır", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/randevu");
     await page.getByRole("button", { name: /Saç Kesimi/ }).click();
     await page.getByRole("button", { name: /Kwame Mensah/ }).click();
 
@@ -5247,5 +5247,196 @@ Elle kontrol listesi:
 ```bash
 git add -A
 git commit -m "README, CI ve deploy notları"
+git push
+```
+
+
+---
+
+### Task 18: Landing page ve müşteri yüzü yeniden tasarımı (editoryal)
+
+> Kullanıcı talebiyle Task 11'den sonra, Task 12'den ÖNCE yürütülür. Spec §4 ve §6 güncellendi: `/` landing page, randevu akışı `/randevu`.
+
+**Files:**
+- Create: `src/app/(musteri)/randevu/page.tsx` (mevcut `(musteri)/page.tsx` içeriği buraya taşınır)
+- Rewrite: `src/app/(musteri)/page.tsx` (landing)
+- Create: `src/lib/queries/landing.ts`, `src/lib/shop-status.ts`
+- Create: `src/components/landing/Hero.tsx`, `ServicesSection.tsx`, `TeamSection.tsx`, `GallerySection.tsx`, `ContactSection.tsx`, `SiteFooter.tsx`, `src/components/brand/AfroPattern.tsx`, `src/components/brand/ImageSlot.tsx`
+- Modify: `src/components/layout/SiteHeader.tsx` (landing için şeffaf/ince varyant, "Randevu al" CTA), `src/app/globals.css` (editoryal ölçek, desen yardımcıları), `src/app/layout.tsx` (opsiyonel serif italik yüz)
+- Modify: `src/components/booking/BookingWizard.tsx` (giriş yönlendirmesi `next=/randevu?...`), `ServiceStep.tsx`, `BarberStep.tsx`, `SlotStep.tsx`, `AppointmentCard.tsx` (yeni görsel dil)
+- Modify: `src/app/(auth)/giris/page.tsx`, `kayit/page.tsx`, `src/app/(auth)/layout.tsx` (yeni; iki kolonlu editoryal düzen), `LoginForm.tsx`, `RegisterForm.tsx` (sadece stil)
+- Modify: `src/app/(musteri)/randevularim/page.tsx` (stil)
+- Modify: `README.md` (`public/landing/` fotoğraf slotları)
+- Test: `tests/unit/shop-status.test.ts`, `tests/integration/landing.test.ts`
+
+**Interfaces:**
+- Consumes: `getActiveServices`, `getActiveBarbers`, `getSettings`, `formatKurus`, `parseTime`, `shopDayOfWeek`, `publicUrl`, `prisma`
+- Produces (`src/lib/shop-status.ts`, saf): `getShopStatus(rows: { dayOfWeek, isOff, startTime, endTime }[], now: Date): { isOpenToday: boolean; opensAt: string | null; closesAt: string | null; text: string }` → `text` "Bugün açık · 09:00–19:00" | "Bugün kapalıyız" | "Bugün kapandık" (mesai bittiyse). Aktif berberlerin satırları birleştirilir: en erken açılış, en geç kapanış.
+- Produces (`src/lib/queries/landing.ts`): `getLandingData(now?)` → `{ settings, status, services, barbers, gallery: { id, storageKey }[] (en yeni 8), weeklyHours: { dayLabel, text }[] }`
+- Produces: `<ImageSlot src alt className />` — `public/landing/<name>` dosyası yoksa (build zamanında `fs.existsSync` ile server tarafında karar verilir) `AfroPattern` dolgulu yer tutucu render eder.
+- Rota değişikliği: randevu wizard'ı `/randevu`; `BookingWizard` girişten dönüşte `/randevu?s=..&b=..&t=..`; `/panel`, `/randevularim`, `/giris`, `/kayit` aynı.
+
+**Tasarım kısıtları (kabul kriterleri):**
+- Editoryal dil: en az bir asimetrik hero grid (masaüstünde 12 kolonda 7/5 gibi), 96px+ display manşet, satır aralığı dar; gövdede bol boşluk. Hero'da tam ortalanmış tek kolon YOK.
+- Hizmetler bölümü kart yığını değil, ince çizgili liste/tablo (ad · süre · fiyat, sağa yaslı fiyat).
+- Desen bileşeni inline SVG, `currentColor` ile tema uyumlu, düşük kontrast (opacity ≤ 0.12) zemin dokusu olarak.
+- Mor/mavi gradyan, cam efekti (glassmorphism), stok "AI illüstrasyonu" yok. Renkler sadece token'lardan.
+- Light/dark her ikisinde okunur; 400px'de yatay kaydırma yok; `npm run build` temiz; Lighthouse erişilebilirlik için tüm görsellerde `alt`, butonlarda erişilebilir ad.
+- Tüm metin Türkçe. Manşet örneği: "Afro saç sanatı, bugün." (implementer daha iyisini yazabilir, tek satır kalsın).
+- Uygulayıcı işe başlamadan `frontend-design:frontend-design` skill'ini yükler ve yönlendirmesini uygular.
+
+- [ ] **Step 1: shop-status testi ve implementasyonu (TDD)**
+
+`tests/unit/shop-status.test.ts`:
+
+```ts
+import { describe, it, expect } from "vitest";
+import { getShopStatus } from "@/lib/shop-status";
+
+// 2026-09-17 Perşembe. 07:00Z = 10:00 İstanbul
+const rows = [
+  { dayOfWeek: 4, isOff: false, startTime: "09:00", endTime: "19:00" },
+  { dayOfWeek: 4, isOff: false, startTime: "10:00", endTime: "20:00" }, // ikinci berber
+  { dayOfWeek: 0, isOff: true, startTime: "09:00", endTime: "19:00" },
+];
+
+describe("getShopStatus", () => {
+  it("open today: earliest open, latest close", () => {
+    const s = getShopStatus(rows, new Date("2026-09-17T07:00:00Z"));
+    expect(s).toEqual({ isOpenToday: true, opensAt: "09:00", closesAt: "20:00", text: "Bugün açık · 09:00–20:00" });
+  });
+  it("closed day (Sunday)", () => {
+    const s = getShopStatus(rows, new Date("2026-09-20T07:00:00Z"));
+    expect(s.isOpenToday).toBe(false);
+    expect(s.text).toBe("Bugün kapalıyız");
+  });
+  it("after closing time", () => {
+    const s = getShopStatus(rows, new Date("2026-09-17T17:30:00Z")); // 20:30 İstanbul
+    expect(s.text).toBe("Bugün kapandık");
+  });
+  it("no rows → closed", () => {
+    expect(getShopStatus([], new Date("2026-09-17T07:00:00Z")).text).toBe("Bugün kapalıyız");
+  });
+});
+```
+
+`src/lib/shop-status.ts`:
+
+```ts
+import { parseTime, shopDayOfWeek, shopDayStart, addMinutes } from "./time";
+
+export type HoursRow = { dayOfWeek: number; isOff: boolean; startTime: string; endTime: string };
+export type ShopStatus = { isOpenToday: boolean; opensAt: string | null; closesAt: string | null; text: string };
+
+export function getShopStatus(rows: HoursRow[], now: Date): ShopStatus {
+  const dow = shopDayOfWeek(now);
+  const today = rows.filter((r) => r.dayOfWeek === dow && !r.isOff);
+  if (today.length === 0) return { isOpenToday: false, opensAt: null, closesAt: null, text: "Bugün kapalıyız" };
+  const opensAt = today.map((r) => r.startTime).sort()[0];
+  const closesAt = today.map((r) => r.endTime).sort().at(-1)!;
+  const closeInstant = addMinutes(shopDayStart(now), parseTime(closesAt));
+  if (now >= closeInstant) return { isOpenToday: true, opensAt, closesAt, text: "Bugün kapandık" };
+  return { isOpenToday: true, opensAt, closesAt, text: `Bugün açık · ${opensAt}–${closesAt}` };
+}
+```
+
+Run: `npm test -- tests/unit/shop-status.test.ts` → önce FAIL, sonra 4 passed.
+
+- [ ] **Step 2: landing sorgusu ve integration testi**
+
+`tests/integration/landing.test.ts`:
+
+```ts
+import { describe, it, expect } from "vitest";
+import { prisma } from "@/lib/db";
+import { createBarber, createCustomer, createService } from "./helpers";
+import { getLandingData } from "@/lib/queries/landing";
+
+const NOW = new Date("2026-09-17T07:00:00Z");
+
+describe("getLandingData", () => {
+  it("returns services, barbers, status and newest 8 gallery photos", async () => {
+    const { barber } = await createBarber();
+    const c = await createCustomer();
+    await createService({ name: "Saç", sortOrder: 2 } as never);
+    await createService({ name: "Sakal", sortOrder: 1 } as never);
+    for (let i = 0; i < 10; i++) {
+      await prisma.haircutPhoto.create({ data: { customerId: c.id, barberId: barber.id, storageKey: `haircuts/${i}.jpg`, createdAt: new Date(Date.UTC(2026, 8, 1 + i)) } });
+    }
+    const d = await getLandingData(NOW);
+    expect(d.status.text).toBe("Bugün açık · 09:00–19:00");
+    expect(d.services.map((s) => s.name)).toEqual(["Sakal", "Saç"]);
+    expect(d.barbers).toHaveLength(1);
+    expect(d.gallery).toHaveLength(8);
+    expect(d.gallery[0].storageKey).toBe("haircuts/9.jpg");
+    expect(d.weeklyHours).toHaveLength(7);
+    expect(d.weeklyHours[0]).toEqual({ dayLabel: "Pazartesi", text: "09:00–19:00" });
+    expect(d.weeklyHours[6]).toEqual({ dayLabel: "Pazar", text: "Kapalı" });
+  });
+});
+```
+
+Not: `createService` yardımcısı `sortOrder` almıyorsa helper'a `sortOrder?: number` ekle (varsayılan 0).
+
+`src/lib/queries/landing.ts`:
+
+```ts
+import { prisma } from "@/lib/db";
+import { getSettings } from "@/lib/settings";
+import { getActiveBarbers, getActiveServices } from "@/lib/queries/booking";
+import { getShopStatus } from "@/lib/shop-status";
+
+const DAY_LABELS = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
+const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
+
+export async function getLandingData(now: Date = new Date()) {
+  const [settings, services, barbers, hoursRows, gallery] = await Promise.all([
+    getSettings(),
+    getActiveServices(),
+    getActiveBarbers(),
+    prisma.workingHours.findMany({ where: { barber: { isActive: true } }, select: { dayOfWeek: true, isOff: true, startTime: true, endTime: true } }),
+    prisma.haircutPhoto.findMany({ orderBy: { createdAt: "desc" }, take: 8, select: { id: true, storageKey: true } }),
+  ]);
+  const status = getShopStatus(hoursRows, now);
+  const weeklyHours = WEEK_ORDER.map((d) => {
+    const open = hoursRows.filter((r) => r.dayOfWeek === d && !r.isOff);
+    if (open.length === 0) return { dayLabel: DAY_LABELS[d], text: "Kapalı" };
+    const o = open.map((r) => r.startTime).sort()[0];
+    const c = open.map((r) => r.endTime).sort().at(-1)!;
+    return { dayLabel: DAY_LABELS[d], text: `${o}–${c}` };
+  });
+  return { settings, status, services, barbers, gallery, weeklyHours };
+}
+```
+
+Run: `npm run test:integration -- tests/integration/landing.test.ts` → geçer.
+
+- [ ] **Step 3: Rota taşıma**
+
+`src/app/(musteri)/page.tsx` içeriğini `src/app/(musteri)/randevu/page.tsx` olarak taşı; başlık alanına `getShopStatus` metnini ekle. `BookingWizard.tsx` içinde girişe yönlendirme `router.push(\`/giris?next=${encodeURIComponent(\`/randevu?${stateQuery()}\`)}\`)` olur. `SiteHeader`'a "Randevu al" CTA (`/randevu`) eklenir.
+
+- [ ] **Step 4: Marka bileşenleri**
+
+`AfroPattern.tsx`: inline SVG `<pattern>` (üçgen/eşkenar dörtgen/çizgi motifleri, kente-mudcloth esintili), `currentColor`, prop `opacity` (varsayılan 0.08), `className`. `ImageSlot.tsx` (server component): `name` (örn. "hero.jpg"), `alt`, `className`; `fs.existsSync(path.join(process.cwd(), "public/landing", name))` ile varsa `next/image`, yoksa `AfroPattern` dolgulu `div` + küçük "Fotoğraf yakında" etiketi.
+
+- [ ] **Step 5: Landing sayfası**
+
+`src/app/(musteri)/page.tsx` server component, `getLandingData()`; `export const dynamic = "force-dynamic"`. Bölümler sırayla `Hero`, `ServicesSection`, `TeamSection`, `GallerySection`, `ContactSection`, `SiteFooter`. Landing tam genişlik kullanır: `(musteri)/layout.tsx` içindeki `max-w-lg` sınırı landing için kaldırılmalı → layout'u `max-w-lg` olmadan bırak, dar kolonu `randevu` ve `randevularim` sayfalarının kendi kök `div`'ine (`mx-auto max-w-lg px-4`) taşı.
+
+- [ ] **Step 6: Auth ve müşteri sayfalarının yeniden stillenmesi**
+
+`src/app/(auth)/layout.tsx`: masaüstünde `grid md:grid-cols-2`; sol panel `bg-primary text-primary-foreground` + `AfroPattern` + manşet; sağda form. Formların mantığı değişmez. `randevularim`, `randevu` adımları yeni tipografi ölçeğine geçirilir.
+
+- [ ] **Step 7: README**
+
+"Fotoğraflar" bölümü: `public/landing/hero.jpg` (dikey, 4:5, min 1200px), `public/landing/gallery-1.jpg … gallery-8.jpg` (kare) — galeri DB'de fotoğraf yoksa bu dosyaları, o da yoksa deseni gösterir.
+
+- [ ] **Step 8: Doğrula ve commit**
+
+`npm test && npm run test:integration && npm run typecheck && npm run lint && npm run build`. Dev sunucuda `curl -s localhost:3000/ | grep -c "Bugün randevu al"` ≥ 1, `curl -s localhost:3000/randevu | grep -c "1. Hizmet seç"` ≥ 1, `curl -sI localhost:3000/giris` 200. Ekran görüntüsü alınamıyorsa raporda belirt.
+
+```bash
+git add -A
+git commit -m "Landing page ve editoryal müşteri arayüzü"
 git push
 ```
