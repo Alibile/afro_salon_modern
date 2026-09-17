@@ -1,0 +1,81 @@
+"use client";
+
+import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { createAppointment } from "@/actions/appointments";
+import { ServiceStep, type ServiceItem } from "./ServiceStep";
+import { BarberStep, type BarberItem } from "./BarberStep";
+import { SlotStep } from "./SlotStep";
+import { Button } from "@/components/ui/button";
+import { formatKurus } from "@/lib/money";
+
+type Props = {
+  services: ServiceItem[];
+  barbers: BarberItem[];
+  isLoggedIn: boolean;
+  initial: { serviceIds: string[]; barberId: string | null; startsAt: string | null };
+};
+
+export function BookingWizard({ services, barbers, isLoggedIn, initial }: Props) {
+  const router = useRouter();
+  const [serviceIds, setServiceIds] = useState<string[]>(initial.serviceIds.filter((id) => services.some((s) => s.id === id)));
+  const [barberId, setBarberId] = useState<string | null>(initial.barberId);
+  const [startsAt, setStartsAt] = useState<string | null>(initial.startsAt);
+  const [pending, startTransition] = useTransition();
+
+  const selected = useMemo(() => services.filter((s) => serviceIds.includes(s.id)), [services, serviceIds]);
+  const totalMinutes = selected.reduce((a, s) => a + s.durationMinutes, 0);
+  const totalKurus = selected.reduce((a, s) => a + s.priceKurus, 0);
+
+  const step = serviceIds.length === 0 ? 1 : !barberId ? 2 : 3;
+
+  const stateQuery = () => {
+    const q = new URLSearchParams();
+    if (serviceIds.length) q.set("s", serviceIds.join(","));
+    if (barberId) q.set("b", barberId);
+    if (startsAt) q.set("t", startsAt);
+    return q.toString();
+  };
+
+  const confirm = () => {
+    if (!barberId || !startsAt) return;
+    if (!isLoggedIn) {
+      router.push(`/giris?next=${encodeURIComponent(`/?${stateQuery()}`)}`);
+      return;
+    }
+    startTransition(async () => {
+      const r = await createAppointment({ barberId, serviceIds, startsAt });
+      if (!r.ok) {
+        toast.error(r.error);
+        setStartsAt(null);
+        return;
+      }
+      toast.success("Randevun oluşturuldu");
+      router.push("/randevularim");
+    });
+  };
+
+  return (
+    <div className="space-y-8">
+      <ServiceStep services={services} selectedIds={serviceIds} onChange={(ids) => { setServiceIds(ids); setStartsAt(null); }} />
+      {step >= 2 && (
+        <BarberStep barbers={barbers} selectedId={barberId} onSelect={(id) => { setBarberId(id); setStartsAt(null); }} />
+      )}
+      {step >= 3 && barberId && (
+        <SlotStep barberId={barberId} durationMinutes={totalMinutes} selected={startsAt} onSelect={setStartsAt} />
+      )}
+      {selected.length > 0 && (
+        <div className="sticky bottom-0 -mx-4 border-t bg-background/95 px-4 py-3 backdrop-blur">
+          <div className="mb-2 flex justify-between text-sm">
+            <span>{selected.map((s) => s.name).join(", ")}</span>
+            <span className="font-medium">{totalMinutes} dk · {formatKurus(totalKurus)}</span>
+          </div>
+          <Button className="w-full" size="lg" disabled={!startsAt || pending} onClick={confirm}>
+            {pending ? "Kaydediliyor…" : isLoggedIn ? "Randevuyu onayla" : "Giriş yap ve onayla"}
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
