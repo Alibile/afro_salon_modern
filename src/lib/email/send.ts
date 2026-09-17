@@ -7,6 +7,7 @@ import { formatShopDate, formatShopTime } from "@/lib/time";
 import { AppointmentConfirmed } from "./templates/AppointmentConfirmed";
 import { AppointmentCancelled } from "./templates/AppointmentCancelled";
 import { NewAppointmentForBarber } from "./templates/NewAppointmentForBarber";
+import { ContactMessage } from "./templates/ContactMessage";
 
 function baseUrl() {
   return process.env.AUTH_URL?.replace(/\/$/, "") ?? "http://localhost:3000";
@@ -94,6 +95,33 @@ export async function sendNewAppointmentToBarber(appointmentId: string) {
       }),
     );
     await deliver(a.barber.user.email, `Yeni randevu · ${formatShopTime(a.startsAt)}`, html);
+  } catch (e) {
+    console.error("[email:error]", e);
+  }
+}
+
+/**
+ * İletişim formundan gelen mesajı salona iletir. Alıcı `settings.email`,
+ * boşsa `EMAIL_FROM` adresidir; ikisi de yoksa mesaj yalnızca loglanır.
+ */
+export async function sendContactMessage(input: { name: string; phone: string; message: string; services: string[] }) {
+  try {
+    const settings = await getSettings();
+    const to = settings.email.trim() || process.env.EMAIL_FROM?.trim();
+    if (!to) {
+      console.info(`[email:skipped] iletişim mesajı için alıcı adresi tanımlı değil (from=${input.name})`);
+      return;
+    }
+    const html = await render(
+      ContactMessage({
+        shopName: settings.shopName,
+        name: input.name,
+        phone: input.phone,
+        message: input.message,
+        services: input.services,
+      }),
+    );
+    await deliver(to, `Siteden yeni mesaj · ${input.name}`, html);
   } catch (e) {
     console.error("[email:error]", e);
   }

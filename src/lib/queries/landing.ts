@@ -16,12 +16,17 @@ export async function getTodayShopStatus(now: Date = new Date()) {
 }
 
 export async function getLandingData(now: Date = new Date()) {
-  const [settings, services, barbers, hoursRows, gallery] = await Promise.all([
+  const [settings, services, barbers, hoursRows, gallery, testimonials] = await Promise.all([
     getSettings(),
     getActiveServices(),
     getActiveBarbers(),
     prisma.workingHours.findMany({ where: { barber: { isActive: true } }, select: { dayOfWeek: true, isOff: true, startTime: true, endTime: true } }),
     prisma.haircutPhoto.findMany({ orderBy: { createdAt: "desc" }, take: 8, select: { id: true, storageKey: true } }),
+    prisma.testimonial.findMany({
+      where: { isActive: true },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+      select: { id: true, name: true, text: true, rating: true },
+    }),
   ]);
   const status = getShopStatus(hoursRows, now);
   const weeklyHours = WEEK_ORDER.map((d) => {
@@ -31,5 +36,5 @@ export async function getLandingData(now: Date = new Date()) {
     const c = open.map((r) => r.endTime).sort().at(-1)!;
     return { dayLabel: DAY_LABELS[d], text: `${o}–${c}` };
   });
-  return { settings, status, services, barbers, gallery, weeklyHours };
+  return { settings, status, services, barbers, gallery, testimonials, weeklyHours };
 }

@@ -24,4 +24,26 @@ describe("getLandingData", () => {
     expect(d.weeklyHours[0]).toEqual({ dayLabel: "Pazartesi", text: "09:00–19:00" });
     expect(d.weeklyHours[6]).toEqual({ dayLabel: "Pazar", text: "Kapalı" });
   });
+
+  it("yalnızca aktif yorumları sortOrder sırasıyla döner", async () => {
+    await prisma.testimonial.create({ data: { name: "Nadia T.", text: "Örgüde gerçekten usta bir ekip.", rating: 5, sortOrder: 2 } });
+    await prisma.testimonial.create({ data: { name: "Emre K.", text: "Fade kesim tam istediğim gibi oldu.", rating: 4, sortOrder: 1 } });
+    await prisma.testimonial.create({ data: { name: "Gizli", text: "Bu yorum yayında değil, görünmemeli.", rating: 1, sortOrder: 0, isActive: false } });
+    const d = await getLandingData(NOW);
+    expect(d.testimonials.map((t) => t.name)).toEqual(["Emre K.", "Nadia T."]);
+    expect(d.testimonials[0].rating).toBe(4);
+  });
+
+  it("içerik alanlarını ayarlardan döner", async () => {
+    await prisma.settings.update({
+      where: { id: 1 },
+      data: { aboutTitle: "Benzersiz bir deneyim", aboutText: "Afro saç sanatı.", whyUs1Title: "Usta berberler", satisfactionPercent: 98, yearsExperience: 12, instagram: "https://instagram.com/x" },
+    });
+    const d = await getLandingData(NOW);
+    expect(d.settings.aboutTitle).toBe("Benzersiz bir deneyim");
+    expect(d.settings.whyUs1Title).toBe("Usta berberler");
+    expect(d.settings.satisfactionPercent).toBe(98);
+    expect(d.settings.yearsExperience).toBe(12);
+    expect(d.settings.instagram).toBe("https://instagram.com/x");
+  });
 });

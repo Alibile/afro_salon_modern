@@ -5,20 +5,19 @@ import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { logoutAction } from "@/actions/auth";
-import { cn } from "@/lib/utils";
 import type { SessionUser } from "@/lib/auth-helpers";
 
+/**
+ * Müşteri bölümünün üst çubuğu. Landing (`/`) kendi tam menüsünü
+ * (`SiteNav`) sayfa içinde render ettiği için burada hiçbir şey çizilmez;
+ * böylece diğer müşteri sayfaları layout'tan başlığı almaya devam eder.
+ */
 export function SiteHeader({ user, shopName }: { user: SessionUser | null; shopName: string }) {
   const pathname = usePathname();
-  const landing = pathname === "/";
+  if (pathname === "/") return null;
   return (
-    <header
-      className={cn(
-        "top-0 z-20 w-full",
-        landing ? "relative bg-transparent" : "sticky border-b border-border bg-background/90 backdrop-blur",
-      )}
-    >
-      <div className={cn("mx-auto flex items-center justify-between gap-3 px-5 py-4", landing ? "max-w-6xl" : "max-w-lg")}>
+    <header className="sticky top-0 z-20 w-full border-b border-border bg-background/90 backdrop-blur">
+      <div className="mx-auto flex max-w-lg items-center justify-between gap-3 px-5 py-4">
         <Link href="/" className="shrink-0 font-display text-xl tracking-[0.1em] text-primary sm:text-2xl sm:tracking-[0.14em]">
           {shopName}
         </Link>

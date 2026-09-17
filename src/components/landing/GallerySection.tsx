@@ -8,7 +8,7 @@ const VARIANTS: PatternVariant[] = ["kente", "mud", "tarak"];
 export function GallerySection({ photos }: { photos: { id: string; storageKey: string }[] }) {
   const slots = photos.length > 0 ? photos : Array.from({ length: 8 }, (_, i) => ({ id: `slot-${i}`, storageKey: "" }));
   return (
-    <section id="galeri" className="border-b border-border">
+    <section id="galeri" className="scroll-mt-20 border-b border-border">
       <div className="mx-auto max-w-6xl px-5 py-16 md:py-24">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <h2 className="display-lg">GALERİ</h2>

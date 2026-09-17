@@ -10,7 +10,9 @@ vi.mock("@/lib/email/send", () => ({
   sendAppointmentConfirmed: vi.fn(async () => {}),
   sendAppointmentCancelled: vi.fn(async () => {}),
   sendNewAppointmentToBarber: vi.fn(async () => {}),
+  sendContactMessage: vi.fn(async () => {}),
 }));
+vi.mock("next/headers", () => ({ headers: vi.fn(async () => new Headers()) }));
 
 import { getSessionUser } from "@/lib/auth-helpers";
 import { createAppointment, cancelAppointmentByCustomer } from "@/actions/appointments";
@@ -21,6 +23,8 @@ import { upsertTestimonial, toggleTestimonial, deleteTestimonial } from "@/actio
 import { setAppointmentStatus } from "@/actions/staff-appointments";
 import { createTimeOff, deleteTimeOff } from "@/actions/timeoff";
 import { addHaircutPhoto, deleteHaircutPhoto } from "@/actions/photos";
+import { sendContactMessage } from "@/actions/contact";
+import { resetRateLimit } from "@/lib/rate-limit";
 
 const mockedSession = vi.mocked(getSessionUser);
 
@@ -86,8 +90,27 @@ const customerWrappers: [string, string, () => Promise<{ ok: boolean; error?: st
   ["cancelAppointmentByCustomer", "Giriş yapmalısınız", () => cancelAppointmentByCustomer("a1")],
 ];
 
+/**
+ * HERKESE AÇIK wrapper'lar: oturum beklemezler, anonim çağrıda yetki hatası
+ * DÖNMEMELİDİRLER. Yeni bir public wrapper eklenirse buraya yazılır.
+ */
+const publicWrappers: [string, () => Promise<{ ok: boolean; error?: string }>][] = [
+  [
+    "sendContactMessage",
+    () =>
+      sendContactMessage({
+        name: "Ayşe Yılmaz",
+        phone: "+90 555 000 00 00",
+        message: "Cumartesi günü örgü için yer var mı acaba?",
+        services: ["Örgü / Twist"],
+        website: "",
+      }),
+  ],
+];
+
 beforeEach(() => {
   mockedSession.mockReset();
+  resetRateLimit();
 });
 
 describe("server action wrappers — oturumsuz çağrı", () => {
@@ -128,5 +151,21 @@ describe("server action wrappers — CUSTOMER oturumu", () => {
   it("cancelAppointmentByCustomer başkasının randevusuna erişemez", async () => {
     setSession(customer);
     expect(await cancelAppointmentByCustomer("a1")).toEqual({ ok: false, error: "Randevu bulunamadı" });
+  });
+});
+
+describe("server action wrappers — herkese açık (public)", () => {
+  it.each(publicWrappers)("%s oturumsuz çağrıda yetki hatası vermez", async (_name, call) => {
+    setSession(null);
+    const r = await call();
+    expect(r.error).not.toBe("Yetkiniz yok");
+    expect(r.error).not.toBe("Giriş yapmalısınız");
+    expect(r).toEqual({ ok: true, data: undefined });
+  });
+
+  it.each(publicWrappers)("%s oturum bilgisini hiç sormaz", async (_name, call) => {
+    setSession(null);
+    await call();
+    expect(mockedSession).not.toHaveBeenCalled();
   });
 });

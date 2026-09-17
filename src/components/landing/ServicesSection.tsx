@@ -4,7 +4,7 @@ export type ServiceRowItem = { id: string; name: string; durationMinutes: number
 
 export function ServicesSection({ services, phone }: { services: ServiceRowItem[]; phone: string }) {
   return (
-    <section id="hizmetler" className="border-b border-border">
+    <section id="hizmetler" className="scroll-mt-20 border-b border-border">
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-5 py-16 md:grid-cols-12 md:gap-10 md:py-24">
         <header className="md:col-span-4 md:sticky md:top-8 md:self-start">
           <h2 className="display-lg">HİZMETLER</h2>

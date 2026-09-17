@@ -9,7 +9,7 @@ export type TeamMember = { id: string; name: string; bio: string | null; photoKe
 export function TeamSection({ barbers }: { barbers: TeamMember[] }) {
   if (barbers.length === 0) return null;
   return (
-    <section id="ekip" className="border-b border-border">
+    <section id="ekip" className="scroll-mt-20 border-b border-border">
       <div className="mx-auto max-w-6xl px-5 py-16 md:py-24">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <h2 className="display-lg">EKİP</h2>

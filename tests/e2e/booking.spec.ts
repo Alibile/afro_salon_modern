@@ -73,3 +73,32 @@ test.describe.serial("randevu akışı", () => {
     await expect(page.getByText("Tamamlandı")).toBeVisible();
   });
 });
+
+test.describe("landing", () => {
+  test("menüden Hakkımızda bölümüne gidilir", async ({ page }) => {
+    await page.goto("/");
+    // Mobil genişlikte bağlantılar hamburger menüsünün arkasındadır.
+    const toggle = page.getByRole("button", { name: "Menüyü aç" });
+    if (await toggle.isVisible()) await toggle.click();
+    const menu = page.getByRole("navigation", { name: "Ana menü" });
+    await menu.getByRole("link", { name: "Hakkımızda" }).click();
+    await expect(page).toHaveURL(/#hakkimizda$/);
+    const about = page.locator("#hakkimizda");
+    await expect(about).toBeVisible();
+    await expect(about.getByRole("heading", { name: "Benzersiz bir deneyim" })).toBeVisible();
+    // Bağlantıya tıklayınca mobil menü kapanır.
+    await expect(page.locator("#mobil-menu")).toBeHidden();
+  });
+
+  test("iletişim formu mesaj gönderir", async ({ page }) => {
+    await page.goto("/");
+    await page.getByLabel("Adınız").fill("E2E Ziyaretçi");
+    await page.getByLabel("Telefon (isteğe bağlı)").fill("05550000000");
+    await page.locator("label", { has: page.locator('input[value="Saç Kesimi"]') }).click();
+    await page.getByLabel("Mesajınız").fill("Cumartesi günü örgü için yer var mı acaba?");
+    await page.getByRole("button", { name: "Mesajı gönder" }).click();
+    await expect(page.getByText("Mesajınız alındı, en kısa sürede dönüş yapacağız")).toBeVisible();
+    // Form temizlenir.
+    await expect(page.getByLabel("Adınız")).toHaveValue("");
+  });
+});
