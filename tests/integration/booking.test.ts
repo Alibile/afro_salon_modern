@@ -1,7 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { prisma } from "@/lib/db";
 import { createBarber, createCustomer, createService } from "./helpers";
 import { getTodayAvailability } from "@/lib/queries/booking";
+import * as bookingQueries from "@/lib/queries/booking";
 import { createAppointment } from "@/actions/appointments";
 
 // Perşembe 2026-09-17 10:00 Istanbul = 07:00Z
@@ -97,6 +98,52 @@ describe("createAppointment", () => {
       { now: NOW, customerId: customer.id },
     );
     expect(r.ok).toBe(false);
+  });
+
+  it("under a real race only one of two concurrent bookings wins", async () => {
+    const { barber } = await createBarber();
+    const c1 = await createCustomer();
+    const c2 = await createCustomer();
+    const s1 = await createService();
+    const input = { barberId: barber.id, serviceIds: [s1.id], startsAt: "2026-09-17T08:00:00.000Z" };
+    const [a, b] = await Promise.all([
+      createAppointment(input, { now: NOW, customerId: c1.id }),
+      createAppointment(input, { now: NOW, customerId: c2.id }),
+    ]);
+    const results = [a, b];
+    expect(results.filter((r) => r.ok)).toHaveLength(1);
+    const loser = results.find((r) => !r.ok);
+    expect(loser && !loser.ok && loser.error).toMatch(/Bu saat (az önce doldu|artık uygun değil)/);
+    const scheduled = await prisma.appointment.count({ where: { barberId: barber.id, status: "SCHEDULED" } });
+    expect(scheduled).toBe(1);
+  });
+
+  it("rejects with SLOT_TAKEN when the constraint fires after the pre-check passes", async () => {
+    const { barber } = await createBarber();
+    const c1 = await createCustomer();
+    const c2 = await createCustomer();
+    const s1 = await createService();
+    const startsAt = new Date("2026-09-17T08:00:00.000Z");
+
+    const spy = vi.spyOn(bookingQueries, "getTodayAvailability").mockResolvedValueOnce({
+      slots: [startsAt],
+      isOpenToday: true,
+      opensAt: "09:00",
+    });
+
+    // Occupy the slot directly, bypassing the pre-check, to force the DB
+    // exclusion constraint to reject the second createAppointment call.
+    await prisma.appointment.create({
+      data: { barberId: barber.id, customerId: c1.id, startsAt, endsAt: new Date("2026-09-17T08:30:00.000Z") },
+    });
+
+    const r = await createAppointment(
+      { barberId: barber.id, serviceIds: [s1.id], startsAt: startsAt.toISOString() },
+      { now: NOW, customerId: c2.id },
+    );
+
+    spy.mockRestore();
+    expect(r).toEqual({ ok: false, error: "Bu saat az önce doldu, lütfen başka bir saat seçin" });
   });
 
   it("rejects inactive service", async () => {

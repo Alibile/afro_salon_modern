@@ -56,7 +56,13 @@ export async function createAppointment(
       e instanceof Error &&
       (e.message.includes("appointment_no_overlap") ||
         JSON.stringify((e as { meta?: unknown }).meta ?? "").includes("appointment_no_overlap"));
-    if (isOverlapError) return fail(SLOT_TAKEN);
+    // Under genuine concurrent transactions, Postgres/Prisma can also reject
+    // the losing transaction with a write-conflict/deadlock error (Prisma
+    // error code P2034) rather than surfacing the exclusion constraint
+    // violation directly. Both outcomes mean the same thing to the caller:
+    // another booking won the race for this slot.
+    const isWriteConflict = (e as { code?: string })?.code === "P2034";
+    if (isOverlapError || isWriteConflict) return fail(SLOT_TAKEN);
     throw e;
   }
 }
