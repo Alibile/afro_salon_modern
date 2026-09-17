@@ -30,3 +30,10 @@ export function formatShopTime(d: Date): string {
 export function formatShopDate(d: Date): string {
   return format(new TZDate(d, SHOP_TZ), "d MMMM yyyy EEEE", { locale: tr });
 }
+
+/** "2026-09-17" + "13:00" → İstanbul'daki o anın UTC instant'ı */
+export function shopDateTime(date: string, hhmm: string): Date {
+  const [y, mo, d] = date.split("-").map(Number);
+  const [h, mi] = hhmm.split(":").map(Number);
+  return new Date(new TZDate(y, mo - 1, d, h, mi, 0, 0, SHOP_TZ).getTime());
+}

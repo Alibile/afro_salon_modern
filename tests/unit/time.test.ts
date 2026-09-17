@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseTime, shopDayStart, shopDayOfWeek, addMinutes, formatShopTime, formatShopDate } from "@/lib/time";
+import { parseTime, shopDayStart, shopDayOfWeek, addMinutes, formatShopTime, formatShopDate, shopDateTime } from "@/lib/time";
 
 describe("time", () => {
   it("parseTime converts HH:mm to minutes", () => {
@@ -28,5 +28,9 @@ describe("time", () => {
     const d = new Date("2026-09-17T11:30:00Z"); // 14:30 Istanbul
     expect(formatShopTime(d)).toBe("14:30");
     expect(formatShopDate(d)).toBe("17 Eylül 2026 Perşembe");
+  });
+
+  it("shopDateTime converts Istanbul date+time to UTC instant", () => {
+    expect(shopDateTime("2026-09-17", "00:00").toISOString()).toBe("2026-09-16T21:00:00.000Z");
   });
 });
