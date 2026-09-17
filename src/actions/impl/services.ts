@@ -26,3 +26,13 @@ export async function toggleServiceAs(actor: SessionUser | null, id: string, isA
   await prisma.service.update({ where: { id }, data: { isActive } });
   return ok(undefined);
 }
+
+export async function deleteServiceAs(actor: SessionUser | null, id: string): Promise<ActionResult<void>> {
+  if (!asAdminActor(actor)) return fail("Yetkiniz yok");
+  const existing = await prisma.service.findUnique({ where: { id } });
+  if (!existing) return fail("Hizmet bulunamadı");
+  const usageCount = await prisma.appointmentService.count({ where: { serviceId: id } });
+  if (usageCount > 0) return fail("Bu hizmet geçmiş randevularda kullanılmış, silinemez; pasife alın");
+  await prisma.service.delete({ where: { id } });
+  return ok(undefined);
+}

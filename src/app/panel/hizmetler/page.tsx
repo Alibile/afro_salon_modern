@@ -1,5 +1,5 @@
 import { requireAdmin } from "@/lib/auth-helpers";
-import { prisma } from "@/lib/db";
+import { listServicesForAdmin } from "@/lib/queries/services";
 import { ServiceForm } from "@/components/panel/ServiceForm";
 import { ServiceRow } from "@/components/panel/ServiceRow";
 
@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export default async function HizmetlerPage() {
   await requireAdmin();
-  const services = await prisma.service.findMany({ orderBy: [{ isActive: "desc" }, { sortOrder: "asc" }] });
+  const services = await listServicesForAdmin();
   return (
     <div className="space-y-6">
       <h1 className="text-3xl">Hizmetler</h1>
@@ -16,7 +16,7 @@ export default async function HizmetlerPage() {
         <ServiceForm />
       </section>
       <ul className="space-y-2">
-        {services.map((s) => <ServiceRow key={s.id} service={{ id: s.id, name: s.name, durationMinutes: s.durationMinutes, priceKurus: s.priceKurus, sortOrder: s.sortOrder, isActive: s.isActive }} />)}
+        {services.map((s) => <ServiceRow key={s.id} service={s} />)}
       </ul>
     </div>
   );

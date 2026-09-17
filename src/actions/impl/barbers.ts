@@ -62,3 +62,24 @@ export async function resetBarberPasswordAs(actor: SessionUser | null, barberId:
   await prisma.user.update({ where: { id: b.userId }, data: { passwordHash: await bcrypt.hash(newPassword, 10) } });
   return ok(undefined);
 }
+
+export async function deleteBarberAs(actorInput: SessionUser | null, barberId: string): Promise<ActionResult<void>> {
+  const actor = asAdminActor(actorInput);
+  if (!actor) return fail("Yetkiniz yok");
+  const existing = await prisma.barber.findUnique({ where: { id: barberId } });
+  if (!existing) return fail("Berber bulunamadı");
+  if (existing.userId === actor.id) return fail("Kendi hesabınızı silemezsiniz");
+  const [appointmentCount, photoCount] = await Promise.all([
+    prisma.appointment.count({ where: { barberId } }),
+    prisma.haircutPhoto.count({ where: { barberId } }),
+  ]);
+  if (appointmentCount > 0 || photoCount > 0) return fail("Bu berberin randevu veya fotoğraf geçmişi var, silinemez; pasife alın");
+  await prisma.$transaction([
+    prisma.timeOff.deleteMany({ where: { barberId } }),
+    prisma.workingHours.deleteMany({ where: { barberId } }),
+    prisma.barber.delete({ where: { id: barberId } }),
+    prisma.user.delete({ where: { id: existing.userId } }),
+  ]);
+  if (!existing.photoKey.startsWith("seed/") && !existing.photoKey.startsWith("landing/")) await deleteObject(existing.photoKey);
+  return ok(undefined);
+}

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { fail, type ActionResult } from "@/lib/action-result";
 import { getSessionUser } from "@/lib/auth-helpers";
-import { createBarberAs, updateBarberAs, saveWorkingHoursAs, resetBarberPasswordAs } from "@/actions/impl/barbers";
+import { createBarberAs, updateBarberAs, saveWorkingHoursAs, resetBarberPasswordAs, deleteBarberAs } from "@/actions/impl/barbers";
 import type { CreateBarberInput, UpdateBarberInput, WorkingHoursInput } from "@/schemas/barber";
 
 export async function createBarber(input: CreateBarberInput): Promise<ActionResult<{ barberId: string }>> {
@@ -34,4 +34,12 @@ export async function resetBarberPassword(barberId: string, newPassword: string)
   const actor = await getSessionUser();
   if (!actor) return fail("Yetkiniz yok");
   return resetBarberPasswordAs(actor, barberId, newPassword);
+}
+
+export async function deleteBarber(barberId: string): Promise<ActionResult<void>> {
+  const actor = await getSessionUser();
+  if (!actor) return fail("Yetkiniz yok");
+  const r = await deleteBarberAs(actor, barberId);
+  if (r.ok) revalidatePath("/panel/berberler");
+  return r;
 }

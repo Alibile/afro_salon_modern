@@ -16,8 +16,8 @@ vi.mock("next/headers", () => ({ headers: vi.fn(async () => new Headers()) }));
 
 import { getSessionUser } from "@/lib/auth-helpers";
 import { createAppointment, cancelAppointmentByCustomer } from "@/actions/appointments";
-import { createBarber, updateBarber, saveWorkingHours, resetBarberPassword } from "@/actions/barbers";
-import { upsertService, toggleService } from "@/actions/services";
+import { createBarber, updateBarber, saveWorkingHours, resetBarberPassword, deleteBarber } from "@/actions/barbers";
+import { upsertService, toggleService, deleteService } from "@/actions/services";
 import { updateSettings } from "@/actions/settings";
 import { upsertTestimonial, toggleTestimonial, deleteTestimonial } from "@/actions/testimonials";
 import { setAppointmentStatus } from "@/actions/staff-appointments";
@@ -67,8 +67,10 @@ const staffWrappers: [string, () => Promise<{ ok: boolean; error?: string }>][] 
   ["updateBarber", () => updateBarber("b1", { name: "Yeni Berber", bio: "", photoKey: "barbers/x.jpg", isActive: true })],
   ["saveWorkingHours", () => saveWorkingHours("b1", { days })],
   ["resetBarberPassword", () => resetBarberPassword("b1", "Sifre123!")],
+  ["deleteBarber", () => deleteBarber("b1")],
   ["upsertService", () => upsertService({ name: "Saç", durationMinutes: 30, priceLira: 400, sortOrder: 1 })],
   ["toggleService", () => toggleService("s1", false)],
+  ["deleteService", () => deleteService("s1")],
   ["updateSettings", () => updateSettings(settingsInput)],
   ["upsertTestimonial", () => upsertTestimonial({ name: "Emre K.", text: "Harika bir deneyimdi, kesinlikle tavsiye ederim.", rating: 5, sortOrder: 1 })],
   ["toggleTestimonial", () => toggleTestimonial("t1", false)],
