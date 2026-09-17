@@ -43,8 +43,8 @@ async function main() {
   });
 
   const barbers = [
-    { name: "Kwame Mensah", email: "kwame@afrosalon.local", bio: "Fade ve tasarım kesim uzmanı", photoKey: "seed/kwame.jpg" },
-    { name: "Amara Diallo", email: "amara@afrosalon.local", bio: "Örgü ve twist", photoKey: "seed/amara.jpg" },
+    { name: "Kwame Mensah", email: "kwame@afrosalon.local", bio: "Fade ve tasarım kesim uzmanı", photoKey: "landing/team-2.jpg" },
+    { name: "Amara Diallo", email: "amara@afrosalon.local", bio: "Örgü ve twist", photoKey: "landing/team-1.jpg" },
   ];
   for (const b of barbers) {
     const user = await prisma.user.upsert({

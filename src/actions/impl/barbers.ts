@@ -36,7 +36,8 @@ export async function updateBarberAs(actor: SessionUser | null, barberId: string
     prisma.user.update({ where: { id: existing.userId }, data: { name } }),
     prisma.barber.update({ where: { id: barberId }, data: { bio: bio || null, photoKey, isActive } }),
   ]);
-  if (existing.photoKey !== photoKey && !existing.photoKey.startsWith("seed/")) await deleteObject(existing.photoKey);
+  if (existing.photoKey !== photoKey && !existing.photoKey.startsWith("seed/") && !existing.photoKey.startsWith("landing/"))
+    await deleteObject(existing.photoKey);
   return ok(undefined);
 }
 

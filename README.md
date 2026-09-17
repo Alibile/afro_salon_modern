@@ -63,17 +63,27 @@ Cloudflare R2 bucket ayarlarında CORS örneği:
 
 Landing page'deki görsel alanlar `public/landing/` altındaki dosyalardan
 okunur. Dosya yoksa yerine afrika geometrik desenli zarif bir yer tutucu
-render edilir; kırık görsel çıkmaz. Fotoğrafları eklemek için dosyaları
-aşağıdaki adlarla bu klasöre koy:
+render edilir; kırık görsel çıkmaz. Depoda şu an duran fotoğraflar,
+ücretsiz ve ticari kullanıma açık lisanslı (Unsplash License / Pexels
+License) stok fotoğraflardır — her dosyanın fotoğrafçısı ve kaynak URL'si
+`public/landing/CREDITS.md` içinde listelenir. Salonun kendi fotoğrafları
+hazır olduğunda, aynı dosya adlarıyla üzerine yazmak yeterli (ör.
+`public/landing/hero.jpg`'yi değiştir); kod tarafında başka bir şey
+değişmez.
 
 | Dosya | Yer | Öneri |
 |---|---|---|
 | `public/landing/hero.jpg` | Hero görseli | Dikey, 4:5, en az 1200px genişlik |
+| `public/landing/about.jpg` | Hakkımızda görseli | Yatay, 3:2 |
 | `public/landing/gallery-1.jpg` … `gallery-8.jpg` | Galeri ızgarası | Kare (1:1), en az 800×800 |
+| `public/landing/team-1.jpg`, `team-2.jpg` | Ekip portreleri (yedek) | Kare (1:1), portre |
 
 Galeri önce veritabanındaki kesim fotoğraflarını (en yeni 8 `HaircutPhoto`)
 gösterir; kayıt yoksa `public/landing/gallery-N.jpg` dosyalarına, onlar da
 yoksa desenli yer tutuculara düşer.
 
 Berber profil fotoğrafları bu klasörden değil, R2'den (`Barber.photoKey`)
-gelir; seed verisi `public/seed/` altındaki yer tutucuları kullanır.
+gelir; seed verisindeki berberler `landing/team-1.jpg` / `landing/team-2.jpg`
+anahtarlarını kullanır (yani `public/landing/` altındaki aynı dosyalara
+işaret eder). Bu iki anahtar, panelden fotoğraf değiştirilse bile R2'den
+silinmeye çalışılmaz (`landing/` ve `seed/` önekleri korunur).
