@@ -14,7 +14,7 @@ const DEFAULT_HOURS = [0, 1, 2, 3, 4, 5, 6].map((d) => ({
 
 const DEFAULT_SEED_PASSWORD = "Sifre123!";
 
-const DEFAULT_LANDING_CONTENT = {
+export const DEFAULT_LANDING_CONTENT = {
   email: "info@afrosalonmodern.com",
   instagram: "https://instagram.com/afrosalonmodern",
   facebook: "https://facebook.com/afrosalonmodern",
@@ -38,6 +38,13 @@ const DEFAULT_TESTIMONIALS = [
   { name: "Derrick B.", text: "Örgü konusunda gerçekten usta bir ekip. Randevu almak da çok kolaydı.", rating: 5, sortOrder: 2 },
   { name: "Malik J.", text: "Salon çok temiz, hizmet hızlı. Sakal tıraşı biraz daha özenli olabilirdi.", rating: 4, sortOrder: 3 },
 ];
+
+// Tur 3 öncesi (kadın odaklı) seed'in ürettiği tam varsayılan metinler. Bir kurulumda hâlâ bu
+// metinler duruyorsa (admin hiç değiştirmemiş demektir) yeni erkek odaklı varsayılana taşınır;
+// farklı (admin tarafından girilmiş) bir değere asla dokunulmaz.
+export const LEGACY_ABOUT_TEXT =
+  "Afro Salon Modern, afro saç sanatını İstanbul'un kalbine taşıyor. Fade, örgü, twist ve bakımda ustalaşmış ekibimizle her kesim kişiye özel planlanır. Randevu yalnızca bugün için alınır; beklemeden, sırasız.";
+export const LEGACY_NADIA_TEXT = "Örgü konusunda gerçekten usta bir ekip. Randevu almak da çok kolaydı.";
 
 /** Üretimde şifre her zaman SEED_PASSWORD'dan gelir; geliştirmede varsayılan kullanılır. */
 function seedPassword(): string {
@@ -64,8 +71,12 @@ export async function runSeed(client: PrismaClient) {
     create: { id: 1, shopName: "Afro Salon Modern", address: "İstanbul", phone: "+90 555 000 00 00", ...DEFAULT_LANDING_CONTENT },
   });
   // Var olan geliştirme veritabanlarında içerik alanları boşsa varsayılanlarla doldur (idempotent).
-  if (settings.aboutText === "") {
+  if (settings.aboutText.trim() === "") {
     await client.settings.update({ where: { id: 1 }, data: DEFAULT_LANDING_CONTENT });
+  } else if (settings.aboutText.trim() === LEGACY_ABOUT_TEXT.trim()) {
+    // Metin hâlâ Tur 3 öncesi varsayılansa (admin hiç değiştirmemiş) yeni erkek odaklı
+    // varsayılana taşı; yalnızca bu alanı güncelle, diğer içerik alanlarına dokunma.
+    await client.settings.update({ where: { id: 1 }, data: { aboutText: DEFAULT_LANDING_CONTENT.aboutText } });
   }
 
   await client.user.upsert({
@@ -123,6 +134,22 @@ export async function runSeed(client: PrismaClient) {
     if (!exists) await client.service.create({ data: s });
   }
   for (const t of DEFAULT_TESTIMONIALS) {
+    if (t.name === "Derrick B.") {
+      // Eski (kadın odaklı) seed'in "Nadia T." yorumu, aynı metinle hâlâ duruyorsa (admin
+      // değiştirmemiş demektir) yeniden ad değiştirilerek taşınır; id/sortOrder/isActive korunur.
+      // Metni farklıysa (admin tarafından düzenlenmiş) hiç dokunulmaz.
+      const legacyNadia = await client.testimonial.findFirst({ where: { name: "Nadia T.", text: LEGACY_NADIA_TEXT } });
+      if (legacyNadia) {
+        const derrickExists = await client.testimonial.findFirst({ where: { name: "Derrick B." } });
+        if (!derrickExists) {
+          await client.testimonial.update({ where: { id: legacyNadia.id }, data: { name: "Derrick B." } });
+        } else {
+          // "Derrick B." zaten var (ör. seed birden çok kez farklı sürümlerle çalıştırılmış);
+          // yinelenen eski "Nadia T." satırını temizle.
+          await client.testimonial.delete({ where: { id: legacyNadia.id } });
+        }
+      }
+    }
     const exists = await client.testimonial.findFirst({ where: { name: t.name } });
     if (!exists) await client.testimonial.create({ data: t });
   }
