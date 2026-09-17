@@ -43,4 +43,17 @@ describe("haircut photos", () => {
     const r = await addHaircutPhoto({ customerId: "yok", storageKey: "haircuts/x.jpg" }, { actor: asBarber(user, barber.id) });
     expect(r).toEqual({ ok: false, error: "Müşteri bulunamadı" });
   });
+
+  it("keeps the cap under concurrent adds", async () => {
+    const { user, barber } = await createBarber();
+    const c = await createCustomer();
+    const actor = asBarber(user, barber.id);
+    for (let i = 1; i <= 3; i++) await addHaircutPhoto({ customerId: c.id, storageKey: `haircuts/base${i}.jpg` }, { actor });
+    const results = await Promise.all([1, 2, 3].map((i) => addHaircutPhoto({ customerId: c.id, storageKey: `haircuts/race${i}.jpg` }, { actor })));
+    expect(results.every((r) => r.ok)).toBe(true);
+    const count = await prisma.haircutPhoto.count({ where: { customerId: c.id } });
+    expect(count).toBe(4);
+    const deleted = results.flatMap((r) => (r.ok ? r.data.deletedKeys : []));
+    expect(deleted).toHaveLength(2);
+  });
 });
