@@ -41,12 +41,12 @@ export const DEFAULT_LANDING_CONTENT = {
  */
 export const DEFAULT_GALLERY = [
   { file: "gallery-1.jpg", width: 1367, height: 1367, caption: "Keskin geçişli fade", tags: ["Fade", "Line-up"] },
-  { file: "gallery-2.jpg", width: 1600, height: 1600, caption: "Twist ve dolgun sakal", tags: ["Twist", "Sakal"] },
-  { file: "gallery-3.jpg", width: 1600, height: 1600, caption: "Örgüde son düzeltme", tags: ["Örgü", "Sakal"] },
+  { file: "gallery-2.jpg", width: 1280, height: 1600, caption: "Twist ve dolgun sakal", tags: ["Twist", "Sakal"] },
+  { file: "gallery-3.jpg", width: 1600, height: 1067, caption: "Örgüde son düzeltme", tags: ["Örgü", "Sakal"] },
   { file: "gallery-4.jpg", width: 1600, height: 1600, caption: "Uzun örgü, net hat", tags: ["Örgü", "Line-up"] },
   { file: "gallery-5.jpg", width: 1600, height: 1600, caption: "Doğal hacimli afro", tags: ["Afro"] },
-  { file: "gallery-6.jpg", width: 1600, height: 1600, caption: "Şekillendirilmiş afro", tags: ["Afro", "Sakal"] },
-  { file: "gallery-7.jpg", width: 1600, height: 1600, caption: "Yüksek afro, temiz hat", tags: ["Afro", "Line-up"] },
+  { file: "gallery-6.jpg", width: 1280, height: 1600, caption: "Şekillendirilmiş afro", tags: ["Afro", "Sakal"] },
+  { file: "gallery-7.jpg", width: 1600, height: 1067, caption: "Yüksek afro, temiz hat", tags: ["Afro", "Line-up"] },
   { file: "gallery-8.jpg", width: 1600, height: 1600, caption: "Afro ve sakal bakımı", tags: ["Afro", "Sakal"] },
 ];
 
@@ -171,7 +171,10 @@ export async function runSeed(client: PrismaClient) {
     if (!exists) await client.testimonial.create({ data: t });
   }
 
-  // Galeri: her fotoğraf storageKey'ine göre bir kez eklenir (idempotent).
+  // Galeri: her fotoğraf storageKey'ine göre bir kez eklenir (idempotent). Kayıt zaten
+  // varsa yalnızca boyutları tazelenir — dosya yeniden kırpıldığında (ör. kare fotoğraf
+  // dikey/yatay yapıldığında) masonry oranı DB'deki eski boyutta kalmasın; başlık ve
+  // etiketler panelden düzenlenmiş olabileceği için asla ezilmez.
   for (const [i, g] of DEFAULT_GALLERY.entries()) {
     const storageKey = `landing/${g.file}`;
     const exists = await client.galleryPhoto.findFirst({ where: { storageKey } });
@@ -179,6 +182,8 @@ export async function runSeed(client: PrismaClient) {
       await client.galleryPhoto.create({
         data: { storageKey, caption: g.caption, tags: g.tags, width: g.width, height: g.height, sortOrder: i },
       });
+    } else if (exists.width !== g.width || exists.height !== g.height) {
+      await client.galleryPhoto.update({ where: { id: exists.id }, data: { width: g.width, height: g.height } });
     }
   }
 

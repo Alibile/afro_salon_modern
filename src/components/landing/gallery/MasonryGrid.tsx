@@ -1,19 +1,40 @@
 "use client";
-import type { GalleryPhoto } from "@/lib/gallery-utils";
+import { distributeColumns, type GalleryPhoto } from "@/lib/gallery-utils";
 import { GalleryCard } from "./GalleryCard";
+import { cn } from "@/lib/utils";
 
 /**
- * CSS sütunlarıyla masonry: satır hizası yoktur, her fotoğraf kendi oranını
- * korur ve sütunlar ekran genişliğine göre 2 → 3 → 4'e çıkar.
+ * Masonry: her fotoğraf kendi oranını korur, satır hizası yoktur. Sütunlar CSS
+ * `columns-*` ile değil, JS ile dolaşımlı dağıtılır; CSS sütunları bir sütunu
+ * doldurup diğerine geçtiği için panelde verilen sıra ekranda yukarıdan aşağı
+ * okunurdu. Dağıtım sunucuda da yapılabildiği için üç kırılım (2/3/4 sütun)
+ * ayrı ayrı basılır ve yalnızca biri görünür — böylece ilk boyamada doğru düzen
+ * gelir, ekran genişliğini ölçmek için istemciye ihtiyaç kalmaz.
  */
+const BREAKPOINTS = [
+  { columns: 2, className: "md:hidden" },
+  { columns: 3, className: "hidden md:flex xl:hidden" },
+  { columns: 4, className: "hidden xl:flex" },
+];
+
 export function MasonryGrid({ photos, onSelect }: { photos: GalleryPhoto[]; onSelect: (index: number) => void }) {
+  // Lightbox özgün listedeki sırayı kullanır; sütuna dağıtırken indeks taşınır.
+  const entries = photos.map((photo, index) => ({ photo, index }));
   return (
-    <ul className="columns-2 gap-3 md:columns-3 xl:columns-4">
-      {photos.map((photo, i) => (
-        <li key={photo.id} className="mb-3 break-inside-avoid">
-          <GalleryCard photo={photo} onSelect={() => onSelect(i)} />
-        </li>
+    <>
+      {BREAKPOINTS.map(({ columns, className }) => (
+        <div key={columns} className={cn("flex gap-4", className)}>
+          {distributeColumns(entries, columns).map((column, columnIndex) => (
+            <ul key={columnIndex} className="flex min-w-0 flex-1 flex-col gap-4">
+              {column.map(({ photo, index }) => (
+                <li key={photo.id}>
+                  <GalleryCard photo={photo} onSelect={() => onSelect(index)} />
+                </li>
+              ))}
+            </ul>
+          ))}
+        </div>
       ))}
-    </ul>
+    </>
   );
 }

@@ -67,3 +67,16 @@ export function normalizeTags(input: string | string[]): string[] {
   }
   return out;
 }
+
+/**
+ * Masonry sütunlarını dolaşımlı (round-robin) dağıtır: öğe `i` sütun `i % n`'e
+ * gider. Böylece sütunlar satır satır okunduğunda özgün sıra korunur — panelde
+ * verilen sıra ekranda soldan sağa, yukarıdan aşağı okunur (CSS `columns-*`
+ * ise sütunu doldurup diğerine geçtiği için bunu ters çevirirdi).
+ */
+export function distributeColumns<T>(items: T[], columns: number): T[][] {
+  const count = Math.max(1, Math.trunc(columns));
+  const result: T[][] = Array.from({ length: count }, () => []);
+  items.forEach((item, i) => result[i % count].push(item));
+  return result;
+}

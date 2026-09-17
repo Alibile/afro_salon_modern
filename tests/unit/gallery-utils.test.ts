@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { filterByTag, paginate, nextIndex, prevIndex, normalizeTags } from "@/lib/gallery-utils";
+import { filterByTag, paginate, nextIndex, prevIndex, normalizeTags, distributeColumns } from "@/lib/gallery-utils";
 
 const photos = [
   { id: "1", tags: ["Fade", "Line-up"] },
@@ -98,5 +98,46 @@ describe("normalizeTags", () => {
 
   it("iç boşlukları tek boşluğa indirir", () => {
     expect(normalizeTags("Line   up, Örgü")).toEqual(["Line up", "Örgü"]);
+  });
+});
+
+describe("distributeColumns", () => {
+  const items = ["a", "b", "c", "d", "e", "f", "g", "h"];
+
+  it("8 öğeyi 3 sütuna [3,3,2] olarak dağıtır", () => {
+    const cols = distributeColumns(items, 3);
+    expect(cols).toHaveLength(3);
+    expect(cols.map((c) => c.length)).toEqual([3, 3, 2]);
+  });
+
+  it("soldan sağa, yukarıdan aşağı okunacak biçimde sırayı korur", () => {
+    // Satır satır okunduğunda özgün sıra geri gelmeli.
+    const cols = distributeColumns(items, 3);
+    expect(cols[0]).toEqual(["a", "d", "g"]);
+    expect(cols[1]).toEqual(["b", "e", "h"]);
+    expect(cols[2]).toEqual(["c", "f"]);
+  });
+
+  it("her sütun kendi içinde özgün sırayı korur", () => {
+    const cols = distributeColumns(items, 4);
+    expect(cols.map((c) => c.length)).toEqual([2, 2, 2, 2]);
+    expect(cols[3]).toEqual(["d", "h"]);
+  });
+
+  it("öğe sayısı sütun sayısından azsa boş sütunlar yine de döner", () => {
+    const cols = distributeColumns(["a", "b"], 4);
+    expect(cols).toHaveLength(4);
+    expect(cols[2]).toEqual([]);
+    expect(cols[3]).toEqual([]);
+  });
+
+  it("boş listede sütunlar boş döner", () => {
+    expect(distributeColumns([], 2)).toEqual([[], []]);
+  });
+
+  it("hiçbir öğeyi düşürmez ya da çoğaltmaz", () => {
+    for (const n of [1, 2, 3, 4, 5]) {
+      expect(distributeColumns(items, n).flat().sort()).toEqual([...items].sort());
+    }
   });
 });

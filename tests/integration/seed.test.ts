@@ -62,6 +62,21 @@ describe("runSeed", () => {
     expect(await prisma.galleryPhoto.count()).toBe(DEFAULT_GALLERY.length);
   });
 
+  it("dosya yeniden kırpıldığında var olan kaydın boyutlarını tazeler", async () => {
+    await runSeed(prisma);
+    const portrait = DEFAULT_GALLERY.find((g) => g.file === "gallery-2.jpg")!;
+    const row = await prisma.galleryPhoto.findFirstOrThrow({ where: { storageKey: "landing/gallery-2.jpg" } });
+    // Eski (kare) boyutlarla kalmış bir kayıt: seed yeniden çalıştığında gerçek orana dönmeli.
+    await prisma.galleryPhoto.update({ where: { id: row.id }, data: { width: 1600, height: 1600, caption: "Elle yazıldı" } });
+
+    await runSeed(prisma);
+
+    const fixed = await prisma.galleryPhoto.findUniqueOrThrow({ where: { id: row.id } });
+    expect(fixed.width).toBe(portrait.width);
+    expect(fixed.height).toBe(portrait.height);
+    expect(fixed.caption).toBe("Elle yazıldı");
+  });
+
   it("eski (Tur 3 öncesi) varsayılan aboutText'i yeni erkek odaklı metne taşır, özel metne dokunmaz", async () => {
     await prisma.settings.update({ where: { id: 1 }, data: { aboutText: LEGACY_ABOUT_TEXT } });
     await runSeed(prisma);
