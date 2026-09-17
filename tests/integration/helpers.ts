@@ -3,7 +3,7 @@ import { Role } from "@/generated/prisma/enums";
 
 export async function resetDb() {
   await prisma.$executeRawUnsafe(
-    `TRUNCATE "HaircutPhoto","AppointmentService","Appointment","TimeOff","WorkingHours","Barber","Service","User","Settings" RESTART IDENTITY CASCADE`,
+    `TRUNCATE "HaircutPhoto","AppointmentService","Appointment","TimeOff","WorkingHours","Barber","Service","User","Settings","Testimonial" RESTART IDENTITY CASCADE`,
   );
   await prisma.settings.create({ data: { id: 1 } });
 }

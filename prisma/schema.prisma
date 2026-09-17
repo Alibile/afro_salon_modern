@@ -146,4 +146,30 @@ model Settings {
   slotStepMinutes           Int     @default(15)
   timezone                  String  @default("Europe/Istanbul")
   notifyBarberOnBooking     Boolean @default(true)
+
+  email               String @default("")
+  instagram           String @default("")
+  facebook            String @default("")
+  whatsapp            String @default("")
+  aboutTitle          String @default("Benzersiz bir deneyim")
+  aboutText           String @default("") @db.Text
+  whyUs1Title         String @default("")
+  whyUs1Text          String @default("") @db.Text
+  whyUs2Title         String @default("")
+  whyUs2Text          String @default("") @db.Text
+  whyUs3Title         String @default("")
+  whyUs3Text          String @default("") @db.Text
+  satisfactionPercent Int    @default(99)
+  yearsExperience     Int    @default(10)
+  mapsUrl             String @default("")
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  text      String   @db.Text
+  rating    Int
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
 }

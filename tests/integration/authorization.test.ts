@@ -17,6 +17,7 @@ import { createAppointment, cancelAppointmentByCustomer } from "@/actions/appoin
 import { createBarber, updateBarber, saveWorkingHours, resetBarberPassword } from "@/actions/barbers";
 import { upsertService, toggleService } from "@/actions/services";
 import { updateSettings } from "@/actions/settings";
+import { upsertTestimonial, toggleTestimonial, deleteTestimonial } from "@/actions/testimonials";
 import { setAppointmentStatus } from "@/actions/staff-appointments";
 import { createTimeOff, deleteTimeOff } from "@/actions/timeoff";
 import { addHaircutPhoto, deleteHaircutPhoto } from "@/actions/photos";
@@ -38,6 +39,21 @@ const settingsInput = {
   minLeadMinutes: 15,
   slotStepMinutes: 15,
   notifyBarberOnBooking: true,
+  email: "",
+  instagram: "",
+  facebook: "",
+  whatsapp: "",
+  mapsUrl: "",
+  aboutTitle: "Benzersiz bir deneyim",
+  aboutText: "",
+  whyUs1Title: "",
+  whyUs1Text: "",
+  whyUs2Title: "",
+  whyUs2Text: "",
+  whyUs3Title: "",
+  whyUs3Text: "",
+  satisfactionPercent: 99,
+  yearsExperience: 10,
 };
 const photoKey = "haircuts/00000000-0000-4000-8000-000000000001.jpg";
 
@@ -50,6 +66,9 @@ const staffWrappers: [string, () => Promise<{ ok: boolean; error?: string }>][] 
   ["upsertService", () => upsertService({ name: "Saç", durationMinutes: 30, priceLira: 400, sortOrder: 1 })],
   ["toggleService", () => toggleService("s1", false)],
   ["updateSettings", () => updateSettings(settingsInput)],
+  ["upsertTestimonial", () => upsertTestimonial({ name: "Emre K.", text: "Harika bir deneyimdi, kesinlikle tavsiye ederim.", rating: 5, sortOrder: 1 })],
+  ["toggleTestimonial", () => toggleTestimonial("t1", false)],
+  ["deleteTestimonial", () => deleteTestimonial("t1")],
   ["setAppointmentStatus", () => setAppointmentStatus("a1", "COMPLETED")],
   ["createTimeOff", () => createTimeOff({ barberId: "b1", date: "2026-09-17", allDay: true })],
   ["deleteTimeOff", () => deleteTimeOff("t1")],

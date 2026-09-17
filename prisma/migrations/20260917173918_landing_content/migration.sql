@@ -1,0 +1,29 @@
+-- AlterTable
+ALTER TABLE "Settings" ADD COLUMN     "aboutText" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "aboutTitle" TEXT NOT NULL DEFAULT 'Benzersiz bir deneyim',
+ADD COLUMN     "email" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "facebook" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "instagram" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "mapsUrl" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "satisfactionPercent" INTEGER NOT NULL DEFAULT 99,
+ADD COLUMN     "whatsapp" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "whyUs1Text" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "whyUs1Title" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "whyUs2Text" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "whyUs2Title" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "whyUs3Text" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "whyUs3Title" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "yearsExperience" INTEGER NOT NULL DEFAULT 10;
+
+-- CreateTable
+CREATE TABLE "Testimonial" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "text" TEXT NOT NULL,
+    "rating" INTEGER NOT NULL,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "sortOrder" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Testimonial_pkey" PRIMARY KEY ("id")
+);

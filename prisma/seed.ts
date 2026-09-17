@@ -16,6 +16,31 @@ const DEFAULT_HOURS = [0, 1, 2, 3, 4, 5, 6].map((d) => ({
 
 const DEFAULT_SEED_PASSWORD = "Sifre123!";
 
+const DEFAULT_LANDING_CONTENT = {
+  email: "info@afrosalonmodern.com",
+  instagram: "https://instagram.com/afrosalonmodern",
+  facebook: "https://facebook.com/afrosalonmodern",
+  whatsapp: "905550000000",
+  mapsUrl: "https://maps.google.com/?q=Afro+Salon+Modern+Istanbul",
+  aboutTitle: "Benzersiz bir deneyim",
+  aboutText:
+    "Afro Salon Modern, afro saç sanatını İstanbul'un kalbine taşıyor. Fade, örgü, twist ve bakımda ustalaşmış ekibimizle her kesim kişiye özel planlanır. Randevu yalnızca bugün için alınır; beklemeden, sırasız.",
+  whyUs1Title: "Usta berberler",
+  whyUs1Text: "Afro saç dokusunda yılların deneyimi; her kesim yüz hatlarına göre planlanır.",
+  whyUs2Title: "Premium ürünler",
+  whyUs2Text: "Saç ve cilde uygun, test edilmiş profesyonel ürünler.",
+  whyUs3Title: "Hijyen ve temizlik",
+  whyUs3Text: "Her müşteriden sonra sterilize edilen ekipman, temiz ve ferah salon.",
+  satisfactionPercent: 99,
+  yearsExperience: 10,
+};
+
+const DEFAULT_TESTIMONIALS = [
+  { name: "Emre K.", text: "Fade kesim tam istediğim gibi oldu, ekip çok ilgili. Kesinlikle tekrar geleceğim.", rating: 5, sortOrder: 1 },
+  { name: "Nadia T.", text: "Örgü konusunda gerçekten usta bir ekip. Randevu almak da çok kolaydı.", rating: 5, sortOrder: 2 },
+  { name: "Malik J.", text: "Salon çok temiz, hizmet hızlı. Sakal tıraşı biraz daha özenli olabilirdi.", rating: 4, sortOrder: 3 },
+];
+
 /** Üretimde şifre her zaman SEED_PASSWORD'dan gelir; geliştirmede varsayılan kullanılır. */
 function seedPassword(): string {
   const fromEnv = process.env.SEED_PASSWORD?.trim();
@@ -30,11 +55,15 @@ async function main() {
   const password = seedPassword();
   const passwordHash = await bcrypt.hash(password, 10);
 
-  await prisma.settings.upsert({
+  const settings = await prisma.settings.upsert({
     where: { id: 1 },
     update: {},
-    create: { id: 1, shopName: "Afro Salon Modern", address: "İstanbul", phone: "+90 555 000 00 00" },
+    create: { id: 1, shopName: "Afro Salon Modern", address: "İstanbul", phone: "+90 555 000 00 00", ...DEFAULT_LANDING_CONTENT },
   });
+  // Var olan geliştirme veritabanlarında içerik alanları boşsa varsayılanlarla doldur (idempotent).
+  if (settings.aboutText === "") {
+    await prisma.settings.update({ where: { id: 1 }, data: DEFAULT_LANDING_CONTENT });
+  }
 
   await prisma.user.upsert({
     where: { email: "admin@afrosalon.local" },
@@ -73,6 +102,11 @@ async function main() {
     const exists = await prisma.service.findFirst({ where: { name: s.name } });
     if (!exists) await prisma.service.create({ data: s });
   }
+  for (const t of DEFAULT_TESTIMONIALS) {
+    const exists = await prisma.testimonial.findFirst({ where: { name: t.name } });
+    if (!exists) await prisma.testimonial.create({ data: t });
+  }
+
   const shown = process.env.SEED_PASSWORD?.trim() ? "SEED_PASSWORD değeri" : DEFAULT_SEED_PASSWORD;
   console.log(`Seed tamam. Admin: admin@afrosalon.local / ${shown}`);
 }
