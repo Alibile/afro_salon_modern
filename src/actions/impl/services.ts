@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { Prisma } from "@/generated/prisma/client";
 import { ok, fail, type ActionResult } from "@/lib/action-result";
 import type { SessionUser } from "@/lib/auth-helpers";
 import { asAdminActor } from "@/lib/staff-scope";
@@ -33,6 +34,12 @@ export async function deleteServiceAs(actor: SessionUser | null, id: string): Pr
   if (!existing) return fail("Hizmet bulunamadı");
   const usageCount = await prisma.appointmentService.count({ where: { serviceId: id } });
   if (usageCount > 0) return fail("Bu hizmet geçmiş randevularda kullanılmış, silinemez; pasife alın");
-  await prisma.service.delete({ where: { id } });
+  try {
+    await prisma.service.delete({ where: { id } });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2003")
+      return fail("Bu hizmetin bağlı kayıtları var, silinemez; pasife alın");
+    throw e;
+  }
   return ok(undefined);
 }

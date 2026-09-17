@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
+import { Prisma } from "@/generated/prisma/client";
 import { ok, fail, type ActionResult } from "@/lib/action-result";
 import type { SessionUser } from "@/lib/auth-helpers";
 import { asAdminActor } from "@/lib/staff-scope";
@@ -69,17 +70,29 @@ export async function deleteBarberAs(actorInput: SessionUser | null, barberId: s
   const existing = await prisma.barber.findUnique({ where: { id: barberId } });
   if (!existing) return fail("Berber bulunamadı");
   if (existing.userId === actor.id) return fail("Kendi hesabınızı silemezsiniz");
-  const [appointmentCount, photoCount] = await Promise.all([
+  const [appointmentCount, photoCount, customerAppointmentCount, customerPhotoCount] = await Promise.all([
     prisma.appointment.count({ where: { barberId } }),
     prisma.haircutPhoto.count({ where: { barberId } }),
+    prisma.appointment.count({ where: { customerId: existing.userId } }),
+    prisma.haircutPhoto.count({ where: { customerId: existing.userId } }),
   ]);
   if (appointmentCount > 0 || photoCount > 0) return fail("Bu berberin randevu veya fotoğraf geçmişi var, silinemez; pasife alın");
-  await prisma.$transaction([
-    prisma.timeOff.deleteMany({ where: { barberId } }),
-    prisma.workingHours.deleteMany({ where: { barberId } }),
-    prisma.barber.delete({ where: { id: barberId } }),
-    prisma.user.delete({ where: { id: existing.userId } }),
-  ]);
+  // Berberin kullanıcı hesabı aynı zamanda müşteri olarak da kayıt taşıyabilir;
+  // bu durumda user.delete yabancı anahtar hatası verir, önce burada durdururuz.
+  if (customerAppointmentCount > 0 || customerPhotoCount > 0)
+    return fail("Bu kullanıcının müşteri olarak randevu veya fotoğraf geçmişi var, silinemez; pasife alın");
+  try {
+    await prisma.$transaction([
+      prisma.timeOff.deleteMany({ where: { barberId } }),
+      prisma.workingHours.deleteMany({ where: { barberId } }),
+      prisma.barber.delete({ where: { id: barberId } }),
+      prisma.user.delete({ where: { id: existing.userId } }),
+    ]);
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2003")
+      return fail("Bu berberin bağlı kayıtları var, silinemez; pasife alın");
+    throw e;
+  }
   if (!existing.photoKey.startsWith("seed/") && !existing.photoKey.startsWith("landing/")) await deleteObject(existing.photoKey);
   return ok(undefined);
 }

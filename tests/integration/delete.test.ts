@@ -95,6 +95,35 @@ describe("deleteBarberAs", () => {
     expect(r).toEqual({ ok: false, error: "Bu berberin randevu veya fotoğraf geçmişi var, silinemez; pasife alın" });
   });
 
+  it("refuses when the barber's user has customer-side appointment history", async () => {
+    const { user, barber } = await createBarber();
+    const { barber: other } = await createBarber();
+    await prisma.appointment.create({
+      data: {
+        customerId: user.id,
+        barberId: other.id,
+        startsAt: new Date("2026-01-01T10:00:00.000Z"),
+        endsAt: new Date("2026-01-01T10:30:00.000Z"),
+        status: "COMPLETED",
+      },
+    });
+    const r = await deleteBarberAs(admin, barber.id);
+    expect(r).toEqual({ ok: false, error: "Bu kullanıcının müşteri olarak randevu veya fotoğraf geçmişi var, silinemez; pasife alın" });
+    expect(await prisma.barber.count()).toBe(2);
+    expect(await prisma.user.findUnique({ where: { id: user.id } })).not.toBeNull();
+  });
+
+  it("refuses when the barber's user has customer-side photo history", async () => {
+    const { user, barber } = await createBarber();
+    const { barber: other } = await createBarber();
+    await prisma.haircutPhoto.create({
+      data: { customerId: user.id, barberId: other.id, storageKey: "haircuts/y.jpg" },
+    });
+    const r = await deleteBarberAs(admin, barber.id);
+    expect(r).toEqual({ ok: false, error: "Bu kullanıcının müşteri olarak randevu veya fotoğraf geçmişi var, silinemez; pasife alın" });
+    expect(await prisma.user.findUnique({ where: { id: user.id } })).not.toBeNull();
+  });
+
   it("refuses admin deleting their own barber record", async () => {
     const { user, barber } = await createBarber();
     const selfAdmin: SessionUser = { id: user.id, name: user.name, email: user.email, role: "ADMIN", barberId: barber.id };
