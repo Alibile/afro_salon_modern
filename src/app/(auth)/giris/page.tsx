@@ -3,9 +3,12 @@ import { LoginForm } from "@/components/auth/LoginForm";
 export default async function GirisPage(props: { searchParams: Promise<{ next?: string }> }) {
   const { next } = await props.searchParams;
   return (
-    <main className="mx-auto max-w-sm px-4 py-10">
-      <h1 className="mb-6 text-2xl font-bold">Giriş yap</h1>
-      <LoginForm next={next} />
-    </main>
+    <>
+      <h1 className="display-lg">GİRİŞ YAP</h1>
+      <p className="editorial-note mt-2 text-muted-foreground">Randevunu onaylamak için hesabına gir.</p>
+      <div className="mt-8">
+        <LoginForm next={next} />
+      </div>
+    </>
   );
 }

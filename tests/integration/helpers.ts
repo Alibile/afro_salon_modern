@@ -52,12 +52,15 @@ export async function createBarber(overrides: { name?: string; hours?: boolean }
   return { user, barber };
 }
 
-export async function createService(overrides: Partial<{ name: string; durationMinutes: number; priceKurus: number }> = {}) {
+export async function createService(
+  overrides: Partial<{ name: string; durationMinutes: number; priceKurus: number; sortOrder: number }> = {},
+) {
   return prisma.service.create({
     data: {
       name: overrides.name ?? "Saç Kesimi",
       durationMinutes: overrides.durationMinutes ?? 30,
       priceKurus: overrides.priceKurus ?? 30000,
+      sortOrder: overrides.sortOrder ?? 0,
     },
   });
 }

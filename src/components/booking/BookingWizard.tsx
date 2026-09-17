@@ -41,7 +41,7 @@ export function BookingWizard({ services, barbers, isLoggedIn, initial }: Props)
   const confirm = () => {
     if (!barberId || !startsAt) return;
     if (!isLoggedIn) {
-      router.push(`/giris?next=${encodeURIComponent(`/?${stateQuery()}`)}`);
+      router.push(`/giris?next=${encodeURIComponent(`/randevu?${stateQuery()}`)}`);
       return;
     }
     startTransition(async () => {
@@ -66,12 +66,12 @@ export function BookingWizard({ services, barbers, isLoggedIn, initial }: Props)
         <SlotStep barberId={barberId} durationMinutes={totalMinutes} selected={startsAt} onSelect={setStartsAt} />
       )}
       {selected.length > 0 && (
-        <div className="sticky bottom-0 -mx-4 border-t bg-background/95 px-4 py-3 backdrop-blur">
-          <div className="mb-2 flex justify-between text-sm">
-            <span>{selected.map((s) => s.name).join(", ")}</span>
-            <span className="font-medium">{totalMinutes} dk · {formatKurus(totalKurus)}</span>
+        <div className="sticky bottom-0 -mx-4 border-t border-border bg-background/95 px-4 py-3 backdrop-blur">
+          <div className="mb-2 flex items-baseline justify-between gap-3 text-sm">
+            <span className="min-w-0 truncate text-muted-foreground">{selected.map((s) => s.name).join(", ")}</span>
+            <span className="shrink-0 font-medium tabular-nums">{totalMinutes} dk · {formatKurus(totalKurus)}</span>
           </div>
-          <Button className="w-full" size="lg" disabled={!startsAt || pending} onClick={confirm}>
+          <Button className="h-12 w-full rounded-none text-base" size="lg" disabled={!startsAt || pending} onClick={confirm}>
             {pending ? "Kaydediliyor…" : isLoggedIn ? "Randevuyu onayla" : "Giriş yap ve onayla"}
           </Button>
         </div>

@@ -1,36 +1,49 @@
-# afro_salon_modern
+# Afro Salon Modern
 
-## Getting Started
+Tek bir afro berber salonu için aynı gün randevu sistemi. Next.js App Router,
+Prisma + PostgreSQL, Auth.js, Tailwind CSS v4.
 
-First, run the development server:
+## Başlangıç
 
 ```bash
+docker compose up -d        # Postgres
+npm install
+npm run db:migrate
+npm run db:seed
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+http://localhost:3000 adresinde açılır.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `/` — landing page (salon tanıtımı, hizmetler, ekip, galeri, iletişim)
+- `/randevu` — 3 adımlı randevu akışı (hizmet → berber → saat)
+- `/randevularim` — müşterinin bugünkü ve geçmiş randevuları
+- `/panel` — berber ve admin paneli
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Test
 
-## Learn More
+```bash
+npm test                 # birim testleri (Vitest)
+npm run test:integration # entegrasyon testleri (test veritabanı gerekir)
+npm run typecheck
+npm run lint
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Fotoğraflar
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Landing page'deki görsel alanlar `public/landing/` altındaki dosyalardan
+okunur. Dosya yoksa yerine afrika geometrik desenli zarif bir yer tutucu
+render edilir; kırık görsel çıkmaz. Fotoğrafları eklemek için dosyaları
+aşağıdaki adlarla bu klasöre koy:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Dosya | Yer | Öneri |
+|---|---|---|
+| `public/landing/hero.jpg` | Hero görseli | Dikey, 4:5, en az 1200px genişlik |
+| `public/landing/gallery-1.jpg` … `gallery-8.jpg` | Galeri ızgarası | Kare (1:1), en az 800×800 |
 
-## Deploy on Vercel
+Galeri önce veritabanındaki kesim fotoğraflarını (en yeni 8 `HaircutPhoto`)
+gösterir; kayıt yoksa `public/landing/gallery-N.jpg` dosyalarına, onlar da
+yoksa desenli yer tutuculara düşer.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Berber profil fotoğrafları bu klasörden değil, R2'den (`Barber.photoKey`)
+gelir; seed verisi `public/seed/` altındaki yer tutucuları kullanır.

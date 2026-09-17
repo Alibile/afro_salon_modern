@@ -7,7 +7,7 @@ export default async function MusteriLayout({ children }: { children: React.Reac
   return (
     <>
       <SiteHeader user={user} shopName={settings.shopName} />
-      <main className="mx-auto w-full max-w-lg px-4 pb-16 pt-6">{children}</main>
+      <main>{children}</main>
     </>
   );
 }

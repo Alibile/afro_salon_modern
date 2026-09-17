@@ -23,20 +23,20 @@ export function SlotStep({ barberId, durationMinutes, selected, onSelect }: { ba
 
   return (
     <section>
-      <h2 className="mb-3 text-2xl">3. Saat seç</h2>
+      <h2 className="display-md mb-4">3. Saat seç</h2>
       {error && <p className="text-destructive">{error}</p>}
       {!data && !error && <p className="text-muted-foreground">Yükleniyor…</p>}
       {data && !data.isOpenToday && (
-        <p className="rounded-xl bg-muted p-4">Bugün kapalıyız. {data.opensAt ? `Yarın ${data.opensAt} itibarıyla tekrar deneyin.` : ""}</p>
+        <p className="border border-border bg-muted p-4">Bugün kapalıyız. {data.opensAt ? `Yarın ${data.opensAt} itibarıyla tekrar deneyin.` : ""}</p>
       )}
       {data && data.isOpenToday && data.slots.length === 0 && (
-        <p className="rounded-xl bg-muted p-4">Bugün için uygun saat kalmadı. {data.opensAt ? `Yarın ${data.opensAt} itibarıyla tekrar deneyin.` : ""}</p>
+        <p className="border border-border bg-muted p-4">Bugün için uygun saat kalmadı. {data.opensAt ? `Yarın ${data.opensAt} itibarıyla tekrar deneyin.` : ""}</p>
       )}
       {data && data.slots.length > 0 && (
         <div className="grid grid-cols-4 gap-2">
           {data.slots.map((iso) => (
             <button key={iso} type="button" onClick={() => onSelect(iso)} aria-pressed={selected === iso}
-              className={cn("rounded-lg border bg-card py-2 text-sm font-medium", selected === iso && "bg-primary text-primary-foreground border-primary")}>
+              className={cn("border border-border bg-card py-2.5 text-sm font-medium tabular-nums transition-colors", selected === iso ? "border-primary bg-primary text-primary-foreground" : "hover:border-foreground/40")}>
               {formatShopTime(new Date(iso))}
             </button>
           ))}

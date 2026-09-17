@@ -10,11 +10,11 @@ const STATUS: Record<AppointmentView["status"], string> = {
 
 export function AppointmentCard({ a, shopPhone, big = false }: { a: AppointmentView; shopPhone: string; big?: boolean }) {
   return (
-    <div className={big ? "rounded-2xl border-2 border-primary bg-card p-5" : "rounded-xl border bg-card p-4"}>
+    <div className={big ? "border-l-4 border-primary bg-card p-5 shadow-none" : "border border-border bg-card p-4"}>
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className={big ? "text-3xl" : "font-medium"}>{formatShopTime(a.startsAt)} – {formatShopTime(a.endsAt)}</p>
-          <p className="text-sm text-muted-foreground">{formatShopDate(a.startsAt)} · {a.barberName}</p>
+          <p className={big ? "display-md tabular-nums" : "font-display text-xl tracking-wide tabular-nums"}>{formatShopTime(a.startsAt)} – {formatShopTime(a.endsAt)}</p>
+          <p className="editorial-note mt-1 text-sm text-muted-foreground">{formatShopDate(a.startsAt)}, {a.barberName}</p>
         </div>
         <Badge variant={a.status === "SCHEDULED" ? "default" : "secondary"}>{STATUS[a.status]}</Badge>
       </div>

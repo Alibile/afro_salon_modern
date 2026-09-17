@@ -76,12 +76,50 @@
   --radius-xl: calc(var(--radius) + 4px);
   --font-display: var(--font-display);
   --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
   --font-heading: var(--font-display);
 }
 
 @layer base {
   * { @apply border-border outline-ring/50; }
-  html { overflow-x: hidden; }
+  html { overflow-x: hidden; scroll-behavior: smooth; }
   body { @apply bg-background text-foreground font-sans antialiased; }
   h1, h2, h3 { @apply font-display tracking-wide; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+@layer components {
+  /* Editoryal ölçek: manşetler dar satır aralığıyla, gövde bol boşlukla. */
+  .display-hero {
+    font-family: var(--font-display);
+    font-size: clamp(3.25rem, 11.5vw, 7.5rem);
+    line-height: 0.85;
+    letter-spacing: 0.012em;
+    text-wrap: balance;
+  }
+  .display-lg {
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 6vw, 3.75rem);
+    line-height: 0.92;
+    letter-spacing: 0.02em;
+  }
+  .display-md {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 3.4vw, 2.5rem);
+    line-height: 0.98;
+    letter-spacing: 0.02em;
+  }
+  /* Tek serif italik yüz yalnızca editoryal notlarda kullanılır. */
+  .editorial-note {
+    font-family: var(--font-serif), Georgia, serif;
+    font-style: italic;
+    line-height: 1.5;
+  }
+  .measure { max-width: 62ch; }
+  /* Fiyat listesinde adı fiyata bağlayan ince kılavuz çizgi. */
+  .leader { flex: 1 1 auto; height: 1px; background: var(--border); transform: translateY(-0.35em); }
 }
