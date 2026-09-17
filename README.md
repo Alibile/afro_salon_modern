@@ -1,33 +1,61 @@
 # Afro Salon Modern
 
-Tek bir afro berber salonu için aynı gün randevu sistemi. Next.js App Router,
-Prisma + PostgreSQL, Auth.js, Tailwind CSS v4.
+Tek bir afro berber salonu için aynı gün randevu sistemi. Next.js 16 + Prisma 7 + PostgreSQL.
 
-## Başlangıç
+## Başlangıç / Geliştirme
 
 ```bash
-docker compose up -d        # Postgres
+cp .env.example .env        # AUTH_SECRET'ı openssl rand -base64 32 ile üret
+docker compose up -d
 npm install
 npm run db:migrate
-npm run db:seed
+npm run db:seed             # admin@afrosalon.local / Sifre123!
 npm run dev
 ```
 
 http://localhost:3000 adresinde açılır.
+
+## Rotalar
 
 - `/` — landing page (salon tanıtımı, hizmetler, ekip, galeri, iletişim)
 - `/randevu` — 3 adımlı randevu akışı (hizmet → berber → saat)
 - `/randevularim` — müşterinin bugünkü ve geçmiş randevuları
 - `/panel` — berber ve admin paneli
 
-## Test
+## Testler
 
-```bash
-npm test                 # birim testleri (Vitest)
-npm run test:integration # entegrasyon testleri (test veritabanı gerekir)
-npm run typecheck
-npm run lint
-```
+- `npm test` — birim testler (Vitest)
+- `npm run test:integration` — gerçek Postgres (afro_salon_test) üzerinde; önce `npm run db:migrate:test`
+- `npm run test:e2e` — Playwright (mesai saatleri içinde çalıştır; system Chrome kullanır, test veritabanında tüm berberleri gün boyu açık tutar)
+
+## Ortam değişkenleri
+
+| Değişken | Açıklama |
+|---|---|
+| DATABASE_URL | Postgres bağlantısı |
+| AUTH_SECRET, AUTH_URL | Auth.js |
+| RESEND_API_KEY, EMAIL_FROM | E-posta; boşsa gönderim atlanır ve loglanır |
+| R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET, R2_PUBLIC_URL | Cloudflare R2; bucket public erişim açık ve CORS'ta PUT izinli olmalı |
+
+## R2 CORS
+
+Cloudflare R2 bucket ayarlarında CORS örneği:
+- **AllowedOrigins:** `["http://localhost:3000","https://<alan-adı>"]`
+- **AllowedMethods:** `["PUT"]`
+- **AllowedHeaders:** `["content-type"]`
+
+## Deploy (Vercel + Neon + R2)
+
+1. Neon'da Postgres oluştur, `DATABASE_URL`'i Vercel env'e ekle.
+2. Vercel'de tüm env değişkenlerini gir, `AUTH_URL` canlı alan adı olsun.
+3. Build komutu `npm run build` (prisma generate içerir). İlk deploy sonrası `npx prisma migrate deploy` ve `npx prisma db seed` lokal makineden canlı `DATABASE_URL` ile çalıştır.
+4. Seed'deki admin şifresini panelden değiştir (berber şifresi gibi admin için de "Şifreyi sıfırla" yoksa, DB'den bcrypt hash güncelle).
+
+## Roller
+
+- **CUSTOMER:** randevu alır, iptal eder, fotoğraflarını görür
+- **BARBER:** kendi takvimi, izinleri, müşteri fotoğrafları
+- **ADMIN:** her şey + hizmet/berber/ayar yönetimi
 
 ## Fotoğraflar
 
