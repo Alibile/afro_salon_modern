@@ -1,10 +1,29 @@
 import { describe, it, expect } from "vitest";
-import { formatKurus } from "@/lib/money";
+import { formatKurus, parsePriceInput } from "@/lib/money";
 
 describe("formatKurus", () => {
   it("formats with Turkish separators", () => {
     expect(formatKurus(40000)).toBe("400,00 ₺");
     expect(formatKurus(125050)).toBe("1.250,50 ₺");
     expect(formatKurus(0)).toBe("0,00 ₺");
+  });
+});
+
+describe("parsePriceInput", () => {
+  it("boş alanı fiyat saymaz", () => {
+    expect(parsePriceInput("")).toEqual({ kind: "empty" });
+    expect(parsePriceInput("   ")).toEqual({ kind: "empty" });
+  });
+
+  it("sayıya çevrilemeyen değeri geçersiz sayar", () => {
+    expect(parsePriceInput("abc")).toEqual({ kind: "invalid" });
+    expect(parsePriceInput("12,50")).toEqual({ kind: "invalid" });
+    expect(parsePriceInput("Infinity")).toEqual({ kind: "invalid" });
+  });
+
+  it("geçerli sayıyı lira olarak döner", () => {
+    expect(parsePriceInput("350")).toEqual({ kind: "value", lira: 350 });
+    expect(parsePriceInput(" 12.5 ")).toEqual({ kind: "value", lira: 12.5 });
+    expect(parsePriceInput("0")).toEqual({ kind: "value", lira: 0 });
   });
 });

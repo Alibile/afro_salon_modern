@@ -3,7 +3,7 @@ import { useState, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
-import { formatKurus } from "@/lib/money";
+import { formatKurus, parsePriceInput } from "@/lib/money";
 import { upsertService } from "@/actions/services";
 
 type Service = { id: string; name: string; durationMinutes: number; priceKurus: number; sortOrder: number };
@@ -35,8 +35,19 @@ export function InlinePrice({ service }: { service: Service }) {
   const save = (raw: string) => {
     if (settledRef.current) return;
     settledRef.current = true;
-    const priceLira = Number(raw);
-    if (!Number.isFinite(priceLira) || priceLira < 0 || Math.round(priceLira * 100) === service.priceKurus) {
+    const parsed = parsePriceInput(raw);
+    // Boş bırakılan alan "0 ₺" demek değildir; kaydetmeden çık.
+    if (parsed.kind === "empty") {
+      setEditing(false);
+      return;
+    }
+    if (parsed.kind === "invalid") {
+      toast.error("Geçersiz fiyat");
+      setEditing(false);
+      return;
+    }
+    const priceLira = parsed.lira;
+    if (priceLira < 0 || Math.round(priceLira * 100) === service.priceKurus) {
       setEditing(false);
       return;
     }
