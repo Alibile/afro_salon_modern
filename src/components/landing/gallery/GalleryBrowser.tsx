@@ -25,8 +25,10 @@ export function GalleryBrowser({ photos, tags }: { photos: GalleryPhoto[]; tags:
   const [page, setPage] = useState(1);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
-  const counts = useMemo(() => {
-    const c: Record<string, number> = { __all: photos.length };
+  // "Tümü" sayısı etiket sayılarından ayrı taşınır: sihirli bir anahtar
+  // (`__all`) bir gün gerçek bir etiketle çakışabilirdi.
+  const tagCounts = useMemo(() => {
+    const c: Record<string, number> = {};
     for (const tag of tags) c[tag] = filterByTag(photos, tag).length;
     return c;
   }, [photos, tags]);
@@ -34,6 +36,16 @@ export function GalleryBrowser({ photos, tags }: { photos: GalleryPhoto[]; tags:
   const filtered = useMemo(() => filterByTag(photos, active), [photos, active]);
   const visible = paginate(filtered, page, GALLERY_PAGE_SIZE);
   const remaining = filtered.length - visible.length;
+
+  /**
+   * Lightbox filtrelenmiş listenin tamamında gezinir, yalnızca basılı sayfada
+   * değil: 12. fotoğraftan sonra ok tuşu başa dönmek yerine 13.'ye geçer ve
+   * gerideki ızgara da o fotoğrafı kapsayacak kadar açılır.
+   */
+  function showIndex(index: number) {
+    setOpenIndex(index);
+    setPage((p) => Math.max(p, Math.ceil((index + 1) / GALLERY_PAGE_SIZE)));
+  }
 
   function selectTag(tag: string | null) {
     setPage(1);
@@ -50,10 +62,10 @@ export function GalleryBrowser({ photos, tags }: { photos: GalleryPhoto[]; tags:
 
   return (
     <>
-      <GalleryFilters tags={tags} active={active} onSelect={selectTag} counts={counts} />
+      <GalleryFilters tags={tags} active={active} onSelect={selectTag} counts={tagCounts} totalCount={photos.length} />
 
       <div className="mt-8">
-        <MasonryGrid photos={visible} onSelect={setOpenIndex} />
+        <MasonryGrid photos={visible} onSelect={showIndex} />
       </div>
 
       <p aria-live="polite" className="sr-only">
@@ -72,7 +84,7 @@ export function GalleryBrowser({ photos, tags }: { photos: GalleryPhoto[]; tags:
         </div>
       )}
 
-      <Lightbox photos={visible} index={openIndex} onIndexChange={setOpenIndex} onClose={() => setOpenIndex(null)} />
+      <Lightbox photos={filtered} index={openIndex} onIndexChange={showIndex} onClose={() => setOpenIndex(null)} />
     </>
   );
 }

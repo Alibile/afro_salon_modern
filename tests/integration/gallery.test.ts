@@ -83,6 +83,37 @@ describe("addGalleryPhotosAs", () => {
     expect((await addGalleryPhotosAs(admin, [item({ height: -3 })])).ok).toBe(false);
   });
 
+  it("aşırı uzun/geniş oranları reddeder, uç sınırları kabul eder", async () => {
+    // Masonry oranı olduğu gibi kullanır: 100×5000 bir sütunu tek başına uzatırdı.
+    expect(await addGalleryPhotosAs(admin, [item({ width: 100, height: 5000 })])).toEqual({
+      ok: false,
+      error: "Geçersiz görsel oranı",
+    });
+    expect(await addGalleryPhotosAs(admin, [item({ width: 5000, height: 100 })])).toEqual({
+      ok: false,
+      error: "Geçersiz görsel oranı",
+    });
+    expect((await addGalleryPhotosAs(admin, [item({ width: 400, height: 2000 })])).ok).toBe(true);
+    expect((await addGalleryPhotosAs(admin, [item({ width: 2000, height: 400 })])).ok).toBe(true);
+  });
+
+  it("tek seferde 24'ten fazla fotoğraf kabul etmez", async () => {
+    const many = Array.from({ length: 25 }, () => item());
+    expect(await addGalleryPhotosAs(admin, many)).toEqual({
+      ok: false,
+      error: "Tek seferde en fazla 24 fotoğraf yüklenebilir",
+    });
+    expect(await prisma.galleryPhoto.count()).toBe(0);
+  });
+
+  it("aynı depo anahtarı iki kez eklenemez", async () => {
+    const storageKey = key();
+    expect((await addGalleryPhotosAs(admin, [item({ storageKey })])).ok).toBe(true);
+    // Benzersiz indeks veritabanı düzeyinde: ikinci ekleme reddedilir.
+    await expect(addGalleryPhotosAs(admin, [item({ storageKey })])).rejects.toThrow();
+    expect(await prisma.galleryPhoto.count()).toBe(1);
+  });
+
   it("berber ve müşteri reddedilir", async () => {
     expect(await addGalleryPhotosAs(barber, [item()])).toEqual({ ok: false, error: "Yetkiniz yok" });
     expect(await addGalleryPhotosAs(customer, [item()])).toEqual({ ok: false, error: "Yetkiniz yok" });

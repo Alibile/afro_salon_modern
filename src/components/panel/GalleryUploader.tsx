@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { addGalleryPhotos } from "@/actions/gallery";
 import { MAX_UPLOAD_BYTES } from "@/lib/upload-limits";
+import { MAX_GALLERY_BATCH } from "@/schemas/gallery";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
@@ -104,12 +105,20 @@ export function GalleryUploader() {
         aria-label="Galeriye fotoğraf yükle"
         onChange={(e) => {
           const selected = Array.from(e.target.files ?? []);
-          if (selected.length > 0) uploadAll(selected);
+          if (selected.length === 0) return;
+          // Sınır depoya tek bayt gitmeden burada uygulanır: şema 24'ten fazlasını
+          // zaten reddederdi, ama o noktada dosyalar çoktan yüklenmiş olurdu.
+          if (selected.length > MAX_GALLERY_BATCH) {
+            toast.error(`En fazla ${MAX_GALLERY_BATCH} dosya seçebilirsiniz`);
+            e.target.value = "";
+            return;
+          }
+          uploadAll(selected);
         }}
       />
       <p className="text-xs text-muted-foreground">
-        Birden çok dosya seçebilirsin. JPEG, PNG veya WebP; dosya başına en fazla 8 MB. Yüklenen fotoğraflar listenin
-        sonuna eklenir, etiketlerini aşağıdan verirsin.
+        Birden çok dosya seçebilirsin: tek seferde en fazla {MAX_GALLERY_BATCH} dosya. JPEG, PNG veya WebP; dosya
+        başına en fazla 8 MB. Yüklenen fotoğraflar listenin sonuna eklenir, etiketlerini aşağıdan verirsin.
       </p>
       {files.length > 0 && (
         <ul className="space-y-1 text-sm">

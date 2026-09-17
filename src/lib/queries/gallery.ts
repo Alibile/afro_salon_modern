@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { GALLERY_ORDER } from "@/lib/gallery-order";
 
 import type { GalleryPhoto } from "@/lib/gallery-utils";
 
@@ -14,7 +15,7 @@ export type GalleryData = { photos: GalleryPhotoView[]; tags: string[] };
 export async function getGalleryData(): Promise<GalleryData> {
   const photos = await prisma.galleryPhoto.findMany({
     where: { isActive: true },
-    orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+    orderBy: GALLERY_ORDER,
     select: { id: true, storageKey: true, caption: true, tags: true, width: true, height: true },
   });
   const tags = [...new Set(photos.flatMap((p) => p.tags))].sort((a, b) => a.localeCompare(b, "tr"));
@@ -24,7 +25,7 @@ export async function getGalleryData(): Promise<GalleryData> {
 /** Panel listesi: pasifler dahil, aynı sırayla. */
 export async function getPanelGalleryPhotos() {
   return prisma.galleryPhoto.findMany({
-    orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+    orderBy: GALLERY_ORDER,
     select: { id: true, storageKey: true, caption: true, tags: true, width: true, height: true, isActive: true },
   });
 }

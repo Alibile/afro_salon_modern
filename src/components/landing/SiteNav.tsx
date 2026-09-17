@@ -43,6 +43,19 @@ export function SiteNav({ shopName, user, social }: { shopName: string; user: Se
     });
   });
 
+  // Sayfa kaydırılmış bir konumda açılabilir (yenileme, `#bolum` bağlantısı,
+  // geri tuşu) ve `change` olayı yalnızca değer değiştiğinde çalışır: ilk hâl
+  // bir kez elle okunmazsa çubuk sayfanın ortasında "açık" kalırdı. Okuma bir
+  // sonraki kareye bırakılır, çünkü tarayıcı kaydırma konumunu hidrasyondan
+  // sonra geri yükler.
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      const y = scrollY.get();
+      setShrunk((was) => (was ? y >= EXPAND_AT : y > COLLAPSE_AT));
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [scrollY]);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {

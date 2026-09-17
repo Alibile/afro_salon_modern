@@ -177,7 +177,9 @@ model Testimonial {
 /// Landing sayfasındaki galeri: panelden yönetilir, kesim fotoğraflarından (HaircutPhoto) bağımsızdır.
 model GalleryPhoto {
   id         String   @id @default(cuid())
-  storageKey String
+  /// Aynı dosya iki kez eklenemez: seed zaten anahtar üzerinden upsert eder ve
+  /// silme, anahtarı depodan kaldırdığı için ikinci kayıt ölü bağlantı olurdu.
+  storageKey String   @unique
   caption    String   @default("")
   tags       String[] @default([])
   width      Int

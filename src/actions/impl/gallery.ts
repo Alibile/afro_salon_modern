@@ -3,6 +3,7 @@ import { ok, fail, type ActionResult } from "@/lib/action-result";
 import type { SessionUser } from "@/lib/auth-helpers";
 import { asAdminActor } from "@/lib/staff-scope";
 import { deleteObject } from "@/lib/storage";
+import { GALLERY_ORDER } from "@/lib/gallery-order";
 import {
   addGalleryPhotosSchema,
   updateGalleryPhotoSchema,
@@ -13,8 +14,6 @@ import {
 } from "@/schemas/gallery";
 
 const NOT_FOUND = "Fotoğraf bulunamadı";
-/** Panel ve landing aynı sırayı kullanır: elle verilen sıra, sonra en yeni önce. */
-const ORDER = [{ sortOrder: "asc" as const }, { createdAt: "desc" as const }];
 
 /** Panelden yüklenen fotoğraflar tek çağrıda, mevcutların arkasına eklenir. */
 export async function addGalleryPhotosAs(
@@ -67,7 +66,7 @@ export async function moveGalleryPhotoAs(
   const parsedDirection = galleryDirectionSchema.safeParse(direction);
   if (!parsedDirection.success) return fail("Geçersiz yön");
 
-  const rows = await prisma.galleryPhoto.findMany({ orderBy: ORDER, select: { id: true, sortOrder: true } });
+  const rows = await prisma.galleryPhoto.findMany({ orderBy: GALLERY_ORDER, select: { id: true, sortOrder: true } });
   const index = rows.findIndex((r) => r.id === id);
   if (index === -1) return fail(NOT_FOUND);
 

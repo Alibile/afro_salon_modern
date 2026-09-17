@@ -32,10 +32,17 @@ test.describe("landing galeri", () => {
     await cards.first().click();
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
+    // Sayaç filtrelenmiş listenin tamamını gösterir (basılı sayfayı değil):
+    // seed'de 8 fotoğraf var, sayfa boyu 12 — ikisi de aynı sayıya çıkar.
     await expect(dialog.getByText(`1 / ${AFRO_COUNT}`)).toBeVisible();
 
     await page.keyboard.press("ArrowRight");
     await expect(dialog.getByText(`2 / ${AFRO_COUNT}`)).toBeVisible();
+
+    // Baştan geriye gidince listenin sonuna sarar.
+    await page.keyboard.press("ArrowLeft");
+    await page.keyboard.press("ArrowLeft");
+    await expect(dialog.getByText(`${AFRO_COUNT} / ${AFRO_COUNT}`)).toBeVisible();
 
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();

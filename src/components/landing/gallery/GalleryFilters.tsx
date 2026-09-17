@@ -10,14 +10,17 @@ export function GalleryFilters({
   active,
   onSelect,
   counts,
+  totalCount,
 }: {
   tags: string[];
   active: string | null;
   onSelect: (tag: string | null) => void;
+  /** Etiket başına fotoğraf sayısı; "Tümü" burada değil, `totalCount` içinde. */
   counts: Record<string, number>;
+  totalCount: number;
 }) {
   const items: { key: string; label: string; value: string | null; count: number }[] = [
-    { key: "all", label: "Tümü", value: null, count: counts.__all ?? 0 },
+    { key: "all", label: "Tümü", value: null, count: totalCount },
     ...tags.map((t) => ({ key: t, label: t, value: t as string | null, count: counts[t] ?? 0 })),
   ];
   return (

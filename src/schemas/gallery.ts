@@ -16,10 +16,25 @@ export const galleryItemSchema = z.object({
 });
 export type GalleryItemInput = z.infer<typeof galleryItemSchema>;
 
+/** Tek yüklemede kabul edilen en fazla fotoğraf; panel yükleyicisi de bunu kullanır. */
+export const MAX_GALLERY_BATCH = 24;
+/**
+ * Masonry, gelen oranı olduğu gibi kullanır: 1×5000 gibi bir görsel sütunu
+ * tek başına metrelerce uzatırdı. Sınır geniş tutuldu (panorama ve uzun dikey
+ * kadrajlar geçer), yalnızca bozuk/uç değerler elenir.
+ */
+const MIN_ASPECT = 0.2;
+const MAX_ASPECT = 5;
+
 export const addGalleryPhotosSchema = z
-  .array(galleryItemSchema)
+  .array(
+    galleryItemSchema.refine(
+      (item) => item.width / item.height >= MIN_ASPECT && item.width / item.height <= MAX_ASPECT,
+      "Geçersiz görsel oranı",
+    ),
+  )
   .min(1, "En az bir fotoğraf seçin")
-  .max(24, "Tek seferde en fazla 24 fotoğraf yüklenebilir");
+  .max(MAX_GALLERY_BATCH, `Tek seferde en fazla ${MAX_GALLERY_BATCH} fotoğraf yüklenebilir`);
 
 /** Virgüllü metin ya da dizi kabul eder; kırpma/tekilleştirme `normalizeTags` ile yapılır. */
 const tagsField = z

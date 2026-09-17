@@ -77,7 +77,8 @@ export function GalleryCard({ photo, index, total }: { photo: PanelGalleryPhoto;
           onChange={(e) => setTags(e.target.value)}
         />
         <p className="text-xs text-muted-foreground">
-          Virgülle ayır. En fazla {MAX_TAGS} etiket, her biri {TAG_MIN_LENGTH}–{TAG_MAX_LENGTH} karakter.
+          Virgülle ayır. En az bir etiket zorunlu; en fazla {MAX_TAGS} etiket, her biri{" "}
+          {TAG_MIN_LENGTH}–{TAG_MAX_LENGTH} karakter.
         </p>
       </div>
 
