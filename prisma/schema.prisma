@@ -32,7 +32,7 @@ model User {
   passwordHash String
   phone        String?
   role         Role     @default(CUSTOMER)
-  createdAt    DateTime @default(now())
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
 
   barber       Barber?
   appointments Appointment[] @relation("CustomerAppointments")
@@ -80,8 +80,8 @@ model WorkingHours {
 model TimeOff {
   id       String   @id @default(cuid())
   barberId String
-  startsAt DateTime
-  endsAt   DateTime
+  startsAt DateTime @db.Timestamptz(3)
+  endsAt   DateTime @db.Timestamptz(3)
   reason   String?
 
   barber Barber @relation(fields: [barberId], references: [id], onDelete: Cascade)
@@ -98,7 +98,7 @@ model Appointment {
   status      AppointmentStatus @default(SCHEDULED)
   cancelledBy CancelledBy?
   notes       String?
-  createdAt   DateTime          @default(now())
+  createdAt   DateTime          @default(now()) @db.Timestamptz(3)
 
   customer User                 @relation("CustomerAppointments", fields: [customerId], references: [id])
   barber   Barber               @relation(fields: [barberId], references: [id])
@@ -127,7 +127,7 @@ model HaircutPhoto {
   barberId      String
   appointmentId String?
   storageKey    String
-  createdAt     DateTime @default(now())
+  createdAt     DateTime @default(now()) @db.Timestamptz(3)
 
   customer    User         @relation("CustomerPhotos", fields: [customerId], references: [id], onDelete: Cascade)
   barber      Barber       @relation(fields: [barberId], references: [id])

@@ -17,7 +17,7 @@ CREATE TABLE "User" (
     "passwordHash" TEXT NOT NULL,
     "phone" TEXT,
     "role" "Role" NOT NULL DEFAULT 'CUSTOMER',
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -61,8 +61,8 @@ CREATE TABLE "WorkingHours" (
 CREATE TABLE "TimeOff" (
     "id" TEXT NOT NULL,
     "barberId" TEXT NOT NULL,
-    "startsAt" TIMESTAMP(3) NOT NULL,
-    "endsAt" TIMESTAMP(3) NOT NULL,
+    "startsAt" TIMESTAMPTZ(3) NOT NULL,
+    "endsAt" TIMESTAMPTZ(3) NOT NULL,
     "reason" TEXT,
 
     CONSTRAINT "TimeOff_pkey" PRIMARY KEY ("id")
@@ -78,7 +78,7 @@ CREATE TABLE "Appointment" (
     "status" "AppointmentStatus" NOT NULL DEFAULT 'SCHEDULED',
     "cancelledBy" "CancelledBy",
     "notes" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Appointment_pkey" PRIMARY KEY ("id")
 );
@@ -102,7 +102,7 @@ CREATE TABLE "HaircutPhoto" (
     "barberId" TEXT NOT NULL,
     "appointmentId" TEXT,
     "storageKey" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "HaircutPhoto_pkey" PRIMARY KEY ("id")
 );
