@@ -17,10 +17,56 @@ http://localhost:3000 adresinde açılır.
 
 ## Rotalar
 
-- `/` — landing page (salon tanıtımı, hizmetler, ekip, galeri, iletişim)
+- `/` — landing page
+  - `#hakkimizda` — Hakkımızda bölümü
+  - `#hizmetler` — Hizmetler bölümü
+  - `#ekip` — Ekip bölümü
+  - `#galeri` — Galeri bölümü
+  - `#yorumlar` — Müşteri yorumları bölümü
+  - `#iletisim` — İletişim formu bölümü
 - `/randevu` — 3 adımlı randevu akışı (hizmet → berber → saat)
 - `/randevularim` — müşterinin bugünkü ve geçmiş randevuları
 - `/panel` — berber ve admin paneli
+
+## Panel Sayfaları
+
+- `/panel/randevular` — tüm randevular (berber zamanlaması)
+- `/panel/izinler` — berber izinleri (barber)
+- `/panel/musteriler` — tüm müşteriler (admin)
+- `/panel/hizmetler` — hizmet listesi, fiyat ve süre (sıralamadan sil/düzenle; hard delete kuralı: geçmiş randevusu olan hizmetler sadece pasifleştirilebilir)
+- `/panel/berberler` — berber listesi (sıralamadan sil/düzenle; hard delete kuralı: geçmiş randevusu olan berberler sadece pasifleştirilebilir)
+- `/panel/profil` — kendi profil bilgileri ve şifre değişimi (tüm personel)
+- `/panel/yorumlar` — müşteri yorumları yönetimi: ekle/düzenle/aktif-pasif geçişi (admin)
+- `/panel/ayarlar` — salon ve site içeriği ayarları (admin)
+
+## İçerik yönetimi (Site ayarları)
+
+Panelden `/panel/ayarlar` sayfasında aşağıdaki bilgiler düzenlenebilir:
+
+**Salon bilgileri:**
+- Salon adı, adres, telefon
+- Randevu iptali için gerekli ön bildirim (dakika)
+- Minimum önceden randevu alma süresi (dakika)
+- Saat aralığı adımı (dakika)
+- Zaman dilimi
+- Berber bilgisi hakkında bildirim
+
+**Site içeriği:**
+- E-posta (iletişim formu gönderimler için; boşsa `EMAIL_FROM` kullanılır)
+- İnstagram, Facebook, WhatsApp (sosyal medya bağlantıları; boşsa gösterilmez)
+- "Hakkımızda" başlığı ve metni (wysiwyg-style textarea)
+- "Neden biz" — 3 madde (başlık + metin)
+- Müşteri memnuniyet yüzdesi (istatistik)
+- İşletme deneyim yılı (istatistik)
+- Google Harita URL'si
+
+## İletişim Formu
+
+Landing page'deki iletişim formundan (`#iletisim`) gelen mesajlar:
+- Doğrulama: ad (2-60 karakter), telefon (opsiyonel), mesaj (10-1000 karakter), honeypot alan (`website`)
+- Rate limit: IP başına dakikada 3 istek (hafıza içi)
+- E-posta gönderimi: `settings.email` hedefine (boşsa `EMAIL_FROM`); test/env yoksa `[email:skipped]` loglanır
+- Bu endpoint anonim erişime açık (yetki kontrolü yok)
 
 ## Testler
 
@@ -35,9 +81,9 @@ http://localhost:3000 adresinde açılır.
 | DATABASE_URL | Postgres bağlantısı |
 | AUTH_SECRET, AUTH_URL | Auth.js |
 | RESEND_API_KEY, EMAIL_FROM | E-posta; boşsa gönderim atlanır ve loglanır |
+| SEED_PASSWORD | Seed kullanıcılarının şifresi (admin, berber); boşsa `Sifre123!` kullanılır |
 | R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET | Cloudflare R2; bucket public erişim açık ve CORS'ta PUT izinli olmalı |
 | NEXT_PUBLIC_R2_PUBLIC_URL | R2 public alan adı; tarayıcıda da okunduğu için NEXT_PUBLIC_ önekli. `next.config.ts` içindeki `remotePatterns` ile uyumlu olmalı |
-| SEED_PASSWORD | Seed kullanıcılarının şifresi; boşsa geliştirmede `Sifre123!` kullanılır, `NODE_ENV=production` ise seed hata verir |
 
 ## R2 CORS
 
