@@ -9,7 +9,7 @@ vi.mock("@/lib/storage", () => ({
 }));
 
 import { deleteObject } from "@/lib/storage";
-import { addHaircutPhoto, deleteHaircutPhoto } from "@/actions/photos";
+import { addHaircutPhotoAs, deleteHaircutPhotoAs } from "@/actions/impl/photos";
 
 const asBarber = (u: { id: string; name: string; email: string }, barberId: string): SessionUser => ({ ...u, role: "BARBER", barberId });
 
@@ -19,7 +19,7 @@ describe("haircut photos", () => {
     const c = await createCustomer();
     const actor = asBarber(user, barber.id);
     for (let i = 1; i <= 5; i++) {
-      const r = await addHaircutPhoto({ customerId: c.id, storageKey: `haircuts/p${i}.jpg` }, { actor });
+      const r = await addHaircutPhotoAs(actor, { customerId: c.id, storageKey: `haircuts/p${i}.jpg` });
       expect(r.ok).toBe(true);
       if (r.ok && i === 5) expect(r.data.deletedKeys).toEqual(["haircuts/p1.jpg"]);
     }
@@ -32,15 +32,15 @@ describe("haircut photos", () => {
     const b1 = await createBarber();
     const b2 = await createBarber();
     const c = await createCustomer();
-    const r = await addHaircutPhoto({ customerId: c.id, storageKey: "haircuts/x.jpg" }, { actor: asBarber(b1.user, b1.barber.id) });
+    const r = await addHaircutPhotoAs(asBarber(b1.user, b1.barber.id), { customerId: c.id, storageKey: "haircuts/x.jpg" });
     if (!r.ok) throw new Error();
-    expect((await deleteHaircutPhoto(r.data.id, { actor: asBarber(b2.user, b2.barber.id) })).ok).toBe(false);
-    expect((await deleteHaircutPhoto(r.data.id, { actor: asBarber(b1.user, b1.barber.id) })).ok).toBe(true);
+    expect((await deleteHaircutPhotoAs(asBarber(b2.user, b2.barber.id), r.data.id)).ok).toBe(false);
+    expect((await deleteHaircutPhotoAs(asBarber(b1.user, b1.barber.id), r.data.id)).ok).toBe(true);
   });
 
   it("rejects unknown customer", async () => {
     const { user, barber } = await createBarber();
-    const r = await addHaircutPhoto({ customerId: "yok", storageKey: "haircuts/x.jpg" }, { actor: asBarber(user, barber.id) });
+    const r = await addHaircutPhotoAs(asBarber(user, barber.id), { customerId: "yok", storageKey: "haircuts/x.jpg" });
     expect(r).toEqual({ ok: false, error: "Müşteri bulunamadı" });
   });
 
@@ -48,8 +48,8 @@ describe("haircut photos", () => {
     const { user, barber } = await createBarber();
     const c = await createCustomer();
     const actor = asBarber(user, barber.id);
-    for (let i = 1; i <= 3; i++) await addHaircutPhoto({ customerId: c.id, storageKey: `haircuts/base${i}.jpg` }, { actor });
-    const results = await Promise.all([1, 2, 3].map((i) => addHaircutPhoto({ customerId: c.id, storageKey: `haircuts/race${i}.jpg` }, { actor })));
+    for (let i = 1; i <= 3; i++) await addHaircutPhotoAs(actor, { customerId: c.id, storageKey: `haircuts/base${i}.jpg` });
+    const results = await Promise.all([1, 2, 3].map((i) => addHaircutPhotoAs(actor, { customerId: c.id, storageKey: `haircuts/race${i}.jpg` })));
     expect(results.every((r) => r.ok)).toBe(true);
     const count = await prisma.haircutPhoto.count({ where: { customerId: c.id } });
     expect(count).toBe(4);

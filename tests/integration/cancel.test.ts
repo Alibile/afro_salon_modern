@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { prisma } from "@/lib/db";
 import { createBarber, createCustomer } from "./helpers";
-import { cancelAppointmentByCustomer } from "@/actions/appointments";
+import { cancelAppointmentByCustomerFor } from "@/actions/impl/appointments";
 
 async function appt(customerId: string, barberId: string, startsAt: string) {
   return prisma.appointment.create({
@@ -14,7 +14,7 @@ describe("cancelAppointmentByCustomer", () => {
     const { barber } = await createBarber();
     const c = await createCustomer();
     const a = await appt(c.id, barber.id, "2026-09-17T12:00:00Z");
-    const r = await cancelAppointmentByCustomer(a.id, { now: new Date("2026-09-17T09:00:00Z"), customerId: c.id });
+    const r = await cancelAppointmentByCustomerFor(c.id, new Date("2026-09-17T09:00:00Z"), a.id);
     expect(r.ok).toBe(true);
     const after = await prisma.appointment.findUnique({ where: { id: a.id } });
     expect(after?.status).toBe("CANCELLED");
@@ -25,7 +25,7 @@ describe("cancelAppointmentByCustomer", () => {
     const { barber } = await createBarber();
     const c = await createCustomer();
     const a = await appt(c.id, barber.id, "2026-09-17T12:00:00Z");
-    const r = await cancelAppointmentByCustomer(a.id, { now: new Date("2026-09-17T10:30:00Z"), customerId: c.id });
+    const r = await cancelAppointmentByCustomerFor(c.id, new Date("2026-09-17T10:30:00Z"), a.id);
     expect(r).toEqual({ ok: false, error: "Randevuya 120 dakikadan az kaldığı için iptal edilemez, lütfen dükkanı arayın" });
   });
 
@@ -34,7 +34,7 @@ describe("cancelAppointmentByCustomer", () => {
     const c1 = await createCustomer();
     const c2 = await createCustomer();
     const a = await appt(c1.id, barber.id, "2026-09-17T12:00:00Z");
-    const r = await cancelAppointmentByCustomer(a.id, { now: new Date("2026-09-17T08:00:00Z"), customerId: c2.id });
+    const r = await cancelAppointmentByCustomerFor(c2.id, new Date("2026-09-17T08:00:00Z"), a.id);
     expect(r).toEqual({ ok: false, error: "Randevu bulunamadı" });
   });
 
@@ -43,7 +43,7 @@ describe("cancelAppointmentByCustomer", () => {
     const c = await createCustomer();
     const a = await appt(c.id, barber.id, "2026-09-17T12:00:00Z");
     await prisma.appointment.update({ where: { id: a.id }, data: { status: "CANCELLED" } });
-    const r = await cancelAppointmentByCustomer(a.id, { now: new Date("2026-09-17T08:00:00Z"), customerId: c.id });
+    const r = await cancelAppointmentByCustomerFor(c.id, new Date("2026-09-17T08:00:00Z"), a.id);
     expect(r.ok).toBe(false);
   });
 });

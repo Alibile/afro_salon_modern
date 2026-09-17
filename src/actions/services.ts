@@ -1,37 +1,23 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/db";
-import { ok, fail, type ActionResult } from "@/lib/action-result";
-import { getSessionUser, type SessionUser } from "@/lib/auth-helpers";
-import { serviceSchema, type ServiceInput } from "@/schemas/service";
+import { fail, type ActionResult } from "@/lib/action-result";
+import { getSessionUser } from "@/lib/auth-helpers";
+import { upsertServiceAs, toggleServiceAs } from "@/actions/impl/services";
+import type { ServiceInput } from "@/schemas/service";
 
-async function requireAdminActor(actor?: SessionUser) {
-  const u = actor ?? (await getSessionUser());
-  return u?.role === "ADMIN" ? u : null;
+export async function upsertService(input: ServiceInput & { id?: string }): Promise<ActionResult<{ id: string }>> {
+  const actor = await getSessionUser();
+  if (!actor) return fail("Yetkiniz yok");
+  const r = await upsertServiceAs(actor, input);
+  if (r.ok) revalidatePath("/panel/hizmetler");
+  return r;
 }
 
-export async function upsertService(input: ServiceInput & { id?: string }, opts: { actor?: SessionUser } = {}): Promise<ActionResult<{ id: string }>> {
-  if (!(await requireAdminActor(opts.actor))) return fail("Yetkiniz yok");
-  const parsed = serviceSchema.safeParse(input);
-  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Geçersiz bilgi");
-  const data = { name: parsed.data.name, durationMinutes: parsed.data.durationMinutes, priceKurus: Math.round(parsed.data.priceLira * 100), sortOrder: parsed.data.sortOrder };
-  if (input.id) {
-    const existing = await prisma.service.findUnique({ where: { id: input.id } });
-    if (!existing) return fail("Hizmet bulunamadı");
-  }
-  const s = input.id
-    ? await prisma.service.update({ where: { id: input.id }, data })
-    : await prisma.service.create({ data });
-  if (!opts.actor) revalidatePath("/panel/hizmetler");
-  return ok({ id: s.id });
-}
-
-export async function toggleService(id: string, isActive: boolean, opts: { actor?: SessionUser } = {}): Promise<ActionResult<void>> {
-  if (!(await requireAdminActor(opts.actor))) return fail("Yetkiniz yok");
-  const existing = await prisma.service.findUnique({ where: { id } });
-  if (!existing) return fail("Hizmet bulunamadı");
-  await prisma.service.update({ where: { id }, data: { isActive } });
-  if (!opts.actor) revalidatePath("/panel/hizmetler");
-  return ok(undefined);
+export async function toggleService(id: string, isActive: boolean): Promise<ActionResult<void>> {
+  const actor = await getSessionUser();
+  if (!actor) return fail("Yetkiniz yok");
+  const r = await toggleServiceAs(actor, id, isActive);
+  if (r.ok) revalidatePath("/panel/hizmetler");
+  return r;
 }
