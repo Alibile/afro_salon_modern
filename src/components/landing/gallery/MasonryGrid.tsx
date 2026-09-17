@@ -1,6 +1,8 @@
 "use client";
 import { distributeColumns, type GalleryPhoto } from "@/lib/gallery-utils";
 import { GalleryCard } from "./GalleryCard";
+import { Reveal } from "@/components/motion/Reveal";
+import { staggerDelay } from "@/lib/motion-utils";
 import { cn } from "@/lib/utils";
 
 /**
@@ -26,10 +28,11 @@ export function MasonryGrid({ photos, onSelect }: { photos: GalleryPhoto[]; onSe
         <div key={columns} className={cn("flex gap-4", className)}>
           {distributeColumns(entries, columns).map((column, columnIndex) => (
             <ul key={columnIndex} className="flex min-w-0 flex-1 flex-col gap-4">
-              {column.map(({ photo, index }) => (
-                <li key={photo.id}>
+              {/* Gecikme sütun içindeki sıraya bakar; `index` lightbox eşlemesi için olduğu gibi kalır. */}
+              {column.map(({ photo, index }, positionInColumn) => (
+                <Reveal as="li" key={photo.id} delay={staggerDelay(positionInColumn, 0.05)}>
                   <GalleryCard photo={photo} onSelect={() => onSelect(index)} />
-                </li>
+                </Reveal>
               ))}
             </ul>
           ))}

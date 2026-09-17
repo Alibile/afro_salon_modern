@@ -3,10 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
+import { useMotionValueEvent, useScroll } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { SocialLinks, type SocialSettings } from "@/components/brand/SocialLinks";
 import { SECTION_LINKS } from "./sections";
+import { cn } from "@/lib/utils";
 import type { SessionUser } from "@/lib/auth-helpers";
 
 /** Oturum durumuna göre tek bir hesap bağlantısı. */
@@ -17,10 +19,23 @@ function accountLink(user: SessionUser | null) {
 }
 
 const NAV_LINK = "border-b border-transparent pb-0.5 text-sm transition-colors hover:border-primary hover:text-primary";
+/** Bu eşikten sonra çubuk toplanır; manşetin ilk satırı geçildiğinde denk gelir. */
+const SHRINK_AT = 80;
 
 export function SiteNav({ shopName, user, social }: { shopName: string; user: SessionUser | null; social: SocialSettings }) {
   const [open, setOpen] = useState(false);
+  const [shrunk, setShrunk] = useState(false);
   const account = accountLink(user);
+
+  // Kaydırma değeri React durumuna her karede değil, yalnızca eşik geçildiğinde
+  // yazılır: çubuk iki hâl arasında geçer, sürekli yeniden çizilmez.
+  const { scrollY } = useScroll();
+  useMotionValueEvent(scrollY, "change", (y) => {
+    setShrunk((was) => {
+      const now = y > SHRINK_AT;
+      return now === was ? was : now;
+    });
+  });
 
   useEffect(() => {
     if (!open) return;
@@ -32,11 +47,25 @@ export function SiteNav({ shopName, user, social }: { shopName: string; user: Se
   }, [open]);
 
   return (
-    <header className="sticky top-0 z-30 w-full border-b border-border bg-background/90 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-5">
+    <header
+      data-shrunk={shrunk ? "true" : "false"}
+      className={cn(
+        "sticky top-0 z-30 w-full border-b backdrop-blur transition-colors duration-300",
+        shrunk ? "border-border bg-background/95 shadow-[0_1px_0_0_var(--border)]" : "border-transparent bg-background/80",
+      )}
+    >
+      <div
+        className={cn(
+          "mx-auto flex max-w-6xl items-center gap-3 px-5 transition-[height] duration-300 ease-out",
+          shrunk ? "h-14" : "h-20",
+        )}
+      >
         <Link
           href="/"
-          className="min-w-0 truncate font-display text-lg tracking-[0.14em] text-primary transition-colors hover:text-foreground sm:text-2xl"
+          className={cn(
+            "min-w-0 truncate font-display font-semibold tracking-[0.02em] text-primary transition-all duration-300 hover:text-foreground",
+            shrunk ? "text-base sm:text-xl" : "text-base sm:text-2xl",
+          )}
         >
           {shopName}
         </Link>
@@ -55,7 +84,7 @@ export function SiteNav({ shopName, user, social }: { shopName: string; user: Se
           <Link href={account.href} className={`${NAV_LINK} mx-2 hidden lg:inline-block`}>
             {account.label}
           </Link>
-          <Button asChild className="h-10 shrink-0 rounded-none px-3 text-sm sm:px-4">
+          <Button asChild className={cn("shrink-0 rounded-none px-3 text-sm transition-[height] duration-300 sm:px-4", shrunk ? "h-9" : "h-10")}>
             <Link href="/randevu">Randevu al</Link>
           </Button>
           <button
@@ -79,7 +108,7 @@ export function SiteNav({ shopName, user, social }: { shopName: string; user: Se
                 key={l.href}
                 href={l.href}
                 onClick={() => setOpen(false)}
-                className="block border-b border-border py-3.5 font-display text-2xl tracking-wide transition-colors hover:text-primary"
+                className="display-sm block border-b border-border py-3.5 transition-colors hover:text-primary"
               >
                 {l.label}
               </Link>
@@ -87,7 +116,7 @@ export function SiteNav({ shopName, user, social }: { shopName: string; user: Se
             <Link
               href={account.href}
               onClick={() => setOpen(false)}
-              className="block border-b border-border py-3.5 font-display text-2xl tracking-wide text-primary transition-colors hover:text-foreground"
+              className="display-sm block border-b border-border py-3.5 text-primary transition-colors hover:text-foreground"
             >
               {account.label}
             </Link>

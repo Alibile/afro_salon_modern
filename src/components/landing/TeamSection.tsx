@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { publicUrl } from "@/lib/storage-public";
 import { AfroPattern } from "@/components/brand/AfroPattern";
+import { Reveal } from "@/components/motion/Reveal";
+import { staggerDelay } from "@/lib/motion-utils";
 import { cn } from "@/lib/utils";
 
 export type TeamMember = { id: string; name: string; bio: string | null; photoKey: string };
@@ -11,15 +13,15 @@ export function TeamSection({ barbers }: { barbers: TeamMember[] }) {
   return (
     <section id="ekip" className="scroll-mt-20 border-b border-border">
       <div className="mx-auto max-w-6xl px-5 py-16 md:py-24">
-        <div className="flex flex-wrap items-end justify-between gap-4">
+        <Reveal className="flex flex-wrap items-end justify-between gap-4">
           <h2 className="display-lg">EKİP</h2>
           <p className="editorial-note max-w-[38ch] text-muted-foreground">
             Berberini seçerek başlayabilir, saatleri doğrudan onun takviminden görebilirsin.
           </p>
-        </div>
+        </Reveal>
         <ol className="mt-12 grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
           {barbers.map((b, i) => (
-            <li key={b.id} className={cn(barbers.length > 2 && i % 2 === 1 && "lg:mt-16")}>
+            <Reveal as="li" key={b.id} className={cn(barbers.length > 2 && i % 2 === 1 && "lg:mt-16")} delay={staggerDelay(i, 0.08)}>
               <div className="relative aspect-[3/4] w-full overflow-hidden bg-secondary text-primary">
                 <AfroPattern variant="kente" size={72} opacity={0.12} />
                 <Image
@@ -30,7 +32,7 @@ export function TeamSection({ barbers }: { barbers: TeamMember[] }) {
                   className="object-cover"
                 />
               </div>
-              <h3 className="mt-5 font-display text-3xl tracking-wide">{b.name}</h3>
+              <h3 className="display-md mt-5">{b.name}</h3>
               {b.bio && <p className="editorial-note mt-1 text-muted-foreground">{b.bio}</p>}
               <Link
                 href={`/randevu?b=${b.id}`}
@@ -38,7 +40,7 @@ export function TeamSection({ barbers }: { barbers: TeamMember[] }) {
               >
                 {b.name.split(" ")[0]} ile randevu al
               </Link>
-            </li>
+            </Reveal>
           ))}
         </ol>
       </div>

@@ -1,4 +1,6 @@
 import { ContactForm } from "./ContactForm";
+import { Reveal } from "@/components/motion/Reveal";
+import { staggerDelay } from "@/lib/motion-utils";
 import { telHref, whatsappUrl } from "@/components/brand/SocialLinks";
 import { cn } from "@/lib/utils";
 
@@ -39,20 +41,20 @@ export function ContactSection({
   return (
     <section id="iletisim" className="scroll-mt-20 border-b border-border">
       <div className="mx-auto max-w-6xl px-5 py-16 md:py-24">
-        <div className="flex flex-wrap items-end justify-between gap-4">
+        <Reveal className="flex flex-wrap items-end justify-between gap-4">
           <h2 className="display-lg">İLETİŞİM</h2>
           <p className="editorial-note max-w-[38ch] text-muted-foreground">
             Randevusuz geldiğinde sıraya bakarız; garantisi yok. Aynı gün için yer ayırmak birkaç dakika sürer.
           </p>
-        </div>
+        </Reveal>
 
         <div className="mt-12 grid grid-cols-1 gap-14 md:grid-cols-12 md:gap-10">
-          <div className="md:col-span-5">
+          <Reveal className="md:col-span-5">
             <h3 className="display-md">NEREDEYİZ</h3>
-            <p className="mt-6 font-display text-3xl leading-tight tracking-wide">{address}</p>
+            <p className="display-sm mt-6">{address}</p>
             <a
               href={telHref(phone)}
-              className="mt-4 inline-block border-b-2 border-primary pb-1 font-display text-3xl tracking-wide text-primary transition-colors hover:border-foreground hover:text-foreground"
+              className="display-sm mt-4 inline-block border-b-2 border-primary pb-1 text-primary transition-colors hover:border-foreground hover:text-foreground"
             >
               {phone}
             </a>
@@ -94,15 +96,15 @@ export function ContactSection({
                 );
               })}
             </dl>
-          </div>
+          </Reveal>
 
-          <div className="md:col-span-7 md:pl-6">
+          <Reveal className="md:col-span-7 md:pl-6" delay={staggerDelay(1, 0.08)}>
             <h3 className="display-md">MESAJ BIRAK</h3>
             <p className="measure mt-3 text-muted-foreground">
               Randevu almak için forma gerek yok, doğrudan saat seçebilirsin. Aklına takılan bir şey varsa buradan yaz.
             </p>
             <ContactForm services={services} />
-          </div>
+          </Reveal>
         </div>
       </div>
     </section>

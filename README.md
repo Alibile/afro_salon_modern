@@ -107,6 +107,39 @@ Cloudflare R2 bucket ayarlarında CORS örneği:
 - **BARBER:** kendi takvimi, izinleri, müşteri fotoğrafları
 - **ADMIN:** her şey + hizmet/berber/ayar yönetimi
 
+## Tipografi ve hareket
+
+Üç yüz, üç iş (`src/app/layout.tsx`, ölçek `src/app/globals.css`):
+
+| Değişken | Yüz | Nerede |
+|---|---|---|
+| `--font-display` | Fraunces (değişken, `opsz`; italiği `--font-serif`) | Manşet, bölüm başlıkları, isimler, editoryal notlar |
+| `--font-sans` | Manrope | Gövde metni, form, fiyatlar (`tabular-nums`) |
+| `--font-label` | Bebas Neue | Yalnızca küçük kapital etiketler (`.label`) |
+
+Ölçek sınıfları: `.display-hero` (manşet), `.display-lg` (bölüm başlığı),
+`.display-md`, `.display-sm`, `.label`, `.editorial-note`, `.measure`.
+
+Hareket `motion` (v13, `motion/react`) ile yapılır ve **yalnızca ana sayfa
+ağacını** (`src/app/(musteri)/page.tsx`) ve giriş/kayıt sayfalarının sol marka
+panelini sarar — panel ve `/randevu` akışı hareketsizdir. Bileşenler
+`src/components/motion/` altında:
+
+- `MotionProvider` — `MotionConfig reducedMotion="user"`; hareket kapsamını belirler.
+- `Reveal` — görüş alanına girince bir kez çalışan fade-up (`delay` ile sıralı giriş).
+- `Parallax` — kaydırmaya bağlı dikey kayma; yalnızca `transform`, ±`range` piksel.
+- `CountUp` — görüş alanına girince 0'dan sayan rakam; gerçek değer HTML'de durur.
+
+Saf yardımcılar (`src/lib/motion-utils.ts`: `staggerDelay`, `clampParallax`,
+`parallaxRange`, `formatCount`) birim testlidir (`tests/unit/motion-utils.test.ts`).
+
+Erişilebilirlik: `prefers-reduced-motion: reduce` açıkken Motion animasyonları
+kapatır; ayrıca `globals.css` içindeki `[data-reveal]` / `[data-parallax]`
+kuralları sunucudan gelen başlangıç stilini ilk boyamada geçersiz kılar, yani
+içerik JavaScript hiç çalışmasa bile görünür ve yerindedir. Hero'nun açılış
+sırası bilinçli olarak CSS'tir (`.rise`): sayfanın en büyük boyaması hidrasyonu
+beklemez.
+
 ## Fotoğraflar
 
 Landing page'deki görsel alanlar `public/landing/` altındaki dosyalardan

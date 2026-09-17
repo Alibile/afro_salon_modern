@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { ImageSlot } from "@/components/brand/ImageSlot";
 import type { PatternVariant } from "@/components/brand/AfroPattern";
 import type { GalleryPhoto } from "@/lib/gallery-utils";
+import { Reveal } from "@/components/motion/Reveal";
 import { GalleryBrowser } from "./gallery/GalleryBrowser";
 
 const VARIANTS: PatternVariant[] = ["kente", "mud", "tarak"];
@@ -29,12 +30,12 @@ export function GallerySection({ photos, tags }: { photos: GalleryPhoto[]; tags:
   return (
     <section id="galeri" className="scroll-mt-20 border-b border-border">
       <div className="mx-auto max-w-6xl px-5 py-16 md:py-24">
-        <div className="flex flex-wrap items-end justify-between gap-4">
+        <Reveal className="flex flex-wrap items-end justify-between gap-4">
           <h2 className="display-lg">GALERİ</h2>
           <p className="editorial-note max-w-[38ch] text-muted-foreground">
             Salonda çekilmiş son kesimler. İsim paylaşmıyoruz, yalnızca işi gösteriyoruz.
           </p>
-        </div>
+        </Reveal>
         {photos.length === 0 ? (
           <PatternPlaceholder />
         ) : (

@@ -76,50 +76,112 @@
   --radius-xl: calc(var(--radius) + 4px);
   --font-display: var(--font-display);
   --font-sans: var(--font-sans);
-  --font-serif: var(--font-serif);
+  --font-label: var(--font-label);
+  /* Editoryal notların italik yüzü manşetlerle aynı aileden gelir. */
+  --font-serif: var(--font-display);
   --font-heading: var(--font-display);
 }
 
 @layer base {
   * { @apply border-border outline-ring/50; }
   html { overflow-x: hidden; scroll-behavior: smooth; }
-  body { @apply bg-background text-foreground font-sans antialiased; }
-  h1, h2, h3 { @apply font-display tracking-wide; }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-variation-settings: "wght" 400;
+  }
+  /* Fraunces değişken: büyük puntoda yüksek `opsz` ince tırnak/kalın gövde
+     kontrastını açar, küçük puntoda kapanır. Kapitaller biraz nefes ister. */
+  h1, h2, h3 {
+    @apply font-display;
+    font-weight: 600;
+    font-variation-settings: "opsz" 108;
+    letter-spacing: 0.005em;
+    text-wrap: balance;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  /*
+   * Motion bileşenleri başlangıç durumunu sunucuda satır içi stil olarak yazar
+   * (`opacity:0`, `translateY`). `useReducedMotion()` yalnızca hidrasyondan
+   * sonra doğruyu söyleyebildiği için o stil HTML'e girer ve React hidrasyonda
+   * satır içi stili temizlemez. Bu kural sunucu çıktısını ilk boyamada geçersiz
+   * kılar: hareket kapalıyken içerik JavaScript beklemeden görünür ve yerindedir.
+   */
+  [data-reveal] { opacity: 1 !important; transform: none !important; }
+  [data-parallax] { transform: none !important; }
 }
 
 @layer components {
   /* Editoryal ölçek: manşetler dar satır aralığıyla, gövde bol boşlukla. */
   .display-hero {
     font-family: var(--font-display);
-    font-size: clamp(3.25rem, 11.5vw, 7.5rem);
-    line-height: 0.85;
-    letter-spacing: 0.012em;
+    font-weight: 600;
+    font-size: clamp(3rem, 8vw, 7rem);
+    font-variation-settings: "opsz" 144;
+    line-height: 0.95;
+    letter-spacing: -0.005em;
     text-wrap: balance;
   }
   .display-lg {
     font-family: var(--font-display);
-    font-size: clamp(2.25rem, 6vw, 3.75rem);
-    line-height: 0.92;
-    letter-spacing: 0.02em;
+    font-weight: 600;
+    font-size: clamp(2.25rem, 4vw, 3.5rem);
+    font-variation-settings: "opsz" 120;
+    line-height: 1;
+    letter-spacing: 0.002em;
+    text-wrap: balance;
   }
   .display-md {
     font-family: var(--font-display);
-    font-size: clamp(1.75rem, 3.4vw, 2.5rem);
-    line-height: 0.98;
-    letter-spacing: 0.02em;
+    font-weight: 600;
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+    font-variation-settings: "opsz" 48;
+    line-height: 1.08;
+    letter-spacing: 0.006em;
+  }
+  /* İsimler/fiyat satırları: manşet ailesinin orta basamağı. */
+  .display-sm {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.25rem, 1.8vw, 1.6rem);
+    font-variation-settings: "opsz" 32;
+    line-height: 1.15;
+    letter-spacing: 0.004em;
+  }
+  /* Küçük kapital etiket: sıkışık Bebas, geniş harf aralığıyla. */
+  .label {
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    line-height: 1;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
   }
   /* Tek serif italik yüz yalnızca editoryal notlarda kullanılır. */
   .editorial-note {
     font-family: var(--font-serif), Georgia, serif;
     font-style: italic;
-    line-height: 1.5;
+    font-variation-settings: "opsz" 14;
+    line-height: 1.55;
+  }
+  /*
+   * Açılış sırası CSS ile kurulur, JavaScript ile değil: manşet sayfanın en
+   * büyük boyaması (LCP); Motion'ın hidrasyonunu beklerse ekran saniyelerce
+   * boş kalır. `both` dolgusu ile gecikme süresince gizli, bitince yerinde
+   * durur; hareket azaltılmışsa üstteki medya sorgusu süreyi sıfırlar ve
+   * öğe doğrudan son durumuyla boyanır.
+   */
+  .rise {
+    animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
   .measure { max-width: 62ch; }
   /* Fiyat listesinde adı fiyata bağlayan ince kılavuz çizgi. */
   .leader { flex: 1 1 auto; height: 1px; background: var(--border); transform: translateY(-0.35em); }
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
 }

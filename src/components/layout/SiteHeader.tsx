@@ -18,7 +18,7 @@ export function SiteHeader({ user, shopName }: { user: SessionUser | null; shopN
   return (
     <header className="sticky top-0 z-20 w-full border-b border-border bg-background/90 backdrop-blur">
       <div className="mx-auto flex max-w-lg items-center justify-between gap-3 px-5 py-4">
-        <Link href="/" className="shrink-0 font-display text-xl tracking-[0.1em] text-primary sm:text-2xl sm:tracking-[0.14em]">
+        <Link href="/" className="shrink-0 font-display text-lg font-semibold tracking-[0.02em] text-primary sm:text-2xl">
           {shopName}
         </Link>
         <nav aria-label="Ana menü" className="flex items-center gap-0.5 sm:gap-1">

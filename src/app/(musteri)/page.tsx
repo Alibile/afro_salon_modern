@@ -1,6 +1,7 @@
 import { getLandingData, DAY_LABELS } from "@/lib/queries/landing";
 import { getSessionUser } from "@/lib/auth-helpers";
 import { shopDayOfWeek } from "@/lib/time";
+import { MotionProvider } from "@/components/motion/MotionProvider";
 import { SiteNav } from "@/components/landing/SiteNav";
 import { Hero } from "@/components/landing/Hero";
 import { AboutSection } from "@/components/landing/AboutSection";
@@ -22,7 +23,8 @@ export default async function LandingPage() {
   ]);
   const social = { instagram: settings.instagram, facebook: settings.facebook, whatsapp: settings.whatsapp };
   return (
-    <>
+    // Hareket yalnızca ana sayfa ağacında: panel ve randevu akışı hareketsiz kalır.
+    <MotionProvider>
       <SiteNav shopName={settings.shopName} user={user} social={social} />
       <Hero status={status} address={settings.address} phone={settings.phone} />
       <AboutSection title={settings.aboutTitle} text={settings.aboutText} />
@@ -61,6 +63,6 @@ export default async function LandingPage() {
         email={settings.email}
         statusText={status.text}
       />
-    </>
+    </MotionProvider>
   );
 }
