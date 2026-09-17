@@ -9,7 +9,7 @@ cp .env.example .env        # AUTH_SECRET'ı openssl rand -base64 32 ile üret
 docker compose up -d
 npm install
 npm run db:migrate
-npm run db:seed             # admin@afrosalon.local / SEED_PASSWORD (varsayılan: Sifre123!)
+npm run db:seed             # Seed hesapları: admin@afrosalon.local, kwame@afrosalon.local, yusuf@afrosalon.local; şifre SEED_PASSWORD (varsayılan: Sifre123!)
 npm run dev
 ```
 
@@ -35,6 +35,7 @@ http://localhost:3000 adresinde açılır.
 - `/panel/musteriler` — tüm müşteriler (admin)
 - `/panel/hizmetler` — hizmet listesi, fiyat ve süre (sıralamadan sil/düzenle; hard delete kuralı: geçmiş randevusu olan hizmetler sadece pasifleştirilebilir). Fiyat için satır içi düzenleme: listede fiyata tıklayıp yeni değeri yazıp Enter'a basmak yeterli; Esc vazgeçer, alan boş bırakılırsa kayıt yapılmaz
 - `/panel/berberler` — berber listesi (sıralamadan sil/düzenle; hard delete kuralı: geçmiş randevusu olan berberler sadece pasifleştirilebilir)
+- `/panel/galeri` — galeri fotoğrafları (admin): çoklu dosya yükleme, başlık/etiket yönetimi, sıralama (yukarı/aşağı), aktif/pasif geçişi, silme
 - `/panel/profil` — kendi profil bilgileri ve şifre değişimi (tüm personel)
 - `/panel/yorumlar` — müşteri yorumları yönetimi: ekle/düzenle/aktif-pasif geçişi (admin)
 - `/panel/ayarlar` — salon ve site içeriği ayarları (admin)
@@ -142,8 +143,10 @@ beklemez.
 
 ## Fotoğraflar
 
+Afro Salon erkek müşterilere özel hizmetler sunmaktadır.
+
 Landing page'deki görsel alanlar `public/landing/` altındaki dosyalardan
-okunur. Dosya yoksa yerine afrika geometrik desenli zarif bir yer tutucu
+okunur. Dosya yoksa yerine africa geometrik desenli zarif bir yer tutucu
 render edilir; kırık görsel çıkmaz. Depoda şu an duran fotoğraflar,
 ücretsiz ve ticari kullanıma açık lisanslı (Unsplash License / Pexels
 License) stok fotoğraflardır — her dosyanın fotoğrafçısı ve kaynak URL'si
@@ -156,12 +159,14 @@ değişmez.
 |---|---|---|
 | `public/landing/hero.jpg` | Hero görseli | Dikey, 4:5, en az 1200px genişlik |
 | `public/landing/about.jpg` | Hakkımızda görseli | Yatay, 3:2 |
-| `public/landing/gallery-1.jpg` … `gallery-8.jpg` | Galeri ızgarası | Kare (1:1), en az 800×800 |
+| `public/landing/gallery-1.jpg` … `gallery-8.jpg` | Galeri yer tutucusu | Kare (1:1), en az 800×800 (stok fotoğraf olarak kalır) |
 | `public/landing/team-1.jpg`, `team-2.jpg` | Ekip portreleri (yedek) | Kare (1:1), portre |
 
-Galeri önce veritabanındaki kesim fotoğraflarını (en yeni 8 `HaircutPhoto`)
-gösterir; kayıt yoksa `public/landing/gallery-N.jpg` dosyalarına, onlar da
-yoksa desenli yer tutuculara düşer.
+**Galeri:** Landing page'deki galeri bölümü (`#galeri`) panelden yüklenen
+fotoğrafları gösterir (R2 altında `gallery/` anahtarı). Etiketlere göre
+filtreleme (`?etiket=`), masonry ızgara, lightbox ve "Daha fazla göster"
+sayfalama. Yönetim: `/panel/galeri` (admin). Kayıt yoksa `public/landing/gallery-N.jpg`
+dosyaları yer tutucu olarak gösterilir.
 
 Berber profil fotoğrafları bu klasörden değil, R2'den (`Barber.photoKey`)
 gelir; seed verisindeki berberler `landing/team-1.jpg` / `landing/team-2.jpg`
