@@ -9,7 +9,7 @@ cp .env.example .env        # AUTH_SECRET'ı openssl rand -base64 32 ile üret
 docker compose up -d
 npm install
 npm run db:migrate
-npm run db:seed             # admin@afrosalon.local / Sifre123!
+npm run db:seed             # admin@afrosalon.local / SEED_PASSWORD (varsayılan: Sifre123!)
 npm run dev
 ```
 
@@ -35,7 +35,9 @@ http://localhost:3000 adresinde açılır.
 | DATABASE_URL | Postgres bağlantısı |
 | AUTH_SECRET, AUTH_URL | Auth.js |
 | RESEND_API_KEY, EMAIL_FROM | E-posta; boşsa gönderim atlanır ve loglanır |
-| R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET, R2_PUBLIC_URL | Cloudflare R2; bucket public erişim açık ve CORS'ta PUT izinli olmalı |
+| R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET | Cloudflare R2; bucket public erişim açık ve CORS'ta PUT izinli olmalı |
+| NEXT_PUBLIC_R2_PUBLIC_URL | R2 public alan adı; tarayıcıda da okunduğu için NEXT_PUBLIC_ önekli. `next.config.ts` içindeki `remotePatterns` ile uyumlu olmalı |
+| SEED_PASSWORD | Seed kullanıcılarının şifresi; boşsa geliştirmede `Sifre123!` kullanılır, `NODE_ENV=production` ise seed hata verir |
 
 ## R2 CORS
 

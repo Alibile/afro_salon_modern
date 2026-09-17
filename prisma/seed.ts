@@ -14,8 +14,21 @@ const DEFAULT_HOURS = [0, 1, 2, 3, 4, 5, 6].map((d) => ({
   isOff: d === 0,
 }));
 
+const DEFAULT_SEED_PASSWORD = "Sifre123!";
+
+/** Üretimde şifre her zaman SEED_PASSWORD'dan gelir; geliştirmede varsayılan kullanılır. */
+function seedPassword(): string {
+  const fromEnv = process.env.SEED_PASSWORD?.trim();
+  if (fromEnv) return fromEnv;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("SEED_PASSWORD tanımlı değil; üretimde seed çalıştırılamaz");
+  }
+  return DEFAULT_SEED_PASSWORD;
+}
+
 async function main() {
-  const passwordHash = await bcrypt.hash("Sifre123!", 10);
+  const password = seedPassword();
+  const passwordHash = await bcrypt.hash(password, 10);
 
   await prisma.settings.upsert({
     where: { id: 1 },
@@ -60,7 +73,13 @@ async function main() {
     const exists = await prisma.service.findFirst({ where: { name: s.name } });
     if (!exists) await prisma.service.create({ data: s });
   }
-  console.log("Seed tamam. Admin: admin@afrosalon.local / Sifre123!");
+  const shown = process.env.SEED_PASSWORD?.trim() ? "SEED_PASSWORD değeri" : DEFAULT_SEED_PASSWORD;
+  console.log(`Seed tamam. Admin: admin@afrosalon.local / ${shown}`);
 }
 
-main().finally(() => prisma.$disconnect());
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(() => prisma.$disconnect());
