@@ -52,6 +52,24 @@ test.describe.serial("randevu akışı", () => {
     // beklemek, durumun sunucuda gerçekten değiştiğini doğrular.
     await expect(card.getByRole("button", { name: "Tamamlandı" })).toBeHidden();
     await expect(card.getByText("Tamamlandı")).toBeVisible();
+
+    // Panelin görsel dili ana sayfanınkinden ayrıdır: başlıklar Bebas, gövde
+    // Inter. Ana sayfa ise editoryal tipografiyi (Fraunces) kullanır. İkisi
+    // aynı kök yerleşimden beslendiği için bu ayrımın testi burada durur.
+    const panelHeadingFont = await page
+      .getByRole("heading", { level: 1 })
+      .first()
+      .evaluate((el) => getComputedStyle(el).fontFamily);
+    expect(panelHeadingFont).toContain("Bebas");
+    const panelBodyFont = await page.evaluate(() => getComputedStyle(document.querySelector("main")!).fontFamily);
+    expect(panelBodyFont).toContain("Inter");
+
+    await page.goto("/");
+    const landingHeadingFont = await page
+      .getByRole("heading", { level: 1 })
+      .first()
+      .evaluate((el) => getComputedStyle(el).fontFamily);
+    expect(landingHeadingFont).toContain("Fraunces");
   });
 
   test("müşteri iptal edemeyince telefon mesajı görür", async ({ page }) => {

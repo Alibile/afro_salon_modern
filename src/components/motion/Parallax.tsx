@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
-import { parallaxRange } from "@/lib/motion-utils";
+import { clampParallax, parallaxRange } from "@/lib/motion-utils";
 
 /**
  * Kaydırmaya bağlı dikey kayma. Öğe ekranın altından girip üstünden çıkarken
@@ -29,7 +29,11 @@ export function Parallax({
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], parallaxRange(range, speed));
+  // İlerleme 0–1 aralığının dışına taşabildiği için (öğe ekranın tamamını
+  // kapladığında, ya da yeniden ölçüm sırasında) çıkış ayrıca kıstırılır:
+  // katman hiçbir koşulda ±`range * speed` piksel dışına çıkmaz.
+  const [from, to] = parallaxRange(range, speed);
+  const y = useTransform(scrollYProgress, (p) => clampParallax(from + (to - from) * p, from));
   return (
     <motion.div ref={ref} data-parallax="" className={className} style={reduced ? undefined : { y }} aria-hidden={ariaHidden || undefined}>
       {children}

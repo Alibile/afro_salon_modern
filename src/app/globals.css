@@ -176,6 +176,30 @@
   .rise {
     animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
+  /*
+   * Panel, ana sayfanın tipografisinin dışında kalır: gövde yeniden Inter,
+   * başlıklar yeniden Bebas. Değişkenleri burada yeniden tanımlamak, panel
+   * içindeki `font-sans` / `font-display` yardımcı sınıflarını da çevirir;
+   * `font-family` ayrıca doğrudan yazılır, çünkü gövde metni `body`'den
+   * miras alır ve miras alınan değer yeniden çözümlenmez.
+   */
+  .panel-typography {
+    --font-sans: var(--font-panel-sans);
+    --font-display: var(--font-label);
+    font-family: var(--font-panel-sans);
+  }
+  .panel-typography h1,
+  .panel-typography h2,
+  .panel-typography h3 {
+    font-family: var(--font-label);
+    /* Önceki hâl birebir: Tailwind preflight başlık ağırlığını gövdeden
+       miras aldırıyordu (400) ve temel kural `tracking-wide` (0.025em)
+       veriyordu. `normal` harf aralığı paneli "değişmemiş" bırakmazdı. */
+    font-weight: 400;
+    letter-spacing: 0.025em;
+    font-variation-settings: normal;
+    text-wrap: initial;
+  }
   .measure { max-width: 62ch; }
   /* Fiyat listesinde adı fiyata bağlayan ince kılavuz çizgi. */
   .leader { flex: 1 1 auto; height: 1px; background: var(--border); transform: translateY(-0.35em); }

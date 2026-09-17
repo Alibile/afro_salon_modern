@@ -1,20 +1,17 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { animate, useInView, useMotionValue, useReducedMotion } from "motion/react";
 import { formatCount } from "@/lib/motion-utils";
 
-/** Sunucuda `useLayoutEffect` uyarı verir; orada etkisi olmayan sürüm kullanılır. */
-const useIsomorphicLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
-
 /**
- * Görüş alanına girince 0'dan `value`'ya sayan rakam. Sunucudan gelen HTML
- * doğru sayıyı içerir (arama motoru ve JavaScript kapalıyken de doğru);
- * sıfırlama ilk boyamadan önce, yerleşim etkisinde yapılır, bu yüzden
- * "99 → 0" çakması görünmez.
+ * Görüş alanına girince 0'dan `value`'ya sayan rakam. Görünen sayaç sunucuda da
+ * 0'dan başlar, yani hidrasyondan önce ve sonra aynı şeyi gösterir — "99 → 0"
+ * çakması olmaz. Hareket kapalıysa hiç saymaz, doğrudan son değeri gösterir.
  *
- * Ekran okuyucu animasyonun ara değerlerini duymaz: sayaç `aria-hidden`,
- * gerçek değer görsel olarak gizli bir metinde durur.
+ * Gerçek değer her zaman HTML'de durur (görsel olarak gizli metin): arama
+ * motoru, ekran okuyucu ve JavaScript çalışmayan tarayıcı doğru sayıyı görür.
+ * Sayaç `aria-hidden` olduğu için ara değerler ekran okuyucuya okunmaz.
  */
 export function CountUp({
   value,
@@ -36,18 +33,17 @@ export function CountUp({
   const inView = useInView(ref, { once: true, amount: 0.4 });
   const reduced = useReducedMotion();
   const progress = useMotionValue(0);
-  const [display, setDisplay] = useState(value);
-
-  useIsomorphicLayoutEffect(() => {
-    if (!reduced) setDisplay(0);
-  }, [reduced]);
+  const [counted, setCounted] = useState(0);
+  // Hareket kapalıyken gösterilen değer bir durum değil, bir türetme: efektle
+  // "düzeltmek" fazladan bir çizim turu demek olurdu.
+  const display = reduced ? value : counted;
 
   useEffect(() => {
     if (!inView || reduced) return;
     const controls = animate(progress, value, {
       duration,
       ease: [0.16, 1, 0.3, 1],
-      onUpdate: (v) => setDisplay(v),
+      onUpdate: (v) => setCounted(v),
     });
     return () => controls.stop();
   }, [inView, reduced, value, duration, progress]);

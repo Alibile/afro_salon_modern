@@ -19,8 +19,14 @@ function accountLink(user: SessionUser | null) {
 }
 
 const NAV_LINK = "border-b border-transparent pb-0.5 text-sm transition-colors hover:border-primary hover:text-primary";
-/** Bu eşikten sonra çubuk toplanır; manşetin ilk satırı geçildiğinde denk gelir. */
-const SHRINK_AT = 80;
+/**
+ * Çubuk iki eşik arasında gidip gelir: 100 px'i geçerken toplanır, 60 px'in
+ * altına inerken açılır. Tek eşik olsaydı, eşiğin tam üstünde duran bir
+ * kaydırmada (ya da çubuk küçülünce sayfanın kısalmasıyla) iki hâl arasında
+ * titrerdi; aradaki 40 px'lik ölü bant bunu keser.
+ */
+const COLLAPSE_AT = 100;
+const EXPAND_AT = 60;
 
 export function SiteNav({ shopName, user, social }: { shopName: string; user: SessionUser | null; social: SocialSettings }) {
   const [open, setOpen] = useState(false);
@@ -32,8 +38,8 @@ export function SiteNav({ shopName, user, social }: { shopName: string; user: Se
   const { scrollY } = useScroll();
   useMotionValueEvent(scrollY, "change", (y) => {
     setShrunk((was) => {
-      const now = y > SHRINK_AT;
-      return now === was ? was : now;
+      if (was) return y >= EXPAND_AT;
+      return y > COLLAPSE_AT;
     });
   });
 
