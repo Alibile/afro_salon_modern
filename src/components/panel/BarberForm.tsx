@@ -52,7 +52,10 @@ export function BarberForm(props: { mode: "create" } | { mode: "edit"; barber: B
           onClick={() => {
             const pw = window.prompt("Yeni şifre (en az 8 karakter):");
             if (!pw) return;
-            start(async () => { const r = await resetBarberPassword(barber.id, pw); r.ok ? toast.success("Şifre güncellendi") : toast.error(r.error); });
+            start(async () => {
+              const r = await resetBarberPassword(barber.id, pw);
+              if (r.ok) toast.success("Şifre güncellendi"); else toast.error(r.error);
+            });
           }}>
           Şifreyi sıfırla
         </Button>

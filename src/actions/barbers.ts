@@ -53,6 +53,8 @@ export async function saveWorkingHours(barberId: string, input: WorkingHoursInpu
   if (!(await requireAdminActor(opts.actor))) return fail("Yetkiniz yok");
   const parsed = workingHoursSchema.safeParse(input);
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Geçersiz bilgi");
+  const b = await prisma.barber.findUnique({ where: { id: barberId } });
+  if (!b) return fail("Berber bulunamadı");
   await prisma.$transaction([
     prisma.workingHours.deleteMany({ where: { barberId } }),
     prisma.workingHours.createMany({ data: parsed.data.days.map((d) => ({ ...d, barberId })) }),

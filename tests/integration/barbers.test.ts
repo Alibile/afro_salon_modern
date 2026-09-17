@@ -29,6 +29,12 @@ describe("barbers actions", () => {
     expect(rows[2].startTime).toBe("10:00");
   });
 
+  it("saveWorkingHours fails for unknown barber", async () => {
+    const days = [0, 1, 2, 3, 4, 5, 6].map((d) => ({ dayOfWeek: d, isOff: d === 0, startTime: "09:00", endTime: "19:00" }));
+    const s = await saveWorkingHours("yok", { days }, { actor: admin });
+    expect(s).toEqual({ ok: false, error: "Berber bulunamadı" });
+  });
+
   it("updateBarber changes name and active flag", async () => {
     const r = await createBarber({ name: "Kwame Mensah", email: "k@t.co", password: "Sifre123!", photoKey: "barbers/a.jpg" }, { actor: admin });
     if (!r.ok) throw new Error();
