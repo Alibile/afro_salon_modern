@@ -8,6 +8,7 @@ const ITEMS = [
   { href: "/panel/randevular", label: "Randevular", admin: false },
   { href: "/panel/izinler", label: "İzinler", admin: false },
   { href: "/panel/musteriler", label: "Müşteriler", admin: false },
+  { href: "/panel/profil", label: "Profilim", admin: false },
   { href: "/panel/hizmetler", label: "Hizmetler", admin: true },
   { href: "/panel/berberler", label: "Berberler", admin: true },
   { href: "/panel/yorumlar", label: "Yorumlar", admin: true },

@@ -1,0 +1,48 @@
+import bcrypt from "bcryptjs";
+import { prisma } from "@/lib/db";
+import { ok, fail, type ActionResult } from "@/lib/action-result";
+import type { SessionUser } from "@/lib/auth-helpers";
+import { asStaffActor } from "@/lib/staff-scope";
+import { userProfileSchema, barberProfileSchema, changePasswordSchema, type UserProfileInput, type BarberProfileInput, type ChangePasswordInput } from "@/schemas/profile";
+import { deleteObject } from "@/lib/storage";
+
+export async function updateOwnProfileAs(actorInput: SessionUser | null, input: UserProfileInput | BarberProfileInput): Promise<ActionResult<void>> {
+  const actor = asStaffActor(actorInput);
+  if (!actor) return fail("Yetkiniz yok");
+
+  if (actor.barberId) {
+    const parsed = barberProfileSchema.safeParse(input);
+    if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Geçersiz bilgi");
+    const { name, phone, bio, photoKey } = parsed.data;
+    const existing = await prisma.barber.findUnique({ where: { id: actor.barberId } });
+    if (!existing) return fail("Berber bulunamadı");
+    await prisma.$transaction([
+      prisma.user.update({ where: { id: actor.id }, data: { name, phone: phone || null } }),
+      prisma.barber.update({ where: { id: actor.barberId }, data: { bio: bio || null, photoKey } }),
+    ]);
+    if (existing.photoKey !== photoKey && !existing.photoKey.startsWith("seed/") && !existing.photoKey.startsWith("landing/"))
+      await deleteObject(existing.photoKey);
+    return ok(undefined);
+  }
+
+  const parsed = userProfileSchema.safeParse(input);
+  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Geçersiz bilgi");
+  const { name, phone } = parsed.data;
+  await prisma.user.update({ where: { id: actor.id }, data: { name, phone: phone || null } });
+  return ok(undefined);
+}
+
+export async function changeOwnPasswordAs(actorInput: SessionUser | null, input: ChangePasswordInput): Promise<ActionResult<void>> {
+  const actor = asStaffActor(actorInput);
+  if (!actor) return fail("Yetkiniz yok");
+  const parsed = changePasswordSchema.safeParse(input);
+  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Geçersiz bilgi");
+  const { currentPassword, newPassword } = parsed.data;
+
+  const user = await prisma.user.findUnique({ where: { id: actor.id } });
+  if (!user) return fail("Kullanıcı bulunamadı");
+  if (!(await bcrypt.compare(currentPassword, user.passwordHash))) return fail("Mevcut şifre hatalı");
+
+  await prisma.user.update({ where: { id: actor.id }, data: { passwordHash: await bcrypt.hash(newPassword, 10) } });
+  return ok(undefined);
+}
