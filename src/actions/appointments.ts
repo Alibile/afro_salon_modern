@@ -7,6 +7,7 @@ import { addMinutes } from "@/lib/time";
 import { getTodayAvailability } from "@/lib/queries/booking";
 import { createAppointmentSchema, type CreateAppointmentInput } from "@/schemas/booking";
 import { getSettings } from "@/lib/settings";
+import { sendAppointmentConfirmed, sendAppointmentCancelled, sendNewAppointmentToBarber } from "@/lib/email/send";
 
 const SLOT_TAKEN = "Bu saat az önce doldu, lütfen başka bir saat seçin";
 const SLOT_INVALID = "Bu saat artık uygun değil, lütfen başka bir saat seçin";
@@ -51,6 +52,9 @@ export async function createAppointment(
       });
       return created;
     });
+    if (!opts.now) {
+      await Promise.all([sendAppointmentConfirmed(appt.id), sendNewAppointmentToBarber(appt.id)]);
+    }
     return ok({ id: appt.id });
   } catch (e) {
     const isOverlapError =
@@ -87,5 +91,6 @@ export async function cancelAppointmentByCustomer(
   }
 
   await prisma.appointment.update({ where: { id: appt.id }, data: { status: "CANCELLED", cancelledBy: "CUSTOMER" } });
+  if (!opts.now) await sendAppointmentCancelled(appt.id, "CUSTOMER");
   return ok(undefined);
 }
