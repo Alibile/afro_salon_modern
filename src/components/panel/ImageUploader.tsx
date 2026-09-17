@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { publicUrl } from "@/lib/storage-public";
+import { MAX_UPLOAD_BYTES } from "@/lib/upload-limits";
 import { Input } from "@/components/ui/input";
 
 export function ImageUploader({ kind, name, defaultKey, onUploaded }: { kind: "barber" | "haircut"; name: string; defaultKey?: string; onUploaded?: (key: string) => void }) {
@@ -9,8 +10,13 @@ export function ImageUploader({ kind, name, defaultKey, onUploaded }: { kind: "b
   const [status, setStatus] = useState<string | null>(null);
 
   async function upload(file: File) {
+    if (file.size > MAX_UPLOAD_BYTES) { setStatus("Dosya en fazla 8 MB olabilir"); return; }
     setStatus("Yükleniyor…");
-    const res = await fetch("/api/upload/presign", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ kind, contentType: file.type }) });
+    const res = await fetch("/api/upload/presign", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ kind, contentType: file.type, contentLength: file.size }),
+    });
     if (!res.ok) { setStatus((await res.json()).error ?? "Hata"); return; }
     const { url, key: newKey } = await res.json();
     const put = await fetch(url, { method: "PUT", headers: { "content-type": file.type }, body: file });

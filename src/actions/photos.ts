@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { ok, fail, type ActionResult } from "@/lib/action-result";
 import { getSessionUser } from "@/lib/auth-helpers";
-import { addHaircutPhotoAs, deleteHaircutPhotoAs, type AddHaircutPhotoInput } from "@/actions/impl/photos";
+import { addHaircutPhotoAs, deleteHaircutPhotoAs } from "@/actions/impl/photos";
+import type { AddHaircutPhotoInput } from "@/schemas/photo";
 
 export async function addHaircutPhoto(input: AddHaircutPhotoInput): Promise<ActionResult<{ id: string; deletedKeys: string[] }>> {
   const actor = await getSessionUser();
