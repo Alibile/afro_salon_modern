@@ -21,7 +21,7 @@ export function Hero({ status, address, phone }: { status: ShopStatus; address: 
           </p>
           <h1 className="display-hero mt-7">KIVRIMIN KENDİ GEOMETRİSİ VAR.</h1>
           <p className="editorial-note mt-7 max-w-[34ch] text-xl text-primary md:text-2xl">
-            Afro kesim, fade, örgü ve twist — hepsi bugünün içinde.
+            Erkeklere özel afro kesim, fade, örgü ve twist — hepsi bugünün içinde.
           </p>
           <p className="measure mt-5 leading-relaxed text-muted-foreground">
             Yarına söz vermiyoruz. Bugünün boş saatlerini burada görür, berberini seçer, iki dakikada yerini ayırırsın.

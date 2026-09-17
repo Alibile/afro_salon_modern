@@ -22,7 +22,7 @@ const DEFAULT_LANDING_CONTENT = {
   mapsUrl: "https://maps.google.com/?q=Afro+Salon+Modern+Istanbul",
   aboutTitle: "Benzersiz bir deneyim",
   aboutText:
-    "Afro Salon Modern, afro saç sanatını İstanbul'un kalbine taşıyor. Fade, örgü, twist ve bakımda ustalaşmış ekibimizle her kesim kişiye özel planlanır. Randevu yalnızca bugün için alınır; beklemeden, sırasız.",
+    "Afro Salon Modern, erkeklere özel afro saç sanatını İstanbul'un kalbine taşıyor. Fade, örgü, twist ve bakımda ustalaşmış ekibimizle her kesim kişiye özel planlanır. Randevu yalnızca bugün için alınır; beklemeden, sırasız.",
   whyUs1Title: "Usta berberler",
   whyUs1Text: "Afro saç dokusunda yılların deneyimi; her kesim yüz hatlarına göre planlanır.",
   whyUs2Title: "Premium ürünler",
@@ -35,7 +35,7 @@ const DEFAULT_LANDING_CONTENT = {
 
 const DEFAULT_TESTIMONIALS = [
   { name: "Emre K.", text: "Fade kesim tam istediğim gibi oldu, ekip çok ilgili. Kesinlikle tekrar geleceğim.", rating: 5, sortOrder: 1 },
-  { name: "Nadia T.", text: "Örgü konusunda gerçekten usta bir ekip. Randevu almak da çok kolaydı.", rating: 5, sortOrder: 2 },
+  { name: "Derrick B.", text: "Örgü konusunda gerçekten usta bir ekip. Randevu almak da çok kolaydı.", rating: 5, sortOrder: 2 },
   { name: "Malik J.", text: "Salon çok temiz, hizmet hızlı. Sakal tıraşı biraz daha özenli olabilirdi.", rating: 4, sortOrder: 3 },
 ];
 
@@ -76,7 +76,7 @@ export async function runSeed(client: PrismaClient) {
 
   const barbers = [
     { name: "Kwame Mensah", email: "kwame@afrosalon.local", bio: "Fade ve tasarım kesim uzmanı", photoKey: "landing/team-2.jpg" },
-    { name: "Amara Diallo", email: "amara@afrosalon.local", bio: "Örgü ve twist", photoKey: "landing/team-1.jpg" },
+    { name: "Yusuf Adeyemi", email: "yusuf@afrosalon.local", bio: "Örgü, twist ve line-up", photoKey: "landing/team-1.jpg" },
   ];
   for (const b of barbers) {
     const user = await client.user.upsert({
@@ -95,6 +95,20 @@ export async function runSeed(client: PrismaClient) {
     const count = await client.workingHours.count({ where: { barberId: barber.id } });
     if (count === 0) {
       await client.workingHours.createMany({ data: DEFAULT_HOURS.map((h) => ({ ...h, barberId: barber.id })) });
+    }
+  }
+
+  // Salon artık erkek odaklı: eski "Amara Diallo" kaydı (varsa) silinmiyor/yeniden adlandırılmıyor
+  // (gerçek veri barındırabilir), ama randevusu yoksa pasife alınıyor ki yeni rezervasyonlarda
+  // görünmesin. Randevusu varsa hiç dokunulmuyor.
+  const legacyAmaraUser = await client.user.findUnique({ where: { email: "amara@afrosalon.local" } });
+  if (legacyAmaraUser) {
+    const legacyAmaraBarber = await client.barber.findUnique({ where: { userId: legacyAmaraUser.id } });
+    if (legacyAmaraBarber?.isActive) {
+      const appointmentCount = await client.appointment.count({ where: { barberId: legacyAmaraBarber.id } });
+      if (appointmentCount === 0) {
+        await client.barber.update({ where: { id: legacyAmaraBarber.id }, data: { isActive: false } });
+      }
     }
   }
 
