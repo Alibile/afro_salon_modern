@@ -163,19 +163,42 @@ değişmez.
 
 | Dosya | Yer | Öneri |
 |---|---|---|
-| `public/landing/hero.jpg` | Hero görseli | Dikey, 4:5, en az 1200px genişlik |
+| `public/landing/hero.jpg` | Hero görseli (masaüstü) | Yatay, 2000px geniş, 3:2 veya 16:9 |
+| `public/landing/hero-mobile.jpg` | Hero görseli (mobil) | Dikey, 4:5, 1200×1500 |
 | `public/landing/about.jpg` | Hakkımızda görseli | Yatay, 3:2 |
-| `public/landing/gallery-1.jpg` … `gallery-8.jpg` | Galeri yer tutucusu | Kare (1:1), en az 800×800 (stok fotoğraf olarak kalır) |
+| `public/landing/gallery-1.jpg` … `gallery-22.jpg` | Galeri yer tutucusu (seed) | Kare (1:1), en az 800×800; 22 fotoğraf, kategori etiketli, ≤400 KB |
 | `public/landing/team-1.jpg`, `team-2.jpg` | Ekip portreleri (yedek) | Kare (1:1), portre |
 
 **Galeri:** Landing page'deki galeri bölümü (`#galeri`) panelden yüklenen
-fotoğrafları gösterir (R2 altında `gallery/` anahtarı). Etiketlere göre
-filtreleme (`?etiket=`), masonry ızgara, lightbox ve "Daha fazla göster"
-sayfalama. Yönetim: `/panel/galeri` (admin). Kayıt yoksa `public/landing/gallery-N.jpg`
-dosyaları yer tutucu olarak gösterilir.
+fotoğrafları gösterir (R2 altında `gallery/` anahtarı). Sabit kategori listesi
+(Low Taper Fade, Taper Fade, Skin Fade, Buzz Cut, Line-up, Kıvırcık, Düz Saç,
+Kısa Saç, Textured Fringe, Afro, Örgü, Twist, Sakal) — çiplerde sayı ve ilk
+fotoğraf görseli. Panelde (`/panel/galeri`) etiket seçimi sabit listeden
+çoklu seçim + "Diğer" serbest metin alanı. Etiketlere göre filtreleme
+(`?etiket=`), masonry ızgara, lightbox ve "Daha fazla göster" sayfalama.
+Seed: 22 lisanslı fotoğraf (`public/landing/gallery-N.jpg`). Yönetim:
+`/panel/galeri` (admin). Kayıt yoksa yer tutucu fotoğraflar gösterilir.
 
 Berber profil fotoğrafları bu klasörden değil, R2'den (`Barber.photoKey`)
 gelir; seed verisindeki berberler `landing/team-1.jpg` / `landing/team-2.jpg`
 anahtarlarını kullanır (yani `public/landing/` altındaki aynı dosyalara
 işaret eder). Bu iki anahtar, panelden fotoğraf değiştirilse bile R2'den
 silinmeye çalışılmaz (`landing/` ve `seed/` önekleri korunur).
+
+## Landing Page
+
+**Hero:** Tam ekran sinematik hero, arka planda `hero.jpg` (masaüstü) ve
+`hero-mobile.jpg` (mobil), üstünde koyu kahve→şeffaf gradyan ve manşet
+(Fraunces, açık kum rengi). "Bugün randevu al" ve "Hizmetler" bağlantıları.
+
+**Navbar:** Sayfanın başında şeffaf (hero üzerinde açık metin), kaydırıldığında
+kum zeminli bilinen stil alır. Sosyal medya ikonları navbar'dan kaldırılmış —
+yalnızca iletişim bölümü ve footer'da görülür.
+
+## Performans
+
+Ana sayfanın Lighthouse mobil performans puanı **85** (varsayılan simülasyon);
+DevTools ölçümü yaklaşık **96**. Hero görseli LCP kritik kaynağı. CSS satır
+içi optimizasyonu (`next.config.ts`'de `experimental.inlineCss: true`) etkindir.
+Devre dışı bırakmak için `false` yapıp rebuild edin; Lighthouse puanı 2–3
+puan düşebilir.
