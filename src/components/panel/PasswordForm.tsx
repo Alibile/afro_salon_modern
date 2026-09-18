@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { changeOwnPassword } from "@/actions/profile";
+import { useActionError } from "@/lib/use-action-error";
 
 export function PasswordForm() {
+  const showError = useActionError();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -23,7 +25,7 @@ export function PasswordForm() {
         if (newPassword !== confirmPassword) { setError("Şifreler eşleşmiyor"); return; }
         start(async () => {
           const r = await changeOwnPassword({ currentPassword, newPassword });
-          if (!r.ok) { setError(r.error); return; }
+          if (!r.ok) { setError(showError(r)); return; }
           setError(null);
           toast.success("Şifre güncellendi");
           form.reset();

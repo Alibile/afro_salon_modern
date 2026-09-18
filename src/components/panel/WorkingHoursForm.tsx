@@ -5,11 +5,13 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { saveWorkingHours } from "@/actions/barbers";
+import { useActionError } from "@/lib/use-action-error";
 
 const DAYS = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
 type Day = { dayOfWeek: number; isOff: boolean; startTime: string; endTime: string };
 
 export function WorkingHoursForm({ barberId, hours }: { barberId: string; hours: Day[] }) {
+  const showError = useActionError();
   const [days, setDays] = useState<Day[]>(hours);
   const [pending, start] = useTransition();
   const router = useRouter();
@@ -27,7 +29,7 @@ export function WorkingHoursForm({ barberId, hours }: { barberId: string; hours:
       ))}
       <Button disabled={pending} onClick={() => start(async () => {
         const r = await saveWorkingHours(barberId, { days });
-        if (r.ok) { toast.success("Çalışma saatleri kaydedildi"); router.refresh(); } else toast.error(r.error);
+        if (r.ok) { toast.success("Çalışma saatleri kaydedildi"); router.refresh(); } else toast.error(showError(r));
       })}>Kaydet</Button>
     </div>
   );

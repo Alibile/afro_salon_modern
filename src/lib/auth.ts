@@ -3,11 +3,12 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { loginSchema } from "@/schemas/auth";
+import { hasLocale } from "next-intl";
 import { routing, type AppLocale } from "@/i18n/routing";
 
 /** DB `String` sütununu uygulama dil birliğine indirger; tanınmayan değer varsayılana düşer. */
 function toLocale(value: string): AppLocale {
-  return (routing.locales as readonly string[]).includes(value) ? (value as AppLocale) : routing.defaultLocale;
+  return hasLocale(routing.locales, value) ? value : routing.defaultLocale;
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -31,9 +32,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // ancak şifre doğrulandıktan sonra, yoksa e-postayı bilen herkes bir
         // hesabın dilini değiştirebilirdi. İstek dili yoksa (doğrudan API
         // çağrısı) kayıtlı tercih olduğu gibi kalır.
-        const raw = typeof rawInput?.locale === "string" ? rawInput.locale : undefined;
-        const locale = raw ? toLocale(raw) : toLocale(user.locale);
-        if (raw && locale !== user.locale) {
+        // Tanınmayan bir dil kodu (elle yapılmış bir istek, bozuk çerez)
+        // kullanıcının kayıtlı tercihini "tr"ye çevirmemeli: yok sayılır.
+        const raw = rawInput?.locale;
+        const requested = hasLocale(routing.locales, raw) ? raw : undefined;
+        const locale = requested ?? toLocale(user.locale);
+        if (requested && locale !== user.locale) {
           await prisma.user.update({ where: { id: user.id }, data: { locale } });
         }
 

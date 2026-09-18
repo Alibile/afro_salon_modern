@@ -8,7 +8,7 @@ import type { TimeOffInput } from "@/schemas/timeoff";
 
 export async function createTimeOff(input: TimeOffInput): Promise<ActionResult<{ id: string; conflicts: number }>> {
   const actor = await getSessionUser();
-  if (!actor) return fail("Yetkiniz yok");
+  if (!actor) return fail("errors.notAllowed");
   const r = await createTimeOffAs(actor, input);
   if (r.ok) revalidatePath("/[locale]/panel/izinler", "page");
   return r;
@@ -16,7 +16,7 @@ export async function createTimeOff(input: TimeOffInput): Promise<ActionResult<{
 
 export async function deleteTimeOff(id: string): Promise<ActionResult<void>> {
   const actor = await getSessionUser();
-  if (!actor) return fail("Yetkiniz yok");
+  if (!actor) return fail("errors.notAllowed");
   const r = await deleteTimeOffAs(actor, id);
   if (r.ok) revalidatePath("/[locale]/panel/izinler", "page");
   return r;

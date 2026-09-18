@@ -38,7 +38,7 @@ describe("barbers actions", () => {
   it("saveWorkingHours fails for unknown barber", async () => {
     const days = [0, 1, 2, 3, 4, 5, 6].map((d) => ({ dayOfWeek: d, isOff: d === 0, startTime: "09:00", endTime: "19:00" }));
     const s = await saveWorkingHoursAs(admin, "yok", { days });
-    expect(s).toEqual({ ok: false, error: "Berber bulunamadı" });
+    expect(s).toEqual({ ok: false, error: "errors.barberNotFound" });
   });
 
   it("updateBarber changes name and active flag", async () => {

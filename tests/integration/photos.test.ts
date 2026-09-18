@@ -52,7 +52,7 @@ describe("haircut photos", () => {
   it("rejects unknown customer", async () => {
     const { user, barber } = await createBarber();
     const r = await addHaircutPhotoAs(asBarber(user, barber.id), { customerId: "yok", storageKey: key("x") });
-    expect(r).toEqual({ ok: false, error: "Müşteri bulunamadı" });
+    expect(r).toEqual({ ok: false, error: "errors.customerNotFound" });
   });
 
   it("keeps the cap under concurrent adds", async () => {
@@ -71,7 +71,7 @@ describe("haircut photos", () => {
     const { user, barber } = await createBarber();
     const c = await createCustomer();
     const r = await addHaircutPhotoAs(asBarber(user, barber.id), { customerId: c.id, storageKey: `barbers/${randomUUID()}.jpg` });
-    expect(r).toEqual({ ok: false, error: "Geçersiz fotoğraf anahtarı" });
+    expect(r).toEqual({ ok: false, error: "errors.invalidPhotoKey" });
   });
 
   it("rejects an appointment belonging to another customer", async () => {
@@ -86,7 +86,7 @@ describe("haircut photos", () => {
       storageKey: `haircuts/${randomUUID()}.jpg`,
       appointmentId: appointment.id,
     });
-    expect(r).toEqual({ ok: false, error: "Randevu bulunamadı" });
+    expect(r).toEqual({ ok: false, error: "errors.appointmentNotFound" });
     expect(await prisma.haircutPhoto.count({ where: { customerId: c1.id } })).toBe(0);
   });
 });

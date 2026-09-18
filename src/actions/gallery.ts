@@ -20,7 +20,7 @@ function revalidateGallery() {
 
 export async function addGalleryPhotos(items: GalleryItemInput[]): Promise<ActionResult<{ ids: string[] }>> {
   const actor = await getSessionUser();
-  if (!actor) return fail("Yetkiniz yok");
+  if (!actor) return fail("errors.notAllowed");
   const r = await addGalleryPhotosAs(actor, items);
   if (r.ok) revalidateGallery();
   return r;
@@ -28,7 +28,7 @@ export async function addGalleryPhotos(items: GalleryItemInput[]): Promise<Actio
 
 export async function updateGalleryPhoto(id: string, input: UpdateGalleryPhotoInput): Promise<ActionResult<void>> {
   const actor = await getSessionUser();
-  if (!actor) return fail("Yetkiniz yok");
+  if (!actor) return fail("errors.notAllowed");
   const r = await updateGalleryPhotoAs(actor, id, input);
   if (r.ok) revalidateGallery();
   return r;
@@ -36,7 +36,7 @@ export async function updateGalleryPhoto(id: string, input: UpdateGalleryPhotoIn
 
 export async function moveGalleryPhoto(id: string, direction: GalleryDirection): Promise<ActionResult<void>> {
   const actor = await getSessionUser();
-  if (!actor) return fail("Yetkiniz yok");
+  if (!actor) return fail("errors.notAllowed");
   const r = await moveGalleryPhotoAs(actor, id, direction);
   if (r.ok) revalidateGallery();
   return r;
@@ -44,7 +44,7 @@ export async function moveGalleryPhoto(id: string, direction: GalleryDirection):
 
 export async function deleteGalleryPhoto(id: string): Promise<ActionResult<void>> {
   const actor = await getSessionUser();
-  if (!actor) return fail("Yetkiniz yok");
+  if (!actor) return fail("errors.notAllowed");
   const r = await deleteGalleryPhotoAs(actor, id);
   if (r.ok) revalidateGallery();
   return r;

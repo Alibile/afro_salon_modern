@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button";
 import { publicUrl } from "@/lib/storage-public";
 import { formatShopDate } from "@/lib/time";
 import { deleteHaircutPhoto } from "@/actions/photos";
+import { useActionError } from "@/lib/use-action-error";
 
 type P = { id: string; storageKey: string; createdAt: Date; barberName: string; barberId: string };
 
 export function PhotoGrid({ photos, deletableIds }: { photos: P[]; deletableIds: string[] }) {
+  const showError = useActionError();
   const [pending, start] = useTransition();
   const router = useRouter();
   if (photos.length === 0) return <p className="text-sm text-muted-foreground">Henüz fotoğraf yok.</p>;
@@ -24,7 +26,7 @@ export function PhotoGrid({ photos, deletableIds }: { photos: P[]; deletableIds:
             {deletableIds.includes(p.id) && (
               <Button size="sm" variant="ghost" disabled={pending} onClick={() => start(async () => {
                 const r = await deleteHaircutPhoto(p.id);
-                if (r.ok) router.refresh(); else toast.error(r.error);
+                if (r.ok) router.refresh(); else toast.error(showError(r));
               })}>Sil</Button>
             )}
           </figcaption>

@@ -5,10 +5,12 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { formatKurus, parsePriceInput } from "@/lib/money";
 import { upsertService } from "@/actions/services";
+import { useActionError } from "@/lib/use-action-error";
 
 type Service = { id: string; name: string; durationMinutes: number; priceKurus: number; sortOrder: number };
 
 export function InlinePrice({ service }: { service: Service }) {
+  const showError = useActionError();
   const [editing, setEditing] = useState(false);
   const [pending, start] = useTransition();
   const router = useRouter();
@@ -60,7 +62,7 @@ export function InlinePrice({ service }: { service: Service }) {
         sortOrder: service.sortOrder,
       });
       if (!r.ok) {
-        toast.error(r.error);
+        toast.error(showError(r));
         setEditing(false);
         return;
       }

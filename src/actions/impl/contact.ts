@@ -1,4 +1,5 @@
 import { ok, fail, type ActionResult } from "@/lib/action-result";
+import { firstIssueKey } from "@/lib/errors";
 import { allow } from "@/lib/rate-limit";
 import { sendContactMessage } from "@/lib/email/send";
 import { contactSchema, type ContactInput } from "@/schemas/contact";
@@ -8,7 +9,6 @@ const WINDOW_MS = 60_000;
 /** IP başına sınır aşılmasa da tüm form için saatlik bir tavan vardır. */
 const GLOBAL_LIMIT = 60;
 const GLOBAL_WINDOW_MS = 60 * 60 * 1000;
-const TOO_MANY = "Çok fazla deneme, lütfen biraz sonra tekrar deneyin";
 
 /**
  * İletişim formu: oturum gerektirmez. Kötüye kullanıma karşı IP başına dakikada
@@ -19,10 +19,10 @@ const TOO_MANY = "Çok fazla deneme, lütfen biraz sonra tekrar deneyin";
  * kaybolduğu loglara yazılır.
  */
 export async function sendContactMessageAs(input: ContactInput, ip: string): Promise<ActionResult<void>> {
-  if (!allow(`contact:${ip}`, LIMIT, WINDOW_MS)) return fail(TOO_MANY);
-  if (!allow("contact:global", GLOBAL_LIMIT, GLOBAL_WINDOW_MS)) return fail(TOO_MANY);
+  if (!allow(`contact:${ip}`, LIMIT, WINDOW_MS)) return fail("errors.tooManyRequests");
+  if (!allow("contact:global", GLOBAL_LIMIT, GLOBAL_WINDOW_MS)) return fail("errors.tooManyRequests");
   const parsed = contactSchema.safeParse(input);
-  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Geçersiz bilgi");
+  if (!parsed.success) return fail(firstIssueKey(parsed.error));
   // Bot tuzağı doluysa gönderen için her şey normal görünür, mesaj iletilmez.
   if (parsed.data.website !== "") return ok(undefined);
   try {

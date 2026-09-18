@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { AfroPattern } from "@/components/brand/AfroPattern";
 import { MotionProvider } from "@/components/motion/MotionProvider";
@@ -6,7 +7,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { getSettings } from "@/lib/settings";
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
-  const settings = await getSettings();
+  const [settings, t] = await Promise.all([getSettings(), getTranslations("auth")]);
   return (
     <div className="grid min-h-dvh grid-cols-1 md:grid-cols-2">
       {/* Hareket yalnızca marka panelinde: form sütunu sabittir. */}
@@ -19,10 +20,8 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
             {settings.shopName}
           </Link>
           <Reveal className="relative">
-            <p className="display-lg">BUGÜNÜN SAATİ SENİ BEKLİYOR.</p>
-            <p className="editorial-note mt-4 max-w-[32ch] text-lg text-primary-foreground/85">
-              Hesabın randevunu, kesim geçmişini ve fotoğraflarını bir arada tutar.
-            </p>
+            <p className="display-lg">{t("asideHeadline")}</p>
+            <p className="editorial-note mt-4 max-w-[32ch] text-lg text-primary-foreground/85">{t("asideNote")}</p>
           </Reveal>
           <p className="relative text-sm text-primary-foreground/75">{settings.address}</p>
         </aside>

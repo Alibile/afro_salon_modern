@@ -8,7 +8,7 @@ import type { TestimonialInput } from "@/schemas/testimonial";
 
 export async function upsertTestimonial(input: TestimonialInput & { id?: string }): Promise<ActionResult<{ id: string }>> {
   const actor = await getSessionUser();
-  if (!actor) return fail("Yetkiniz yok");
+  if (!actor) return fail("errors.notAllowed");
   const r = await upsertTestimonialAs(actor, input);
   if (r.ok) {
     revalidatePath("/[locale]", "page");
@@ -19,7 +19,7 @@ export async function upsertTestimonial(input: TestimonialInput & { id?: string 
 
 export async function toggleTestimonial(id: string, isActive: boolean): Promise<ActionResult<void>> {
   const actor = await getSessionUser();
-  if (!actor) return fail("Yetkiniz yok");
+  if (!actor) return fail("errors.notAllowed");
   const r = await toggleTestimonialAs(actor, id, isActive);
   if (r.ok) {
     revalidatePath("/[locale]", "page");
@@ -30,7 +30,7 @@ export async function toggleTestimonial(id: string, isActive: boolean): Promise<
 
 export async function deleteTestimonial(id: string): Promise<ActionResult<void>> {
   const actor = await getSessionUser();
-  if (!actor) return fail("Yetkiniz yok");
+  if (!actor) return fail("errors.notAllowed");
   const r = await deleteTestimonialAs(actor, id);
   if (r.ok) {
     revalidatePath("/[locale]", "page");

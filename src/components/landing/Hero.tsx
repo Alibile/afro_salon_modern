@@ -1,18 +1,21 @@
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { AfroPattern } from "@/components/brand/AfroPattern";
 import { Parallax } from "@/components/motion/Parallax";
-import { HERO_ALT, heroSources } from "@/lib/hero-image";
+import { heroSources } from "@/lib/hero-image";
 import { staggerDelay } from "@/lib/motion-utils";
-import type { ShopStatus } from "@/lib/shop-status";
+import { shopStatusText, type ShopStatus } from "@/lib/shop-status";
 import { cn } from "@/lib/utils";
 
 /**
  * Manşet satır satır dizilir: kırılmayı tarayıcıya bırakmak yerine burada
  * belirlemek hem ölçüyü (Fraunces, Bebas'a göre çok daha geniş bir yüz) hem de
- * sıralı girişi mümkün kılar. Metin değişmez; yalnızca nerede kırıldığı bilinir.
+ * sıralı girişi mümkün kılar. Satırların kendisi çeviri dosyasında ayrı iki
+ * anahtardır (`hero.headline1`, `hero.headline2`): kırılma noktası her dilde
+ * çevirmenin kararıdır, kelime sayısı diller arasında aynı değildir.
  */
-const HEADLINE_LINES = ["KIVRIMIN KENDİ", "GEOMETRİSİ VAR."];
+const HEADLINE_KEYS = ["hero.headline1", "hero.headline2"] as const;
 
 /**
  * Açılış sırası: manşet satırları 60 ms arayla, ardından alt metin ve düğmeler.
@@ -34,8 +37,11 @@ function riseDelay(index: number) {
  * ana sayfada `preloadHero()` ile ayrıca duyurulur: LCP bu fotoğraftır.
  */
 export function Hero({ status }: { status: ShopStatus }) {
-  const open = status.isOpenToday && status.text.startsWith("Bugün açık");
-  const { wide, tall } = heroSources();
+  const t = useTranslations("landing");
+  const tStatus = useTranslations("common.status");
+  const heroAlt = t("hero.photoAlt");
+  const open = status.state === "open";
+  const { wide, tall } = heroSources(heroAlt);
   // Tek kırpım varsa iki ekranda da o kullanılır; `<source>` ancak iki dosya da
   // gerçekten diskteyse yazılır (eşleşmeyen bir `media` fotoğrafı büsbütün
   // kaybettirirdi). Hiçbiri yoksa aşağıda desenli yer tutucuya düşülür.
@@ -52,14 +58,14 @@ export function Hero({ status }: { status: ShopStatus }) {
           <picture>
             {wide && tall && <source media="(min-width: 768px)" srcSet={wide.srcSet} sizes="100vw" />}
             {/* `alt` zaten `photo` içinde; linter yayılmış prop'u göremediği için ayrıca yazılır. */}
-            <img {...photo} alt={HERO_ALT} className="size-full object-cover object-[50%_42%]" />
+            <img {...photo} alt={heroAlt} className="size-full object-cover object-[50%_42%]" />
           </picture>
         </div>
       ) : (
         // Salon kendi fotoğrafını henüz koymadıysa kırık kare yerine `ImageSlot`
         // ile aynı dil: koyu zemin ve afrika geometrik deseni. Metin katmanı
         // değişmediği için manşet ve düğmeler aynı yerinde durur.
-        <div role="img" aria-label={HERO_ALT} className="absolute inset-0 -z-20 bg-hero-ink text-hero-sand">
+        <div role="img" aria-label={heroAlt} className="absolute inset-0 -z-20 bg-hero-ink text-hero-sand">
           <AfroPattern variant="kente" size={96} opacity={0.12} />
         </div>
       )}
@@ -79,36 +85,36 @@ export function Hero({ status }: { status: ShopStatus }) {
       <div className="relative mx-auto w-full max-w-6xl px-5 pt-32 pb-16 md:pb-20">
         <p className="rise flex items-center gap-2.5">
           <span className={cn("size-2 shrink-0 rounded-full", open ? "bg-success" : "bg-primary")} />
-          <span className="label pt-px">{status.text}</span>
+          <span className="label pt-px">{shopStatusText(tStatus, status)}</span>
         </p>
 
         <h1 className="display-cinema mt-6 md:mt-8">
-          {HEADLINE_LINES.map((line, i) => (
-            <span key={line} className="rise block" style={riseDelay(i + 1)}>
-              {line}
+          {HEADLINE_KEYS.map((key, i) => (
+            <span key={key} className="rise block" style={riseDelay(i + 1)}>
+              {t(key)}
             </span>
           ))}
         </h1>
 
-        <p className="rise mt-6 max-w-[44ch] text-base text-hero-sand/80 md:max-w-none md:text-lg" style={riseDelay(HEADLINE_LINES.length + 1)}>
-          Erkeklere özel afro kesim, fade, örgü ve twist — hepsi bugünün içinde.
+        <p className="rise mt-6 max-w-[44ch] text-base text-hero-sand/80 md:max-w-none md:text-lg" style={riseDelay(HEADLINE_KEYS.length + 1)}>
+          {t("hero.subtitle")}
         </p>
 
-        <div className="rise mt-8 flex flex-wrap items-center gap-4" style={riseDelay(HEADLINE_LINES.length + 2)}>
+        <div className="rise mt-8 flex flex-wrap items-center gap-4" style={riseDelay(HEADLINE_KEYS.length + 2)}>
           <Button asChild size="lg" className="h-12 rounded-none px-7 text-base">
-            <Link href="/randevu">Bugün randevu al</Link>
+            <Link href="/randevu">{t("hero.book")}</Link>
           </Button>
           <a
             href="#hizmetler"
             className="inline-flex h-12 items-center border border-hero-sand/45 px-6 text-base transition-colors hover:border-hero-sand hover:bg-hero-sand/10"
           >
-            Hizmetler ve fiyatlar
+            {t("hero.services")}
           </a>
         </div>
       </div>
 
       <div aria-hidden className="pointer-events-none absolute right-6 bottom-16 hidden flex-col items-center gap-3 md:flex">
-        <span className="label [writing-mode:vertical-rl] text-hero-sand/70">Kaydır</span>
+        <span className="label [writing-mode:vertical-rl] text-hero-sand/70">{t("hero.scroll")}</span>
         <span className="h-16 w-px bg-hero-sand/40" />
       </div>
     </section>

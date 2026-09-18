@@ -7,6 +7,7 @@ import { MAX_UPLOAD_BYTES } from "@/lib/upload-limits";
 import { MAX_GALLERY_BATCH } from "@/schemas/gallery";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useActionError } from "@/lib/use-action-error";
 
 const ACCEPTED = ["image/jpeg", "image/png", "image/webp"];
 
@@ -30,6 +31,7 @@ function readDimensions(file: File): Promise<{ width: number; height: number }> 
 }
 
 export function GalleryUploader() {
+  const showError = useActionError();
   const [files, setFiles] = useState<FileState[]>([]);
   const [busy, setBusy] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -85,7 +87,7 @@ export function GalleryUploader() {
         toast.success(`${uploaded.length} fotoğraf galeriye eklendi`);
         router.refresh();
       } else {
-        toast.error(r.error);
+        toast.error(showError(r));
       }
     } else {
       toast.error("Hiçbir fotoğraf yüklenemedi");

@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 /**
@@ -21,14 +22,15 @@ export function GalleryFilters({
   counts: Record<string, number>;
   totalCount: number;
 }) {
+  const t = useTranslations("landing.gallery");
   const items: { key: string; label: string; value: string | null; count: number }[] = [
-    { key: "all", label: "Tümü", value: null, count: totalCount },
+    { key: "all", label: t("all"), value: null, count: totalCount },
     ...tags.map((t) => ({ key: t, label: t, value: t as string | null, count: counts[t] ?? 0 })),
   ];
   return (
     <div
       role="group"
-      aria-label="Etikete göre süz"
+      aria-label={t("filterLabel")}
       className={cn(
         "mt-8 flex gap-2 overflow-x-auto scroll-smooth pb-1 scrollbar-none",
         "snap-x snap-mandatory",

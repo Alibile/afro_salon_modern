@@ -1,7 +1,10 @@
+import { useLocale, useTranslations } from "next-intl";
 import { ContactForm } from "./ContactForm";
 import { Reveal } from "@/components/motion/Reveal";
 import { staggerDelay } from "@/lib/motion-utils";
 import { telHref, whatsappUrl } from "@/components/brand/SocialLinks";
+import { weekdayName } from "@/lib/intl";
+import type { WeeklyHoursRow } from "@/lib/queries/landing";
 import { cn } from "@/lib/utils";
 
 export function ContactSection({
@@ -11,7 +14,7 @@ export function ContactSection({
   whatsapp,
   mapsUrl,
   weeklyHours,
-  todayLabel,
+  todayDayOfWeek,
   services,
 }: {
   address: string;
@@ -19,38 +22,38 @@ export function ContactSection({
   email: string;
   whatsapp: string;
   mapsUrl: string;
-  weeklyHours: { dayLabel: string; text: string }[];
-  todayLabel: string;
+  weeklyHours: WeeklyHoursRow[];
+  todayDayOfWeek: number;
   services: string[];
 }) {
+  const t = useTranslations("landing.contact");
+  const locale = useLocale();
   const maps = mapsUrl.trim() || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
   const links = [
-    email.trim() ? { key: "email", label: "E-posta", text: email.trim(), href: `mailto:${email.trim()}`, external: false } : null,
+    email.trim() ? { key: "email", label: t("emailLabel"), text: email.trim(), href: `mailto:${email.trim()}`, external: false } : null,
     whatsapp.trim()
       ? {
           key: "whatsapp",
-          label: "WhatsApp",
-          text: "Mesaj gönder",
-          href: whatsappUrl(whatsapp, "Merhaba, bugün için randevu almak istiyorum."),
+          label: t("whatsappLabel"),
+          text: t("whatsappText"),
+          href: whatsappUrl(whatsapp, t("whatsappMessage")),
           external: true,
         }
       : null,
-    { key: "maps", label: "Harita", text: "Haritada aç", href: maps, external: true },
+    { key: "maps", label: t("mapsLabel"), text: t("mapsText"), href: maps, external: true },
   ].filter((l) => l !== null);
 
   return (
     <section id="iletisim" className="scroll-mt-20 border-b border-border">
       <div className="mx-auto max-w-6xl px-5 py-16 md:py-24">
         <Reveal className="flex flex-wrap items-end justify-between gap-4">
-          <h2 className="display-lg">İLETİŞİM</h2>
-          <p className="editorial-note max-w-[38ch] text-muted-foreground">
-            Randevusuz geldiğinde sıraya bakarız; garantisi yok. Aynı gün için yer ayırmak birkaç dakika sürer.
-          </p>
+          <h2 className="display-lg">{t("title")}</h2>
+          <p className="editorial-note max-w-[38ch] text-muted-foreground">{t("note")}</p>
         </Reveal>
 
         <div className="mt-12 grid grid-cols-1 gap-14 md:grid-cols-12 md:gap-10">
           <Reveal className="md:col-span-5">
-            <h3 className="display-md">NEREDEYİZ</h3>
+            <h3 className="display-md">{t("whereTitle")}</h3>
             <p className="display-sm mt-6">{address}</p>
             <a
               href={telHref(phone)}
@@ -75,23 +78,25 @@ export function ContactSection({
               ))}
             </dl>
 
-            <h3 className="display-md mt-12">ÇALIŞMA SAATLERİ</h3>
+            <h3 className="display-md mt-12">{t("hoursTitle")}</h3>
             <dl className="mt-6 border-t border-border">
               {weeklyHours.map((d) => {
-                const today = d.dayLabel === todayLabel;
+                const today = d.dayOfWeek === todayDayOfWeek;
                 return (
                   <div
-                    key={d.dayLabel}
+                    key={d.dayOfWeek}
                     className={cn(
                       "flex items-baseline justify-between gap-4 border-b border-border py-3",
                       today && "border-l-2 border-l-primary pl-3",
                     )}
                   >
                     <dt className={cn(today && "font-medium text-primary")}>
-                      {d.dayLabel}
-                      {today && <span className="editorial-note ml-2 text-sm text-muted-foreground">bugün</span>}
+                      {weekdayName(d.dayOfWeek, locale)}
+                      {today && <span className="editorial-note ml-2 text-sm text-muted-foreground">{t("today")}</span>}
                     </dt>
-                    <dd className={cn("tabular-nums", today ? "text-primary" : "text-muted-foreground")}>{d.text}</dd>
+                    <dd className={cn("tabular-nums", today ? "text-primary" : "text-muted-foreground")}>
+                      {d.opensAt && d.closesAt ? `${d.opensAt}–${d.closesAt}` : t("closed")}
+                    </dd>
                   </div>
                 );
               })}
@@ -99,10 +104,8 @@ export function ContactSection({
           </Reveal>
 
           <Reveal className="md:col-span-7 md:pl-6" delay={staggerDelay(1, 0.08)}>
-            <h3 className="display-md">MESAJ BIRAK</h3>
-            <p className="measure mt-3 text-muted-foreground">
-              Randevu almak için forma gerek yok, doğrudan saat seçebilirsin. Aklına takılan bir şey varsa buradan yaz.
-            </p>
+            <h3 className="display-md">{t("formTitle")}</h3>
+            <p className="measure mt-3 text-muted-foreground">{t("formNote")}</p>
             <ContactForm services={services} />
           </Reveal>
         </div>

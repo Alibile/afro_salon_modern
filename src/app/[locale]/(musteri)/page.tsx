@@ -1,4 +1,4 @@
-import { getLandingData, DAY_LABELS } from "@/lib/queries/landing";
+import { getLandingData } from "@/lib/queries/landing";
 import { getSessionUser } from "@/lib/auth-helpers";
 import { preloadHero } from "@/lib/hero-image";
 import { shopDayOfWeek } from "@/lib/time";
@@ -55,7 +55,7 @@ export default async function LandingPage() {
         whatsapp={settings.whatsapp}
         mapsUrl={settings.mapsUrl}
         weeklyHours={weeklyHours}
-        todayLabel={DAY_LABELS[shopDayOfWeek(now)]}
+        todayDayOfWeek={shopDayOfWeek(now)}
         services={services.map((s) => s.name)}
       />
       <SiteFooter
@@ -65,7 +65,7 @@ export default async function LandingPage() {
         address={settings.address}
         phone={settings.phone}
         email={settings.email}
-        statusText={status.text}
+        status={status}
       />
     </MotionProvider>
   );

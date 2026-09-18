@@ -8,10 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageUploader } from "./ImageUploader";
 import { updateOwnProfile } from "@/actions/profile";
+import { useActionError } from "@/lib/use-action-error";
 
 type Profile = { name: string; phone: string; bio?: string; photoKey?: string };
 
 export function ProfileForm({ profile, hasBarber }: { profile: Profile; hasBarber: boolean }) {
+  const showError = useActionError();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -27,7 +29,7 @@ export function ProfileForm({ profile, hasBarber }: { profile: Profile; hasBarbe
             ? { name: String(fd.get("name")), phone: String(fd.get("phone")), bio: String(fd.get("bio")), photoKey: String(fd.get("photoKey")) }
             : { name: String(fd.get("name")), phone: String(fd.get("phone")) };
           const r = await updateOwnProfile(input);
-          if (!r.ok) { setError(r.error); return; }
+          if (!r.ok) { setError(showError(r)); return; }
           setError(null);
           toast.success("Profil güncellendi");
           router.refresh();

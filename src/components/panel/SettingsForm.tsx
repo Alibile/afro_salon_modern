@@ -7,8 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { updateSettings } from "@/actions/settings";
 import type { SettingsInput } from "@/schemas/settings";
+import { useActionError } from "@/lib/use-action-error";
 
 export function SettingsForm({ initial }: { initial: SettingsInput }) {
+  const showError = useActionError();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   return (
@@ -42,7 +44,7 @@ export function SettingsForm({ initial }: { initial: SettingsInput }) {
             satisfactionPercent: Number(fd.get("satisfactionPercent")),
             yearsExperience: Number(fd.get("yearsExperience")),
           });
-          if (!r.ok) { setError(r.error); return; }
+          if (!r.ok) { setError(showError(r)); return; }
           setError(null); toast.success("Ayarlar kaydedildi");
         });
       }}

@@ -8,7 +8,7 @@ import type { ServiceInput } from "@/schemas/service";
 
 export async function upsertService(input: ServiceInput & { id?: string }): Promise<ActionResult<{ id: string }>> {
   const actor = await getSessionUser();
-  if (!actor) return fail("Yetkiniz yok");
+  if (!actor) return fail("errors.notAllowed");
   const r = await upsertServiceAs(actor, input);
   if (r.ok) revalidatePath("/[locale]/panel/hizmetler", "page");
   return r;
@@ -16,7 +16,7 @@ export async function upsertService(input: ServiceInput & { id?: string }): Prom
 
 export async function toggleService(id: string, isActive: boolean): Promise<ActionResult<void>> {
   const actor = await getSessionUser();
-  if (!actor) return fail("Yetkiniz yok");
+  if (!actor) return fail("errors.notAllowed");
   const r = await toggleServiceAs(actor, id, isActive);
   if (r.ok) revalidatePath("/[locale]/panel/hizmetler", "page");
   return r;
@@ -24,7 +24,7 @@ export async function toggleService(id: string, isActive: boolean): Promise<Acti
 
 export async function deleteService(id: string): Promise<ActionResult<void>> {
   const actor = await getSessionUser();
-  if (!actor) return fail("Yetkiniz yok");
+  if (!actor) return fail("errors.notAllowed");
   const r = await deleteServiceAs(actor, id);
   if (r.ok) revalidatePath("/[locale]/panel/hizmetler", "page");
   return r;

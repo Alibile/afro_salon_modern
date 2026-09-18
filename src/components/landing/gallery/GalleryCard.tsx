@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { publicUrl } from "@/lib/storage-public";
 import type { GalleryPhoto } from "@/lib/gallery-utils";
 
@@ -8,12 +9,13 @@ import type { GalleryPhoto } from "@/lib/gallery-utils";
  * Fotoğrafın gerçek oranı `width/height` ile korunur, kırpma yapılmaz.
  */
 export function GalleryCard({ photo, onSelect }: { photo: GalleryPhoto; onSelect?: () => void }) {
-  const label = photo.caption.trim() !== "" ? photo.caption : "Galeri fotoğrafı";
+  const t = useTranslations("landing.gallery");
+  const label = photo.caption.trim() !== "" ? photo.caption : t("photoAlt");
   return (
     <button
       type="button"
       onClick={onSelect}
-      aria-label={`${label} — büyüt`}
+      aria-label={t("enlarge", { label })}
       className="group relative block w-full cursor-zoom-in overflow-hidden bg-secondary text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
     >
       <Image

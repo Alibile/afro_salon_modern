@@ -34,7 +34,7 @@ describe("timeoff", () => {
     const b1 = await createBarber();
     const b2 = await createBarber();
     const r = await createTimeOffAs(asBarber(b1.user, b1.barber.id), { barberId: b2.barber.id, date: "2026-09-17", allDay: true });
-    expect(r).toEqual({ ok: false, error: "Yetkiniz yok" });
+    expect(r).toEqual({ ok: false, error: "errors.notAllowed" });
   });
 
   it("delete respects scope", async () => {
@@ -49,6 +49,6 @@ describe("timeoff", () => {
   it("admin creating time off for nonexistent barber fails", async () => {
     const admin: SessionUser = { id: "a", name: "Admin", email: "a@t", role: "ADMIN", barberId: null, locale: "tr" };
     const r = await createTimeOffAs(admin, { barberId: "yok", date: "2026-09-17", allDay: true });
-    expect(r).toEqual({ ok: false, error: "Berber bulunamadı" });
+    expect(r).toEqual({ ok: false, error: "errors.barberNotFound" });
   });
 });

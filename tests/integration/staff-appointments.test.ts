@@ -26,7 +26,7 @@ describe("setAppointmentStatus", () => {
     const c = await createCustomer();
     const a = await appt(c.id, b1.barber.id);
     const r = await setAppointmentStatusAs(asUser({ ...b2.user, role: "BARBER" }, b2.barber.id), a.id, "COMPLETED");
-    expect(r).toEqual({ ok: false, error: "Randevu bulunamadı" });
+    expect(r).toEqual({ ok: false, error: "errors.appointmentNotFound" });
   });
 
   it("admin cancels any appointment with cancelledBy STAFF", async () => {

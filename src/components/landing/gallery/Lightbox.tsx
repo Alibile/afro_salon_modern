@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { publicUrl } from "@/lib/storage-public";
 import { nextIndex, prevIndex, type GalleryPhoto } from "@/lib/gallery-utils";
@@ -20,6 +21,8 @@ export function Lightbox({
   onIndexChange: (index: number) => void;
   onClose: () => void;
 }) {
+  const t = useTranslations("landing.gallery");
+  const tCommon = useTranslations("common");
   const open = index !== null;
   const startX = useRef<number | null>(null);
 
@@ -50,19 +53,17 @@ export function Lightbox({
   if (index === null) return null;
   const photo = photos[index];
   if (!photo) return null;
-  const label = photo.caption.trim() !== "" ? photo.caption : "Galeri fotoğrafı";
+  const label = photo.caption.trim() !== "" ? photo.caption : t("photoAlt");
 
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
       <DialogContent
         showCloseButton={false}
-        aria-label="Galeri fotoğrafı"
+        aria-label={t("photoAlt")}
         className="fixed inset-0 top-0 left-0 flex h-full w-full max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none bg-background p-0 ring-0 sm:max-w-none"
       >
         <DialogTitle className="sr-only">{label}</DialogTitle>
-        <DialogDescription className="sr-only">
-          Sol ve sağ ok tuşlarıyla fotoğraflar arasında gezinebilir, Esc ile kapatabilirsin.
-        </DialogDescription>
+        <DialogDescription className="sr-only">{t("lightboxHelp")}</DialogDescription>
 
         <div className="flex items-center justify-between border-b border-border px-4 py-3 md:px-6">
           <p className="font-display text-2xl tracking-wide tabular-nums">
@@ -71,7 +72,7 @@ export function Lightbox({
           <button
             type="button"
             onClick={onClose}
-            aria-label="Kapat"
+            aria-label={tCommon("close")}
             className="flex size-10 items-center justify-center border border-border transition-colors hover:border-foreground"
           >
             <X aria-hidden className="size-5" />
@@ -109,7 +110,7 @@ export function Lightbox({
               <button
                 type="button"
                 onClick={() => go("prev")}
-                aria-label="Önceki fotoğraf"
+                aria-label={t("previousPhoto")}
                 className="absolute left-2 flex size-11 items-center justify-center border border-border bg-background/85 transition-colors hover:border-foreground md:left-4"
               >
                 <ChevronLeft aria-hidden className="size-5" />
@@ -117,7 +118,7 @@ export function Lightbox({
               <button
                 type="button"
                 onClick={() => go("next")}
-                aria-label="Sonraki fotoğraf"
+                aria-label={t("nextPhoto")}
                 className="absolute right-2 flex size-11 items-center justify-center border border-border bg-background/85 transition-colors hover:border-foreground md:right-4"
               >
                 <ChevronRight aria-hidden className="size-5" />

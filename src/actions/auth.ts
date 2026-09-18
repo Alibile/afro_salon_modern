@@ -6,6 +6,7 @@ import { getLocale } from "next-intl/server";
 import { prisma } from "@/lib/db";
 import { signIn, signOut } from "@/lib/auth";
 import { ok, fail, type ActionResult } from "@/lib/action-result";
+import { firstIssueKey, isErrorKey, type ErrorKey } from "@/lib/errors";
 import { registerSchema, loginSchema, type RegisterInput } from "@/schemas/auth";
 import { routing, type AppLocale } from "@/i18n/routing";
 import { stripLocale, withLocale } from "@/lib/locale-path";
@@ -25,11 +26,11 @@ export async function registerCustomer(
   locale: AppLocale = routing.defaultLocale,
 ): Promise<ActionResult<{ id: string }>> {
   const parsed = registerSchema.safeParse(input);
-  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Geçersiz bilgi");
+  if (!parsed.success) return fail(firstIssueKey(parsed.error));
   const { name, email, phone, password } = parsed.data;
 
   const exists = await prisma.user.findUnique({ where: { email } });
-  if (exists) return fail("Bu e-posta ile zaten bir hesap var");
+  if (exists) return fail("errors.emailTaken");
 
   const passwordHash = await bcrypt.hash(password, 10);
   const user = await prisma.user.create({
@@ -38,11 +39,12 @@ export async function registerCustomer(
   return ok({ id: user.id });
 }
 
-export type LoginState = { error?: string };
+/** Form durumu da hata anahtarı taşır; metin `LoginForm` içinde üretilir. */
+export type LoginState = { error?: ErrorKey };
 
 export async function loginAction(_prev: LoginState, formData: FormData): Promise<LoginState> {
   const parsed = loginSchema.safeParse({ email: formData.get("email"), password: formData.get("password") });
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message };
+  if (!parsed.success) return { error: firstIssueKey(parsed.error) };
   const locale = (await getLocale()) as AppLocale;
   const next = String(formData.get("next") || "");
   try {
@@ -51,7 +53,7 @@ export async function loginAction(_prev: LoginState, formData: FormData): Promis
     await signIn("credentials", { ...parsed.data, locale, redirectTo: localizeNext(locale, next, "/after-login") });
     return {};
   } catch (e) {
-    if (e instanceof AuthError) return { error: "E-posta veya şifre hatalı" };
+    if (e instanceof AuthError) return { error: "errors.invalidCredentials" };
     throw e; // NEXT_REDIRECT buradan geçer
   }
 }
@@ -67,7 +69,7 @@ export async function registerAction(_prev: LoginState, formData: FormData): Pro
     },
     locale,
   );
-  if (!r.ok) return { error: r.error };
+  if (!r.ok) return { error: isErrorKey(r.error) ? r.error : "errors.invalidInput" };
   const next = String(formData.get("next") || "");
   await signIn("credentials", {
     email: String(formData.get("email")).trim().toLowerCase(),

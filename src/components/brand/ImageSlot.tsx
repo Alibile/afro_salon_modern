@@ -9,6 +9,9 @@ import { AfroPattern, type PatternVariant } from "./AfroPattern";
  * gösterir. Sunucu bileşenidir (dosya kontrolü `fs` ile yapılır); istemci
  * bileşenlerinden import edilmemelidir. Kendisini saran kutuyu doldurur,
  * bu yüzden çağıran taraf `relative` bir kutu vermelidir.
+ *
+ * `alt` ve `label` metin alır, anahtar değil: bileşen dosya sistemini bilir,
+ * ziyaretçinin dilini değil — çeviriyi çağıran bölüm getirir.
  */
 export function ImageSlot({
   name,
@@ -17,7 +20,7 @@ export function ImageSlot({
   variant = "kente",
   sizes = "100vw",
   priority = false,
-  label = "Fotoğraf yakında",
+  label = null,
 }: {
   name: string;
   alt: string;

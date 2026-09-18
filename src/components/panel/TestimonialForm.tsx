@@ -7,10 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { upsertTestimonial } from "@/actions/testimonials";
+import { useActionError } from "@/lib/use-action-error";
 
 type Initial = { id: string; name: string; text: string; rating: number; sortOrder: number };
 
 export function TestimonialForm({ initial, onDone }: { initial?: Initial; onDone?: () => void }) {
+  const showError = useActionError();
   const [pending, start] = useTransition();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +31,7 @@ export function TestimonialForm({ initial, onDone }: { initial?: Initial; onDone
             rating: Number(fd.get("rating")),
             sortOrder: Number(fd.get("sortOrder")),
           });
-          if (!r.ok) { setError(r.error); return; }
+          if (!r.ok) { setError(showError(r)); return; }
           setError(null);
           toast.success(initial ? "Yorum güncellendi" : "Yorum eklendi");
           router.refresh();

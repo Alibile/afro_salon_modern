@@ -67,7 +67,7 @@ describe("addGalleryPhotosAs", () => {
   it("yalnızca presign ucunun ürettiği anahtar biçimini kabul eder", async () => {
     for (const bad of ["haircuts/a.jpg", "gallery/../x.jpg", "gallery/abc.jpg", "gallery/x.gif", "../secret.jpg"]) {
       const r = await addGalleryPhotosAs(admin, [item({ storageKey: bad })]);
-      expect(r).toEqual({ ok: false, error: "Geçersiz fotoğraf anahtarı" });
+      expect(r).toEqual({ ok: false, error: "errors.invalidPhotoKey" });
     }
     expect(await prisma.galleryPhoto.count()).toBe(0);
   });
@@ -87,11 +87,11 @@ describe("addGalleryPhotosAs", () => {
     // Masonry oranı olduğu gibi kullanır: 100×5000 bir sütunu tek başına uzatırdı.
     expect(await addGalleryPhotosAs(admin, [item({ width: 100, height: 5000 })])).toEqual({
       ok: false,
-      error: "Geçersiz görsel oranı",
+      error: "errors.invalidAspectRatio",
     });
     expect(await addGalleryPhotosAs(admin, [item({ width: 5000, height: 100 })])).toEqual({
       ok: false,
-      error: "Geçersiz görsel oranı",
+      error: "errors.invalidAspectRatio",
     });
     expect((await addGalleryPhotosAs(admin, [item({ width: 400, height: 2000 })])).ok).toBe(true);
     expect((await addGalleryPhotosAs(admin, [item({ width: 2000, height: 400 })])).ok).toBe(true);
@@ -101,7 +101,7 @@ describe("addGalleryPhotosAs", () => {
     const many = Array.from({ length: 25 }, () => item());
     expect(await addGalleryPhotosAs(admin, many)).toEqual({
       ok: false,
-      error: "Tek seferde en fazla 24 fotoğraf yüklenebilir",
+      error: "errors.tooManyPhotos",
     });
     expect(await prisma.galleryPhoto.count()).toBe(0);
   });
@@ -115,9 +115,9 @@ describe("addGalleryPhotosAs", () => {
   });
 
   it("berber ve müşteri reddedilir", async () => {
-    expect(await addGalleryPhotosAs(barber, [item()])).toEqual({ ok: false, error: "Yetkiniz yok" });
-    expect(await addGalleryPhotosAs(customer, [item()])).toEqual({ ok: false, error: "Yetkiniz yok" });
-    expect(await addGalleryPhotosAs(null, [item()])).toEqual({ ok: false, error: "Yetkiniz yok" });
+    expect(await addGalleryPhotosAs(barber, [item()])).toEqual({ ok: false, error: "errors.notAllowed" });
+    expect(await addGalleryPhotosAs(customer, [item()])).toEqual({ ok: false, error: "errors.notAllowed" });
+    expect(await addGalleryPhotosAs(null, [item()])).toEqual({ ok: false, error: "errors.notAllowed" });
     expect(await prisma.galleryPhoto.count()).toBe(0);
   });
 });
@@ -141,17 +141,17 @@ describe("updateGalleryPhotoAs", () => {
   it("6'dan fazla etiketi ve çok kısa/uzun etiketi reddeder", async () => {
     const id = await addOne();
     const many = await updateGalleryPhotoAs(admin, id, { tags: "a1,b2,c3,d4,e5,f6,g7" });
-    expect(many).toEqual({ ok: false, error: "Etiketler 2–20 karakter, en fazla 6" });
+    expect(many).toEqual({ ok: false, error: "errors.invalidTags" });
     const short = await updateGalleryPhotoAs(admin, id, { tags: "F" });
-    expect(short).toEqual({ ok: false, error: "Etiketler 2–20 karakter, en fazla 6" });
+    expect(short).toEqual({ ok: false, error: "errors.invalidTags" });
     const long = await updateGalleryPhotoAs(admin, id, { tags: "x".repeat(21) });
-    expect(long).toEqual({ ok: false, error: "Etiketler 2–20 karakter, en fazla 6" });
+    expect(long).toEqual({ ok: false, error: "errors.invalidTags" });
     expect((await prisma.galleryPhoto.findUniqueOrThrow({ where: { id } })).tags).toEqual([]);
   });
 
   it("etiket alanı verilip de boş kalırsa reddeder", async () => {
     const id = await addOne();
-    expect(await updateGalleryPhotoAs(admin, id, { tags: "  ,  " })).toEqual({ ok: false, error: "En az bir etiket girin" });
+    expect(await updateGalleryPhotoAs(admin, id, { tags: "  ,  " })).toEqual({ ok: false, error: "errors.tagRequired" });
   });
 
   it("yalnızca isActive gönderildiğinde etiket ve başlığa dokunmaz", async () => {
@@ -172,12 +172,12 @@ describe("updateGalleryPhotoAs", () => {
   });
 
   it("olmayan fotoğrafta bulunamadı döner", async () => {
-    expect(await updateGalleryPhotoAs(admin, "yok", { caption: "x" })).toEqual({ ok: false, error: "Fotoğraf bulunamadı" });
+    expect(await updateGalleryPhotoAs(admin, "yok", { caption: "x" })).toEqual({ ok: false, error: "errors.photoNotFound" });
   });
 
   it("berber reddedilir", async () => {
     const id = await addOne();
-    expect(await updateGalleryPhotoAs(barber, id, { caption: "x" })).toEqual({ ok: false, error: "Yetkiniz yok" });
+    expect(await updateGalleryPhotoAs(barber, id, { caption: "x" })).toEqual({ ok: false, error: "errors.notAllowed" });
   });
 });
 
@@ -209,12 +209,12 @@ describe("moveGalleryPhotoAs", () => {
   });
 
   it("olmayan fotoğrafta bulunamadı döner", async () => {
-    expect(await moveGalleryPhotoAs(admin, "yok", "up")).toEqual({ ok: false, error: "Fotoğraf bulunamadı" });
+    expect(await moveGalleryPhotoAs(admin, "yok", "up")).toEqual({ ok: false, error: "errors.photoNotFound" });
   });
 
   it("berber reddedilir", async () => {
     const id = await addOne();
-    expect(await moveGalleryPhotoAs(barber, id, "up")).toEqual({ ok: false, error: "Yetkiniz yok" });
+    expect(await moveGalleryPhotoAs(barber, id, "up")).toEqual({ ok: false, error: "errors.notAllowed" });
   });
 });
 
@@ -237,12 +237,12 @@ describe("deleteGalleryPhotoAs", () => {
   });
 
   it("olmayan fotoğrafta bulunamadı döner", async () => {
-    expect(await deleteGalleryPhotoAs(admin, "yok")).toEqual({ ok: false, error: "Fotoğraf bulunamadı" });
+    expect(await deleteGalleryPhotoAs(admin, "yok")).toEqual({ ok: false, error: "errors.photoNotFound" });
   });
 
   it("berber reddedilir, satır durur", async () => {
     const id = await addOne();
-    expect(await deleteGalleryPhotoAs(barber, id)).toEqual({ ok: false, error: "Yetkiniz yok" });
+    expect(await deleteGalleryPhotoAs(barber, id)).toEqual({ ok: false, error: "errors.notAllowed" });
     expect(await prisma.galleryPhoto.count()).toBe(1);
     expect(deleteObject).not.toHaveBeenCalled();
   });

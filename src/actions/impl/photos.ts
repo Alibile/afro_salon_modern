@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { ok, fail, type ActionResult } from "@/lib/action-result";
+import { firstIssueKey } from "@/lib/errors";
 import type { SessionUser } from "@/lib/auth-helpers";
 import { asStaffActor } from "@/lib/staff-scope";
 import { deleteObject } from "@/lib/storage";
@@ -11,22 +12,22 @@ export async function addHaircutPhotoAs(
   input: AddHaircutPhotoInput,
 ): Promise<ActionResult<{ id: string; deletedKeys: string[] }>> {
   const actor = asStaffActor(actorInput);
-  if (!actor) return fail("Yetkiniz yok");
-  if (!input.storageKey) return fail("Fotoğraf yüklenmemiş");
+  if (!actor) return fail("errors.notAllowed");
+  if (!input.storageKey) return fail("errors.photoMissing");
 
   const parsed = addHaircutPhotoSchema.safeParse(input);
-  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Geçersiz bilgi");
+  if (!parsed.success) return fail(firstIssueKey(parsed.error));
   const data = parsed.data;
 
   const barberId = actor.role === "BARBER" ? actor.barberId : data.barberId;
-  if (!barberId) return fail("Berber seçilmedi");
+  if (!barberId) return fail("errors.barberNotSelected");
 
   const customer = await prisma.user.findFirst({ where: { id: data.customerId, role: "CUSTOMER" } });
-  if (!customer) return fail("Müşteri bulunamadı");
+  if (!customer) return fail("errors.customerNotFound");
 
   if (data.appointmentId) {
     const appointment = await prisma.appointment.findFirst({ where: { id: data.appointmentId, customerId: customer.id } });
-    if (!appointment) return fail("Randevu bulunamadı");
+    if (!appointment) return fail("errors.appointmentNotFound");
   }
 
   const { created, removed } = await prisma.$transaction(async (tx) => {
@@ -46,9 +47,9 @@ export async function addHaircutPhotoAs(
 
 export async function deleteHaircutPhotoAs(actorInput: SessionUser | null, id: string): Promise<ActionResult<{ customerId: string }>> {
   const actor = asStaffActor(actorInput);
-  if (!actor) return fail("Yetkiniz yok");
+  if (!actor) return fail("errors.notAllowed");
   const photo = await prisma.haircutPhoto.findFirst({ where: { id, ...(actor.role === "ADMIN" ? {} : { barberId: actor.barberId ?? "__none__" }) } });
-  if (!photo) return fail("Fotoğraf bulunamadı");
+  if (!photo) return fail("errors.photoNotFound");
   await prisma.haircutPhoto.delete({ where: { id } });
   await deleteObject(photo.storageKey);
   return ok({ customerId: photo.customerId });

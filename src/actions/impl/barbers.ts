@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { Prisma } from "@/generated/prisma/client";
 import { ok, fail, type ActionResult } from "@/lib/action-result";
+import { firstIssueKey } from "@/lib/errors";
 import type { SessionUser } from "@/lib/auth-helpers";
 import { asAdminActor } from "@/lib/staff-scope";
 import { createBarberSchema, updateBarberSchema, workingHoursSchema, type CreateBarberInput, type UpdateBarberInput, type WorkingHoursInput } from "@/schemas/barber";
@@ -10,11 +11,11 @@ import { deleteObject } from "@/lib/storage";
 const DEFAULT_HOURS = [0, 1, 2, 3, 4, 5, 6].map((d) => ({ dayOfWeek: d, startTime: "09:00", endTime: "19:00", isOff: d === 0 }));
 
 export async function createBarberAs(actor: SessionUser | null, input: CreateBarberInput): Promise<ActionResult<{ barberId: string }>> {
-  if (!asAdminActor(actor)) return fail("Yetkiniz yok");
+  if (!asAdminActor(actor)) return fail("errors.notAllowed");
   const parsed = createBarberSchema.safeParse(input);
-  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Geçersiz bilgi");
+  if (!parsed.success) return fail(firstIssueKey(parsed.error));
   const { name, email, password, bio, photoKey } = parsed.data;
-  if (await prisma.user.findUnique({ where: { email } })) return fail("Bu e-posta ile zaten bir hesap var");
+  if (await prisma.user.findUnique({ where: { email } })) return fail("errors.emailTaken");
 
   const passwordHash = await bcrypt.hash(password, 10);
   const barber = await prisma.$transaction(async (tx) => {
@@ -27,11 +28,11 @@ export async function createBarberAs(actor: SessionUser | null, input: CreateBar
 }
 
 export async function updateBarberAs(actor: SessionUser | null, barberId: string, input: UpdateBarberInput): Promise<ActionResult<void>> {
-  if (!asAdminActor(actor)) return fail("Yetkiniz yok");
+  if (!asAdminActor(actor)) return fail("errors.notAllowed");
   const parsed = updateBarberSchema.safeParse(input);
-  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Geçersiz bilgi");
+  if (!parsed.success) return fail(firstIssueKey(parsed.error));
   const existing = await prisma.barber.findUnique({ where: { id: barberId } });
-  if (!existing) return fail("Berber bulunamadı");
+  if (!existing) return fail("errors.barberNotFound");
   const { name, bio, photoKey, isActive } = parsed.data;
   await prisma.$transaction([
     prisma.user.update({ where: { id: existing.userId }, data: { name } }),
@@ -43,11 +44,11 @@ export async function updateBarberAs(actor: SessionUser | null, barberId: string
 }
 
 export async function saveWorkingHoursAs(actor: SessionUser | null, barberId: string, input: WorkingHoursInput): Promise<ActionResult<void>> {
-  if (!asAdminActor(actor)) return fail("Yetkiniz yok");
+  if (!asAdminActor(actor)) return fail("errors.notAllowed");
   const parsed = workingHoursSchema.safeParse(input);
-  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Geçersiz bilgi");
+  if (!parsed.success) return fail(firstIssueKey(parsed.error));
   const b = await prisma.barber.findUnique({ where: { id: barberId } });
-  if (!b) return fail("Berber bulunamadı");
+  if (!b) return fail("errors.barberNotFound");
   await prisma.$transaction([
     prisma.workingHours.deleteMany({ where: { barberId } }),
     prisma.workingHours.createMany({ data: parsed.data.days.map((d) => ({ ...d, barberId })) }),
@@ -56,31 +57,31 @@ export async function saveWorkingHoursAs(actor: SessionUser | null, barberId: st
 }
 
 export async function resetBarberPasswordAs(actor: SessionUser | null, barberId: string, newPassword: string): Promise<ActionResult<void>> {
-  if (!asAdminActor(actor)) return fail("Yetkiniz yok");
-  if (newPassword.length < 8) return fail("Şifre en az 8 karakter olmalı");
+  if (!asAdminActor(actor)) return fail("errors.notAllowed");
+  if (newPassword.length < 8) return fail("errors.passwordMin8");
   const b = await prisma.barber.findUnique({ where: { id: barberId } });
-  if (!b) return fail("Berber bulunamadı");
+  if (!b) return fail("errors.barberNotFound");
   await prisma.user.update({ where: { id: b.userId }, data: { passwordHash: await bcrypt.hash(newPassword, 10) } });
   return ok(undefined);
 }
 
 export async function deleteBarberAs(actorInput: SessionUser | null, barberId: string): Promise<ActionResult<void>> {
   const actor = asAdminActor(actorInput);
-  if (!actor) return fail("Yetkiniz yok");
+  if (!actor) return fail("errors.notAllowed");
   const existing = await prisma.barber.findUnique({ where: { id: barberId } });
-  if (!existing) return fail("Berber bulunamadı");
-  if (existing.userId === actor.id) return fail("Kendi hesabınızı silemezsiniz");
+  if (!existing) return fail("errors.barberNotFound");
+  if (existing.userId === actor.id) return fail("errors.cannotDeleteOwnAccount");
   const [appointmentCount, photoCount, customerAppointmentCount, customerPhotoCount] = await Promise.all([
     prisma.appointment.count({ where: { barberId } }),
     prisma.haircutPhoto.count({ where: { barberId } }),
     prisma.appointment.count({ where: { customerId: existing.userId } }),
     prisma.haircutPhoto.count({ where: { customerId: existing.userId } }),
   ]);
-  if (appointmentCount > 0 || photoCount > 0) return fail("Bu berberin randevu veya fotoğraf geçmişi var, silinemez; pasife alın");
+  if (appointmentCount > 0 || photoCount > 0) return fail("errors.barberHasHistory");
   // Berberin kullanıcı hesabı aynı zamanda müşteri olarak da kayıt taşıyabilir;
   // bu durumda user.delete yabancı anahtar hatası verir, önce burada durdururuz.
   if (customerAppointmentCount > 0 || customerPhotoCount > 0)
-    return fail("Bu kullanıcının müşteri olarak randevu veya fotoğraf geçmişi var, silinemez; pasife alın");
+    return fail("errors.userHasHistory");
   try {
     await prisma.$transaction([
       prisma.timeOff.deleteMany({ where: { barberId } }),
@@ -90,7 +91,7 @@ export async function deleteBarberAs(actorInput: SessionUser | null, barberId: s
     ]);
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2003")
-      return fail("Bu berberin bağlı kayıtları var, silinemez; pasife alın");
+      return fail("errors.barberHasRelations");
     throw e;
   }
   if (!existing.photoKey.startsWith("seed/") && !existing.photoKey.startsWith("landing/")) await deleteObject(existing.photoKey);

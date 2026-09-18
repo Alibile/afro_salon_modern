@@ -4,14 +4,16 @@ import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { setAppointmentStatus } from "@/actions/staff-appointments";
+import { useActionError } from "@/lib/use-action-error";
 
 export function AppointmentActions({ id }: { id: string }) {
+  const showError = useActionError();
   const [pending, start] = useTransition();
   const router = useRouter();
   const run = (status: "COMPLETED" | "NO_SHOW" | "CANCELLED") =>
     start(async () => {
       const r = await setAppointmentStatus(id, status);
-      if (r.ok) { toast.success("Güncellendi"); router.refresh(); } else toast.error(r.error);
+      if (r.ok) { toast.success("Güncellendi"); router.refresh(); } else toast.error(showError(r));
     });
   return (
     <div className="flex flex-wrap gap-2">

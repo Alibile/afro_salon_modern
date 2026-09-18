@@ -95,10 +95,10 @@ const staffWrappers: [string, () => Promise<{ ok: boolean; error?: string }>][] 
 const customerWrappers: [string, string, () => Promise<{ ok: boolean; error?: string }>][] = [
   [
     "createAppointment",
-    "Randevu almak için giriş yapmalısınız",
+    "errors.loginRequiredToBook",
     () => createAppointment({ barberId: "b1", serviceIds: ["s1"], startsAt: "2026-09-17T08:00:00.000Z" }),
   ],
-  ["cancelAppointmentByCustomer", "Giriş yapmalısınız", () => cancelAppointmentByCustomer("a1")],
+  ["cancelAppointmentByCustomer", "errors.loginRequired", () => cancelAppointmentByCustomer("a1")],
 ];
 
 /**
@@ -127,7 +127,7 @@ beforeEach(() => {
 describe("server action wrappers — oturumsuz çağrı", () => {
   it.each(staffWrappers)("%s oturumsuz reddedilir", async (_name, call) => {
     setSession(null);
-    expect(await call()).toEqual({ ok: false, error: "Yetkiniz yok" });
+    expect(await call()).toEqual({ ok: false, error: "errors.notAllowed" });
   });
 
   it.each(customerWrappers)("%s oturumsuz reddedilir", async (_name, error, call) => {
@@ -139,7 +139,7 @@ describe("server action wrappers — oturumsuz çağrı", () => {
 describe("server action wrappers — CUSTOMER oturumu", () => {
   it.each(staffWrappers)("%s müşteri oturumuyla reddedilir", async (_name, call) => {
     setSession(customer);
-    expect(await call()).toEqual({ ok: false, error: "Yetkiniz yok" });
+    expect(await call()).toEqual({ ok: false, error: "errors.notAllowed" });
   });
 
   it.each(customerWrappers)("%s müşteri oturumunda yetki hatası vermez", async (_name, _error, call) => {
@@ -147,21 +147,21 @@ describe("server action wrappers — CUSTOMER oturumu", () => {
     const r = await call();
     // Müşteri bu action'ları çağırabilir; hata artık yetki değil veri hatasıdır.
     expect(r.ok).toBe(false);
-    expect(r.error).not.toBe("Yetkiniz yok");
-    expect(r.error).not.toBe("Giriş yapmalısınız");
-    expect(r.error).not.toBe("Randevu almak için giriş yapmalısınız");
+    expect(r.error).not.toBe("errors.notAllowed");
+    expect(r.error).not.toBe("errors.loginRequired");
+    expect(r.error).not.toBe("errors.loginRequiredToBook");
   });
 
   it("createAppointment müşterinin kendi oturumunu kullanır, gövdeden kimlik almaz", async () => {
     setSession(customer);
     const r = await createAppointment({ barberId: "yok", serviceIds: ["s1"], startsAt: "2026-09-17T08:00:00.000Z" });
-    expect(r).toEqual({ ok: false, error: "Berber bulunamadı" });
+    expect(r).toEqual({ ok: false, error: "errors.barberNotFound" });
     expect(mockedSession).toHaveBeenCalled();
   });
 
   it("cancelAppointmentByCustomer başkasının randevusuna erişemez", async () => {
     setSession(customer);
-    expect(await cancelAppointmentByCustomer("a1")).toEqual({ ok: false, error: "Randevu bulunamadı" });
+    expect(await cancelAppointmentByCustomer("a1")).toEqual({ ok: false, error: "errors.appointmentNotFound" });
   });
 });
 
@@ -169,8 +169,8 @@ describe("server action wrappers — herkese açık (public)", () => {
   it.each(publicWrappers)("%s oturumsuz çağrıda yetki hatası vermez", async (_name, call) => {
     setSession(null);
     const r = await call();
-    expect(r.error).not.toBe("Yetkiniz yok");
-    expect(r.error).not.toBe("Giriş yapmalısınız");
+    expect(r.error).not.toBe("errors.notAllowed");
+    expect(r.error).not.toBe("errors.loginRequired");
     expect(r).toEqual({ ok: true, data: undefined });
   });
 

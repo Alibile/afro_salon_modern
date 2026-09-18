@@ -1,9 +1,9 @@
 import { z } from "zod";
 
 export const contactSchema = z.object({
-  name: z.string().trim().min(2, "Ad en az 2 karakter").max(60, "Ad en fazla 60 karakter"),
-  phone: z.string().trim().max(20, "Telefon en fazla 20 karakter").default(""),
-  message: z.string().trim().min(10, "Mesaj en az 10 karakter").max(1000, "Mesaj en fazla 1000 karakter"),
+  name: z.string().trim().min(2, "errors.nameMin2").max(60, "errors.nameMax60"),
+  phone: z.string().trim().max(20, "errors.phoneMax20").default(""),
+  message: z.string().trim().min(10, "errors.messageMin10").max(1000, "errors.messageMax1000"),
   /** Formda işaretlenen hizmet adları; e-posta gövdesinde liste olarak yer alır. */
   services: z.array(z.string().trim().min(1).max(80)).max(20).default([]),
   /** Bot tuzağı: gerçek kullanıcı bu alanı göremez, doluysa mesaj sessizce yutulur. */

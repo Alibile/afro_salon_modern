@@ -8,7 +8,7 @@ import type { CreateBarberInput, UpdateBarberInput, WorkingHoursInput } from "@/
 
 export async function createBarber(input: CreateBarberInput): Promise<ActionResult<{ barberId: string }>> {
   const actor = await getSessionUser();
-  if (!actor) return fail("Yetkiniz yok");
+  if (!actor) return fail("errors.notAllowed");
   const r = await createBarberAs(actor, input);
   if (r.ok) revalidatePath("/[locale]/panel/berberler", "page");
   return r;
@@ -16,7 +16,7 @@ export async function createBarber(input: CreateBarberInput): Promise<ActionResu
 
 export async function updateBarber(barberId: string, input: UpdateBarberInput): Promise<ActionResult<void>> {
   const actor = await getSessionUser();
-  if (!actor) return fail("Yetkiniz yok");
+  if (!actor) return fail("errors.notAllowed");
   const r = await updateBarberAs(actor, barberId, input);
   if (r.ok) revalidatePath("/[locale]/panel/berberler", "page");
   return r;
@@ -24,7 +24,7 @@ export async function updateBarber(barberId: string, input: UpdateBarberInput): 
 
 export async function saveWorkingHours(barberId: string, input: WorkingHoursInput): Promise<ActionResult<void>> {
   const actor = await getSessionUser();
-  if (!actor) return fail("Yetkiniz yok");
+  if (!actor) return fail("errors.notAllowed");
   const r = await saveWorkingHoursAs(actor, barberId, input);
   if (r.ok) revalidatePath(`/[locale]/panel/berberler/${barberId}`, "page");
   return r;
@@ -32,13 +32,13 @@ export async function saveWorkingHours(barberId: string, input: WorkingHoursInpu
 
 export async function resetBarberPassword(barberId: string, newPassword: string): Promise<ActionResult<void>> {
   const actor = await getSessionUser();
-  if (!actor) return fail("Yetkiniz yok");
+  if (!actor) return fail("errors.notAllowed");
   return resetBarberPasswordAs(actor, barberId, newPassword);
 }
 
 export async function deleteBarber(barberId: string): Promise<ActionResult<void>> {
   const actor = await getSessionUser();
-  if (!actor) return fail("Yetkiniz yok");
+  if (!actor) return fail("errors.notAllowed");
   const r = await deleteBarberAs(actor, barberId);
   if (r.ok) revalidatePath("/[locale]/panel/berberler", "page");
   return r;

@@ -8,7 +8,7 @@ import { setAppointmentStatusAs, type StaffAppointmentStatus } from "@/actions/i
 
 export async function setAppointmentStatus(appointmentId: string, status: StaffAppointmentStatus): Promise<ActionResult<void>> {
   const actor = await getSessionUser();
-  if (!actor) return fail("Yetkiniz yok");
+  if (!actor) return fail("errors.notAllowed");
   const r = await setAppointmentStatusAs(actor, appointmentId, status);
   if (r.ok) {
     if (status === "CANCELLED") await sendAppointmentCancelled(appointmentId, "STAFF");

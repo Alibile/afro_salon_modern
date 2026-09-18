@@ -51,7 +51,7 @@ describe("profile actions", () => {
     const actor = asBarber(user, barber.id);
     vi.mocked(deleteObject).mockClear();
     const r = await updateOwnProfileAs(actor, { name: user.name, phone: "", bio: "", photoKey: "landing/team-1.jpg" });
-    expect(r).toEqual({ ok: false, error: "Geçersiz fotoğraf anahtarı" });
+    expect(r).toEqual({ ok: false, error: "errors.invalidPhotoKey" });
     const dbBarber = await prisma.barber.findUnique({ where: { id: barber.id } });
     expect(dbBarber?.photoKey).toBe(barber.photoKey);
     expect(deleteObject).not.toHaveBeenCalled();
@@ -63,7 +63,7 @@ describe("profile actions", () => {
     await prisma.barber.update({ where: { id: other.id }, data: { photoKey: "landing/team-2.jpg" } });
     const actor = asBarber(user, barber.id);
     const r = await updateOwnProfileAs(actor, { name: user.name, phone: "", bio: "", photoKey: "landing/team-2.jpg" });
-    expect(r).toEqual({ ok: false, error: "Geçersiz fotoğraf anahtarı" });
+    expect(r).toEqual({ ok: false, error: "errors.invalidPhotoKey" });
     expect((await prisma.barber.findUnique({ where: { id: other.id } }))?.photoKey).toBe("landing/team-2.jpg");
   });
 
@@ -71,7 +71,7 @@ describe("profile actions", () => {
     const { user, barber } = await createBarber();
     const actor = asBarber(user, barber.id);
     const r = await updateOwnProfileAs(actor, { name: user.name, phone: "", bio: "", photoKey: "barbers/../haircuts/gizli.jpg" });
-    expect(r).toEqual({ ok: false, error: "Geçersiz fotoğraf anahtarı" });
+    expect(r).toEqual({ ok: false, error: "errors.invalidPhotoKey" });
     expect((await prisma.barber.findUnique({ where: { id: barber.id } }))?.photoKey).toBe(barber.photoKey);
   });
 
@@ -117,7 +117,7 @@ describe("profile actions", () => {
 
   it("CUSTOMER is refused", async () => {
     const r = await updateOwnProfileAs(customer, { name: "Deneme", phone: "" });
-    expect(r).toEqual({ ok: false, error: "Yetkiniz yok" });
+    expect(r).toEqual({ ok: false, error: "errors.notAllowed" });
   });
 
   it("wrong current password is refused", async () => {
@@ -128,7 +128,7 @@ describe("profile actions", () => {
     const barber = await prisma.barber.create({ data: { userId: user.id, photoKey: "barbers/test.jpg" } });
     const actor = asBarber(user, barber.id);
     const r = await changeOwnPasswordAs(actor, { currentPassword: "YanlisSifre", newPassword: "YeniSifre123" });
-    expect(r).toEqual({ ok: false, error: "Mevcut şifre hatalı" });
+    expect(r).toEqual({ ok: false, error: "errors.wrongPassword" });
   });
 
   it("correct current password changes the hash", async () => {
@@ -147,6 +147,6 @@ describe("profile actions", () => {
 
   it("changeOwnPassword CUSTOMER is refused", async () => {
     const r = await changeOwnPasswordAs(customer, { currentPassword: "x", newPassword: "YeniSifre123" });
-    expect(r).toEqual({ ok: false, error: "Yetkiniz yok" });
+    expect(r).toEqual({ ok: false, error: "errors.notAllowed" });
   });
 });

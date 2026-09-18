@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { ok, fail, type ActionResult } from "@/lib/action-result";
+import { firstIssueKey } from "@/lib/errors";
 import type { SessionUser } from "@/lib/auth-helpers";
 import { asAdminActor } from "@/lib/staff-scope";
 import { deleteObject } from "@/lib/storage";
@@ -13,16 +14,14 @@ import {
   type GalleryDirection,
 } from "@/schemas/gallery";
 
-const NOT_FOUND = "Fotoğraf bulunamadı";
-
 /** Panelden yüklenen fotoğraflar tek çağrıda, mevcutların arkasına eklenir. */
 export async function addGalleryPhotosAs(
   actor: SessionUser | null,
   items: GalleryItemInput[],
 ): Promise<ActionResult<{ ids: string[] }>> {
-  if (!asAdminActor(actor)) return fail("Yetkiniz yok");
+  if (!asAdminActor(actor)) return fail("errors.notAllowed");
   const parsed = addGalleryPhotosSchema.safeParse(items);
-  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Geçersiz bilgi");
+  if (!parsed.success) return fail(firstIssueKey(parsed.error));
 
   const last = await prisma.galleryPhoto.findFirst({ orderBy: { sortOrder: "desc" }, select: { sortOrder: true } });
   const start = last ? last.sortOrder + 1 : 0;
@@ -42,11 +41,11 @@ export async function updateGalleryPhotoAs(
   id: string,
   input: UpdateGalleryPhotoInput,
 ): Promise<ActionResult<void>> {
-  if (!asAdminActor(actor)) return fail("Yetkiniz yok");
+  if (!asAdminActor(actor)) return fail("errors.notAllowed");
   const parsed = updateGalleryPhotoSchema.safeParse(input);
-  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Geçersiz bilgi");
+  if (!parsed.success) return fail(firstIssueKey(parsed.error));
   const existing = await prisma.galleryPhoto.findUnique({ where: { id } });
-  if (!existing) return fail(NOT_FOUND);
+  if (!existing) return fail("errors.photoNotFound");
   // Yalnızca gönderilen alanlar yazılır; örneğin aktif/pasif düğmesi başlığa ve etiketlere dokunmaz.
   await prisma.galleryPhoto.update({ where: { id }, data: parsed.data });
   return ok(undefined);
@@ -62,13 +61,13 @@ export async function moveGalleryPhotoAs(
   id: string,
   direction: GalleryDirection,
 ): Promise<ActionResult<void>> {
-  if (!asAdminActor(actor)) return fail("Yetkiniz yok");
+  if (!asAdminActor(actor)) return fail("errors.notAllowed");
   const parsedDirection = galleryDirectionSchema.safeParse(direction);
-  if (!parsedDirection.success) return fail("Geçersiz yön");
+  if (!parsedDirection.success) return fail("errors.invalidDirection");
 
   const rows = await prisma.galleryPhoto.findMany({ orderBy: GALLERY_ORDER, select: { id: true, sortOrder: true } });
   const index = rows.findIndex((r) => r.id === id);
-  if (index === -1) return fail(NOT_FOUND);
+  if (index === -1) return fail("errors.photoNotFound");
 
   const target = parsedDirection.data === "up" ? index - 1 : index + 1;
   if (target < 0 || target >= rows.length) return ok(undefined); // uçlarda taşıma yok sayılır
@@ -85,9 +84,9 @@ export async function moveGalleryPhotoAs(
 }
 
 export async function deleteGalleryPhotoAs(actor: SessionUser | null, id: string): Promise<ActionResult<void>> {
-  if (!asAdminActor(actor)) return fail("Yetkiniz yok");
+  if (!asAdminActor(actor)) return fail("errors.notAllowed");
   const existing = await prisma.galleryPhoto.findUnique({ where: { id } });
-  if (!existing) return fail(NOT_FOUND);
+  if (!existing) return fail("errors.photoNotFound");
   await prisma.galleryPhoto.delete({ where: { id } });
   // `landing/` anahtarları depoda değil, depoya gönderilen kaynakta (public/) yaşar; silinmemeli.
   if (!existing.storageKey.startsWith("landing/")) await deleteObject(existing.storageKey);

@@ -35,31 +35,31 @@ describe("contactSchema", () => {
   it("kısa ad reddedilir", () => {
     const r = contactSchema.safeParse({ ...valid, name: "A" });
     expect(r.success).toBe(false);
-    if (!r.success) expect(r.error.issues[0].message).toBe("Ad en az 2 karakter");
+    if (!r.success) expect(r.error.issues[0].message).toBe("errors.nameMin2");
   });
 
   it("uzun ad reddedilir", () => {
     const r = contactSchema.safeParse({ ...valid, name: "a".repeat(61) });
     expect(r.success).toBe(false);
-    if (!r.success) expect(r.error.issues[0].message).toBe("Ad en fazla 60 karakter");
+    if (!r.success) expect(r.error.issues[0].message).toBe("errors.nameMax60");
   });
 
   it("uzun telefon reddedilir", () => {
     const r = contactSchema.safeParse({ ...valid, phone: "0".repeat(21) });
     expect(r.success).toBe(false);
-    if (!r.success) expect(r.error.issues[0].message).toBe("Telefon en fazla 20 karakter");
+    if (!r.success) expect(r.error.issues[0].message).toBe("errors.phoneMax20");
   });
 
   it("kısa mesaj reddedilir", () => {
     const r = contactSchema.safeParse({ ...valid, message: "Merhaba" });
     expect(r.success).toBe(false);
-    if (!r.success) expect(r.error.issues[0].message).toBe("Mesaj en az 10 karakter");
+    if (!r.success) expect(r.error.issues[0].message).toBe("errors.messageMin10");
   });
 
   it("uzun mesaj reddedilir", () => {
     const r = contactSchema.safeParse({ ...valid, message: "a".repeat(1001) });
     expect(r.success).toBe(false);
-    if (!r.success) expect(r.error.issues[0].message).toBe("Mesaj en fazla 1000 karakter");
+    if (!r.success) expect(r.error.issues[0].message).toBe("errors.messageMax1000");
   });
 
   it("1000 karakterlik mesaj sınırda kabul edilir", () => {

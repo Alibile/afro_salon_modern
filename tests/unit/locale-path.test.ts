@@ -31,6 +31,15 @@ describe("stripLocale", () => {
   it("bilinmeyen dil önekine dokunmaz", () => {
     expect(stripLocale("/de/panel")).toEqual({ locale: "tr", path: "/de/panel" });
   });
+
+  // "//panel" tarayıcı için protokolü koruyan bir dış adrestir; soymadan önce
+  // tekrarlı eğik çizgiler tek çizgiye iner ki yönlendirme siteyi terk etmesin.
+  it("tekrarlı eğik çizgileri sadeleştirir", () => {
+    expect(stripLocale("/en//panel")).toEqual({ locale: "en", path: "/panel" });
+    expect(stripLocale("//randevu")).toEqual({ locale: "tr", path: "/randevu" });
+    expect(stripLocale("/fr///panel//berberler")).toEqual({ locale: "fr", path: "/panel/berberler" });
+    expect(stripLocale("/en//")).toEqual({ locale: "en", path: "/" });
+  });
 });
 
 describe("withLocale", () => {

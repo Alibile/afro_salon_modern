@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createTimeOff } from "@/actions/timeoff";
+import { useActionError } from "@/lib/use-action-error";
 
 export function TimeOffForm({ barbers, ownBarberId }: { barbers: { id: string; name: string }[] | null; ownBarberId: string | null }) {
+  const showError = useActionError();
   const [allDay, setAllDay] = useState(true);
   const [pending, start] = useTransition();
   const router = useRouter();
@@ -25,7 +27,7 @@ export function TimeOffForm({ barbers, ownBarberId }: { barbers: { id: string; n
           endTime: allDay ? undefined : String(fd.get("endTime")),
           reason: String(fd.get("reason") ?? ""),
         });
-        if (!r.ok) { toast.error(r.error); return; }
+        if (!r.ok) { toast.error(showError(r)); return; }
         toast.success(r.data.conflicts > 0 ? `İzin eklendi. Dikkat: ${r.data.conflicts} randevu bu aralıkla çakışıyor, müşterileri arayın.` : "İzin eklendi");
         router.refresh();
       });

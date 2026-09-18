@@ -19,12 +19,12 @@ describe("deleteServiceAs", () => {
   it("refuses barber actor", async () => {
     const s = await createService();
     const r = await deleteServiceAs(barberActor, s.id);
-    expect(r).toEqual({ ok: false, error: "Yetkiniz yok" });
+    expect(r).toEqual({ ok: false, error: "errors.notAllowed" });
   });
 
   it("refuses when service missing", async () => {
     const r = await deleteServiceAs(admin, "yok");
-    expect(r).toEqual({ ok: false, error: "Hizmet bulunamadı" });
+    expect(r).toEqual({ ok: false, error: "errors.serviceNotFound" });
   });
 
   it("refuses when used in past appointments", async () => {
@@ -44,7 +44,7 @@ describe("deleteServiceAs", () => {
       data: { appointmentId: appointment.id, serviceId: s.id, nameSnapshot: s.name, durationSnapshot: s.durationMinutes, priceSnapshot: s.priceKurus },
     });
     const r = await deleteServiceAs(admin, s.id);
-    expect(r).toEqual({ ok: false, error: "Bu hizmet geçmiş randevularda kullanılmış, silinemez; pasife alın" });
+    expect(r).toEqual({ ok: false, error: "errors.serviceInUse" });
     expect(await prisma.service.count()).toBe(1);
   });
 
@@ -60,12 +60,12 @@ describe("deleteBarberAs", () => {
   it("refuses barber actor", async () => {
     const { barber } = await createBarber();
     const r = await deleteBarberAs(barberActor, barber.id);
-    expect(r).toEqual({ ok: false, error: "Yetkiniz yok" });
+    expect(r).toEqual({ ok: false, error: "errors.notAllowed" });
   });
 
   it("refuses when barber missing", async () => {
     const r = await deleteBarberAs(admin, "yok");
-    expect(r).toEqual({ ok: false, error: "Berber bulunamadı" });
+    expect(r).toEqual({ ok: false, error: "errors.barberNotFound" });
   });
 
   it("refuses when barber has appointment history", async () => {
@@ -81,7 +81,7 @@ describe("deleteBarberAs", () => {
       },
     });
     const r = await deleteBarberAs(admin, barber.id);
-    expect(r).toEqual({ ok: false, error: "Bu berberin randevu veya fotoğraf geçmişi var, silinemez; pasife alın" });
+    expect(r).toEqual({ ok: false, error: "errors.barberHasHistory" });
     expect(await prisma.barber.count()).toBe(1);
   });
 
@@ -92,7 +92,7 @@ describe("deleteBarberAs", () => {
       data: { customerId: customer.id, barberId: barber.id, storageKey: "haircuts/x.jpg" },
     });
     const r = await deleteBarberAs(admin, barber.id);
-    expect(r).toEqual({ ok: false, error: "Bu berberin randevu veya fotoğraf geçmişi var, silinemez; pasife alın" });
+    expect(r).toEqual({ ok: false, error: "errors.barberHasHistory" });
   });
 
   it("refuses when the barber's user has customer-side appointment history", async () => {
@@ -108,7 +108,7 @@ describe("deleteBarberAs", () => {
       },
     });
     const r = await deleteBarberAs(admin, barber.id);
-    expect(r).toEqual({ ok: false, error: "Bu kullanıcının müşteri olarak randevu veya fotoğraf geçmişi var, silinemez; pasife alın" });
+    expect(r).toEqual({ ok: false, error: "errors.userHasHistory" });
     expect(await prisma.barber.count()).toBe(2);
     expect(await prisma.user.findUnique({ where: { id: user.id } })).not.toBeNull();
   });
@@ -120,7 +120,7 @@ describe("deleteBarberAs", () => {
       data: { customerId: user.id, barberId: other.id, storageKey: "haircuts/y.jpg" },
     });
     const r = await deleteBarberAs(admin, barber.id);
-    expect(r).toEqual({ ok: false, error: "Bu kullanıcının müşteri olarak randevu veya fotoğraf geçmişi var, silinemez; pasife alın" });
+    expect(r).toEqual({ ok: false, error: "errors.userHasHistory" });
     expect(await prisma.user.findUnique({ where: { id: user.id } })).not.toBeNull();
   });
 
@@ -128,7 +128,7 @@ describe("deleteBarberAs", () => {
     const { user, barber } = await createBarber();
     const selfAdmin: SessionUser = { id: user.id, name: user.name, email: user.email, role: "ADMIN", barberId: barber.id, locale: "tr" };
     const r = await deleteBarberAs(selfAdmin, barber.id);
-    expect(r).toEqual({ ok: false, error: "Kendi hesabınızı silemezsiniz" });
+    expect(r).toEqual({ ok: false, error: "errors.cannotDeleteOwnAccount" });
     expect(await prisma.barber.count()).toBe(1);
   });
 

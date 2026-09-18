@@ -19,15 +19,16 @@ describe("getLandingData", () => {
     await prisma.galleryPhoto.create({ data: { storageKey: "landing/gallery-1.jpg", caption: "Fade", tags: ["Fade", "Twist"], width: 1367, height: 1367, sortOrder: 0 } });
     await prisma.galleryPhoto.create({ data: { storageKey: "landing/gallery-3.jpg", tags: ["Örgü"], width: 1600, height: 1600, sortOrder: 2, isActive: false } });
     const d = await getLandingData(NOW);
-    expect(d.status.text).toBe("Bugün açık · 09:00–19:00");
+    expect(d.status).toEqual({ isOpenToday: true, opensAt: "09:00", closesAt: "19:00", state: "open" });
     expect(d.services.map((s) => s.name)).toEqual(["Sakal", "Saç"]);
     expect(d.barbers).toHaveLength(1);
     expect(d.gallery.photos.map((p) => p.storageKey)).toEqual(["landing/gallery-1.jpg", "landing/gallery-2.jpg"]);
     // "Twist" sabit kategori listesinden, "Fade" serbest etiket: serbest olan sona gelir.
     expect(d.gallery.tags).toEqual(["Twist", "Fade"]);
     expect(d.weeklyHours).toHaveLength(7);
-    expect(d.weeklyHours[0]).toEqual({ dayLabel: "Pazartesi", text: "09:00–19:00" });
-    expect(d.weeklyHours[6]).toEqual({ dayLabel: "Pazar", text: "Kapalı" });
+    // Gün adı sorgunun işi değil: hafta pazartesiden başlar, kapalı gün saatsizdir.
+    expect(d.weeklyHours[0]).toEqual({ dayOfWeek: 1, opensAt: "09:00", closesAt: "19:00" });
+    expect(d.weeklyHours[6]).toEqual({ dayOfWeek: 0, opensAt: null, closesAt: null });
   });
 
   it("yalnızca aktif yorumları sortOrder sırasıyla döner", async () => {

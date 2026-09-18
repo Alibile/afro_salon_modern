@@ -7,7 +7,24 @@
       "en": "English",
       "fr": "French"
     },
-    "close": "Close"
+    "close": "Close",
+    "loading": "Loading…",
+    "minutes": "{count} min",
+    "minutesShort": "{count} min",
+    "theme": {
+      "label": "Theme",
+      "toDark": "Switch to dark mode",
+      "toLight": "Switch to light mode"
+    },
+    "status": {
+      "open": "Open today · {opensAt}–{closesAt}",
+      "closedToday": "Closed today",
+      "closedNow": "Closed for today"
+    }
+  },
+  "meta": {
+    "title": "Afro Salon Modern",
+    "description": "Men's afro haircuts, braids and styling. Same-day booking."
   },
   "nav": {
     "mainMenu": "Main menu",
@@ -28,5 +45,226 @@
     "panel": "Panel",
     "logout": "Sign out",
     "book": "Book now"
+  },
+  "landing": {
+    "hero": {
+      "photoAlt": "Portrait of a man with a full afro under low studio light",
+      "headline1": "EVERY CURL HAS",
+      "headline2": "ITS OWN GEOMETRY.",
+      "subtitle": "Afro cuts, fades, braids and twists for men — all of it, today.",
+      "book": "Book today",
+      "services": "Services and prices",
+      "scroll": "Scroll"
+    },
+    "about": {
+      "photoAlt": "A moment inside the shop",
+      "photoSoon": "Photo coming soon",
+      "caption": "Chair, mirror, comb: the hair says the rest.",
+      "cta": "Take today's slot"
+    },
+    "services": {
+      "title": "SERVICES",
+      "note": "Times are approximate; you can combine several services in one booking.",
+      "empty": "The price list is being updated. In the meantime, give the shop a call:"
+    },
+    "whyUs": {
+      "title": "WHY US",
+      "note": "Three reasons to skip the queue and sit down with hands that know the texture.",
+      "satisfaction": "client satisfaction",
+      "experience": "experience",
+      "yearsUnit": "years"
+    },
+    "team": {
+      "title": "THE TEAM",
+      "note": "Start by picking your barber and see the open hours straight from his own diary.",
+      "portraitAlt": "Portrait of {name}",
+      "bookWith": "Book with {name}"
+    },
+    "gallery": {
+      "title": "GALLERY",
+      "note": "Recent cuts made in the shop. We don't share names, only the work.",
+      "placeholderAlt": "Space reserved for a gallery photo",
+      "photosSoon": "Photos coming soon",
+      "all": "All",
+      "filterLabel": "Filter by tag",
+      "showMore": "Show more ({remaining})",
+      "count": "{count, plural, one {# photo} other {# photos}}",
+      "countWithTag": "{count, plural, one {# photo} other {# photos}} tagged {tag}",
+      "photoAlt": "Gallery photo",
+      "enlarge": "{label} — enlarge",
+      "lightboxHelp": "Use the left and right arrow keys to move between photos, Esc to close.",
+      "previousPhoto": "Previous photo",
+      "nextPhoto": "Next photo"
+    },
+    "testimonials": {
+      "title": "REVIEWS",
+      "note": "What people say getting out of the chair; passed on word for word.",
+      "rating": "{value} out of 5"
+    },
+    "contact": {
+      "title": "CONTACT",
+      "note": "Walk in and we'll see where the queue stands; no promises. Booking a same-day slot takes a couple of minutes.",
+      "whereTitle": "WHERE WE ARE",
+      "emailLabel": "Email",
+      "whatsappLabel": "WhatsApp",
+      "whatsappText": "Send a message",
+      "whatsappMessage": "Hello, I'd like to book an appointment for today.",
+      "mapsLabel": "Map",
+      "mapsText": "Open in maps",
+      "hoursTitle": "OPENING HOURS",
+      "today": "today",
+      "closed": "Closed",
+      "formTitle": "LEAVE A MESSAGE",
+      "formNote": "You don't need this form to book — you can pick a time directly. If something else is on your mind, write it here."
+    },
+    "form": {
+      "honeypot": "Your website",
+      "name": "Your name",
+      "phone": "Phone (optional)",
+      "servicesLegend": "Services you're interested in",
+      "message": "Your message",
+      "messagePlaceholder": "Tell us what you'd like done and which hours suit you.",
+      "submit": "Send message",
+      "sending": "Sending…",
+      "success": "Your message is with us, we'll get back to you shortly"
+    }
+  },
+  "booking": {
+    "title": "BOOK FOR TODAY",
+    "step1": "1. Choose a service",
+    "step2": "2. Choose a barber",
+    "step3": "3. Choose a time",
+    "slotsError": "Could not load the times",
+    "closedToday": "We're closed today.",
+    "noSlots": "No times left for today.",
+    "tryTomorrow": "Try again from {time} tomorrow.",
+    "saving": "Saving…",
+    "confirm": "Confirm booking",
+    "loginAndConfirm": "Sign in and confirm",
+    "created": "Your booking is confirmed",
+    "cancel": "Cancel",
+    "cancelling": "Cancelling…",
+    "cancelled": "Booking cancelled",
+    "cancelByPhone": "To cancel, call the shop: {phone}",
+    "status": {
+      "SCHEDULED": "Scheduled",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled",
+      "NO_SHOW": "No-show"
+    }
+  },
+  "account": {
+    "todayTitle": "TODAY'S APPOINTMENT",
+    "noToday": "You have no appointment today.",
+    "bookToday": "Take today's slot",
+    "photosTitle": "YOUR CUTS",
+    "photoAlt": "Cut from {date}",
+    "pastTitle": "PAST",
+    "noPast": "No past appointments yet."
+  },
+  "auth": {
+    "asideHeadline": "TODAY'S CHAIR IS WAITING FOR YOU.",
+    "asideNote": "Your account keeps your booking, your cut history and your photos in one place.",
+    "forbidden": "You don't have access to this page",
+    "fields": {
+      "name": "Full name",
+      "email": "Email",
+      "password": "Password",
+      "phone": "Phone (optional)"
+    },
+    "login": {
+      "title": "SIGN IN",
+      "subtitle": "Sign in to your account to confirm your booking.",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "noAccount": "No account yet?",
+      "register": "Sign up"
+    },
+    "register": {
+      "title": "SIGN UP",
+      "subtitle": "It takes a minute; after that your booking is two taps away.",
+      "submit": "Sign up",
+      "submitting": "Signing up…",
+      "haveAccount": "Already have an account?",
+      "login": "Sign in"
+    }
+  },
+  "footer": {
+    "tagline": "Same-day booking. Not tomorrow — today.",
+    "site": "SITE",
+    "quickLinks": "QUICK LINKS",
+    "contact": "CONTACT",
+    "rights": "© {year} {shopName}. All rights reserved."
+  },
+  "errors": {
+    "notAllowed": "You don't have permission for this",
+    "loginRequired": "You need to sign in",
+    "loginRequiredToBook": "You need to sign in to make a booking",
+    "invalidCredentials": "Wrong email or password",
+    "emailTaken": "An account with this email already exists",
+    "userNotFound": "User not found",
+    "wrongPassword": "Current password is wrong",
+    "invalidInput": "Invalid details",
+    "tooManyRequests": "Too many attempts, please try again shortly",
+    "barberNotFound": "Barber not found",
+    "selectedServiceNotFound": "The selected service was not found",
+    "slotUnavailable": "This time is no longer available, please pick another one",
+    "slotTaken": "This time has just been taken, please pick another one",
+    "appointmentNotFound": "Appointment not found",
+    "appointmentNotScheduled": "This appointment has already been cancelled or completed",
+    "appointmentStatusChanged": "This appointment's status has already been changed",
+    "cancelWindow": "Less than {minutes} minutes are left before the appointment, so it can no longer be cancelled online — please call the shop",
+    "serviceNotFound": "Service not found",
+    "serviceInUse": "This service was used in past appointments and cannot be deleted; deactivate it instead",
+    "serviceHasRelations": "This service has linked records and cannot be deleted; deactivate it instead",
+    "cannotDeleteOwnAccount": "You cannot delete your own account",
+    "barberHasHistory": "This barber has appointment or photo history and cannot be deleted; deactivate instead",
+    "userHasHistory": "This user has appointment or photo history as a client and cannot be deleted; deactivate instead",
+    "barberHasRelations": "This barber has linked records and cannot be deleted; deactivate instead",
+    "photoNotFound": "Photo not found",
+    "photoMissing": "No photo was uploaded",
+    "barberNotSelected": "No barber selected",
+    "customerNotFound": "Client not found",
+    "invalidPhotoKey": "Invalid photo key",
+    "invalidPhotoSize": "Could not read the photo size",
+    "invalidAspectRatio": "Invalid image ratio",
+    "selectPhoto": "Select at least one photo",
+    "tooManyPhotos": "At most 24 photos can be uploaded at once",
+    "invalidDirection": "Invalid direction",
+    "captionTooLong": "Caption can be at most 120 characters",
+    "tagRequired": "Enter at least one tag",
+    "invalidTags": "Tags must be 2–20 characters, 6 at most",
+    "timeOffNotFound": "Time off not found",
+    "invalidDate": "Date must be YYYY-MM-DD",
+    "invalidTimeRange": "Invalid time range",
+    "invalidTime": "Time must be HH:mm",
+    "endBeforeStart": "End time must be after the start time",
+    "testimonialNotFound": "Review not found",
+    "testimonialTooShort": "Review must be at least 10 characters",
+    "ratingRange": "Rating must be between 1 and 5",
+    "nameMin2": "Name must be at least 2 characters",
+    "nameMax60": "Name can be at most 60 characters",
+    "fullNameMin2": "Full name must be at least 2 characters",
+    "fullNameMin3": "Full name must be at least 3 characters",
+    "enterValidEmail": "Enter a valid email address",
+    "invalidEmail": "Invalid email address",
+    "passwordMin8": "Password must be at least 8 characters",
+    "passwordRequired": "Password is required",
+    "currentPasswordRequired": "Current password is required",
+    "photoRequired": "A profile photo is required",
+    "phoneMax20": "Phone can be at most 20 characters",
+    "messageMin10": "Message must be at least 10 characters",
+    "messageMax1000": "Message can be at most 1000 characters",
+    "selectService": "Select at least one service",
+    "invalidDateTime": "Invalid time",
+    "serviceNameMin2": "Service name must be at least 2 characters",
+    "durationStep5": "Duration must be a multiple of 5",
+    "priceNegative": "Price cannot be negative",
+    "shopNameRequired": "Shop name is required",
+    "invalidSlotStep": "Slot step must be 5, 10, 15, 20, 30 or 60",
+    "invalidInstagram": "Invalid Instagram address",
+    "invalidFacebook": "Invalid Facebook address",
+    "invalidWhatsapp": "The WhatsApp number must include the country code and digits only (e.g. 905551112233)",
+    "invalidMapsUrl": "Invalid map address"
   }
 }

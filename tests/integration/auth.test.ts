@@ -15,7 +15,7 @@ describe("registerCustomer", () => {
   it("rejects duplicate email", async () => {
     await registerCustomer({ name: "Ali Veli", email: "ali@test.com", password: "Sifre123!" });
     const r = await registerCustomer({ name: "Ali Veli", email: "ali@test.com", password: "Sifre123!" });
-    expect(r).toEqual({ ok: false, error: "Bu e-posta ile zaten bir hesap var" });
+    expect(r).toEqual({ ok: false, error: "errors.emailTaken" });
   });
 
   it("rejects invalid input", async () => {

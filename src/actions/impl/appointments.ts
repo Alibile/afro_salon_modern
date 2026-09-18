@@ -1,12 +1,10 @@
 import { prisma } from "@/lib/db";
 import { ok, fail, type ActionResult } from "@/lib/action-result";
+import { firstIssueKey } from "@/lib/errors";
 import { addMinutes } from "@/lib/time";
 import { getTodayAvailability } from "@/lib/queries/booking";
 import { createAppointmentSchema, type CreateAppointmentInput } from "@/schemas/booking";
 import { getSettings } from "@/lib/settings";
-
-const SLOT_TAKEN = "Bu saat az önce doldu, lütfen başka bir saat seçin";
-const SLOT_INVALID = "Bu saat artık uygun değil, lütfen başka bir saat seçin";
 
 /** Randevuyu verilen müşteri adına ve verilen sunucu saatine göre oluşturur. */
 export async function createAppointmentFor(
@@ -15,22 +13,22 @@ export async function createAppointmentFor(
   input: CreateAppointmentInput,
 ): Promise<ActionResult<{ id: string }>> {
   const parsed = createAppointmentSchema.safeParse(input);
-  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Geçersiz bilgi");
+  if (!parsed.success) return fail(firstIssueKey(parsed.error));
   const { barberId, serviceIds, startsAt: startsAtIso } = parsed.data;
 
   const startsAt = new Date(startsAtIso);
 
   const barber = await prisma.barber.findFirst({ where: { id: barberId, isActive: true } });
-  if (!barber) return fail("Berber bulunamadı");
+  if (!barber) return fail("errors.barberNotFound");
 
   const services = await prisma.service.findMany({ where: { id: { in: serviceIds }, isActive: true } });
-  if (services.length !== new Set(serviceIds).size) return fail("Seçilen hizmet bulunamadı");
+  if (services.length !== new Set(serviceIds).size) return fail("errors.selectedServiceNotFound");
 
   const durationMinutes = services.reduce((sum, s) => sum + s.durationMinutes, 0);
   const endsAt = addMinutes(startsAt, durationMinutes);
 
   const { slots } = await getTodayAvailability(barberId, durationMinutes, now);
-  if (!slots.some((s) => s.getTime() === startsAt.getTime())) return fail(SLOT_INVALID);
+  if (!slots.some((s) => s.getTime() === startsAt.getTime())) return fail("errors.slotUnavailable");
 
   try {
     const appt = await prisma.$transaction(async (tx) => {
@@ -58,7 +56,7 @@ export async function createAppointmentFor(
     // violation directly. Both outcomes mean the same thing to the caller:
     // another booking won the race for this slot.
     const isWriteConflict = (e as { code?: string })?.code === "P2034";
-    if (isOverlapError || isWriteConflict) return fail(SLOT_TAKEN);
+    if (isOverlapError || isWriteConflict) return fail("errors.slotTaken");
     throw e;
   }
 }
@@ -70,13 +68,13 @@ export async function cancelAppointmentByCustomerFor(
   appointmentId: string,
 ): Promise<ActionResult<void>> {
   const appt = await prisma.appointment.findFirst({ where: { id: appointmentId, customerId } });
-  if (!appt) return fail("Randevu bulunamadı");
-  if (appt.status !== "SCHEDULED") return fail("Bu randevu zaten iptal edilmiş veya tamamlanmış");
+  if (!appt) return fail("errors.appointmentNotFound");
+  if (appt.status !== "SCHEDULED") return fail("errors.appointmentNotScheduled");
 
   const settings = await getSettings();
   const windowMs = settings.cancellationWindowMinutes * 60_000;
   if (appt.startsAt.getTime() - now.getTime() < windowMs) {
-    return fail(`Randevuya ${settings.cancellationWindowMinutes} dakikadan az kaldığı için iptal edilemez, lütfen dükkanı arayın`);
+    return fail("errors.cancelWindow", { minutes: settings.cancellationWindowMinutes });
   }
 
   await prisma.appointment.update({ where: { id: appt.id }, data: { status: "CANCELLED", cancelledBy: "CUSTOMER" } });

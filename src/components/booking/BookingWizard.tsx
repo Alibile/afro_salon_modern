@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { createAppointment } from "@/actions/appointments";
@@ -9,6 +10,8 @@ import { BarberStep, type BarberItem } from "./BarberStep";
 import { SlotStep } from "./SlotStep";
 import { Button } from "@/components/ui/button";
 import { formatKurus } from "@/lib/money";
+import { useActionError } from "@/lib/use-action-error";
+import type { AppLocale } from "@/i18n/routing";
 
 type Props = {
   services: ServiceItem[];
@@ -18,6 +21,10 @@ type Props = {
 };
 
 export function BookingWizard({ services, barbers, isLoggedIn, initial }: Props) {
+  const t = useTranslations("booking");
+  const tCommon = useTranslations("common");
+  const locale = useLocale() as AppLocale;
+  const showError = useActionError();
   const router = useRouter();
   const [serviceIds, setServiceIds] = useState<string[]>(initial.serviceIds.filter((id) => services.some((s) => s.id === id)));
   const [barberId, setBarberId] = useState<string | null>(initial.barberId);
@@ -47,11 +54,11 @@ export function BookingWizard({ services, barbers, isLoggedIn, initial }: Props)
     startTransition(async () => {
       const r = await createAppointment({ barberId, serviceIds, startsAt });
       if (!r.ok) {
-        toast.error(r.error);
+        toast.error(showError(r));
         setStartsAt(null);
         return;
       }
-      toast.success("Randevun oluşturuldu");
+      toast.success(t("created"));
       router.push("/randevularim");
     });
   };
@@ -69,10 +76,12 @@ export function BookingWizard({ services, barbers, isLoggedIn, initial }: Props)
         <div className="sticky bottom-0 -mx-4 border-t border-border bg-background/95 px-4 py-3 backdrop-blur">
           <div className="mb-2 flex items-baseline justify-between gap-3 text-sm">
             <span className="min-w-0 truncate text-muted-foreground">{selected.map((s) => s.name).join(", ")}</span>
-            <span className="shrink-0 font-medium tabular-nums">{totalMinutes} dk · {formatKurus(totalKurus)}</span>
+            <span className="shrink-0 font-medium tabular-nums">
+              {tCommon("minutesShort", { count: totalMinutes })} · {formatKurus(totalKurus, locale)}
+            </span>
           </div>
           <Button className="h-12 w-full rounded-none text-base" size="lg" disabled={!startsAt || pending} onClick={confirm}>
-            {pending ? "Kaydediliyor…" : isLoggedIn ? "Randevuyu onayla" : "Giriş yap ve onayla"}
+            {pending ? t("saving") : isLoggedIn ? t("confirm") : t("loginAndConfirm")}
           </Button>
         </div>
       )}

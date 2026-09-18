@@ -13,6 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GalleryTagPicker } from "./GalleryTagPicker";
 import { DeleteButton } from "./DeleteButton";
+import { useActionError } from "@/lib/use-action-error";
+import type { ActionResult } from "@/lib/action-result";
 
 export type PanelGalleryPhoto = {
   id: string;
@@ -25,6 +27,7 @@ export type PanelGalleryPhoto = {
 };
 
 export function GalleryCard({ photo, index, total }: { photo: PanelGalleryPhoto; index: number; total: number }) {
+  const showError = useActionError();
   const [caption, setCaption] = useState(photo.caption);
   // Kayıtlı etiketler forma bölünür: listedekiler çipe, gerisi "Diğer" alanına.
   const [selectedTags, setSelectedTags] = useState(() => splitTags(photo.tags).selected);
@@ -35,11 +38,11 @@ export function GalleryCard({ photo, index, total }: { photo: PanelGalleryPhoto;
   /** İki alan tek diziye birleşir; tekilleştirmeyi `normalizeTags` yapar. */
   const tags = () => normalizeTags([...selectedTags, ...normalizeTags(customTags)]);
 
-  function run(action: () => Promise<{ ok: boolean; error?: string }>, success: string) {
+  function run(action: () => Promise<ActionResult<unknown>>, success: string) {
     start(async () => {
       const r = await action();
       if (!r.ok) {
-        toast.error(r.error ?? "İşlem tamamlanamadı");
+        toast.error(showError(r));
         return;
       }
       toast.success(success);

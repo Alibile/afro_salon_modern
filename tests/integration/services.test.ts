@@ -23,7 +23,7 @@ describe("services actions", () => {
   });
   it("barber is refused", async () => {
     const r = await upsertServiceAs(barber, { name: "Saç", durationMinutes: 30, priceLira: 400, sortOrder: 1 });
-    expect(r).toEqual({ ok: false, error: "Yetkiniz yok" });
+    expect(r).toEqual({ ok: false, error: "errors.notAllowed" });
   });
   it("toggle deactivates", async () => {
     const c = await upsertServiceAs(admin, { name: "Saç", durationMinutes: 30, priceLira: 400, sortOrder: 1 });
@@ -33,10 +33,10 @@ describe("services actions", () => {
   });
   it("upsert non-existent returns not found", async () => {
     const r = await upsertServiceAs(admin, { id: "yok", name: "Saç", durationMinutes: 30, priceLira: 400, sortOrder: 1 });
-    expect(r).toEqual({ ok: false, error: "Hizmet bulunamadı" });
+    expect(r).toEqual({ ok: false, error: "errors.serviceNotFound" });
   });
   it("toggle non-existent returns not found", async () => {
     const r = await toggleServiceAs(admin, "yok", false);
-    expect(r).toEqual({ ok: false, error: "Hizmet bulunamadı" });
+    expect(r).toEqual({ ok: false, error: "errors.serviceNotFound" });
   });
 });

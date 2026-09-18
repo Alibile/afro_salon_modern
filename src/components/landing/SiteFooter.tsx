@@ -1,9 +1,11 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { AfroPattern } from "@/components/brand/AfroPattern";
 import { LocaleSwitcher } from "@/components/brand/LocaleSwitcher";
 import { SocialLinks, telHref, type SocialSettings } from "@/components/brand/SocialLinks";
 import { SECTION_LINKS } from "./sections";
+import { shopStatusText, type ShopStatus } from "@/lib/shop-status";
+import { intlLocale } from "@/lib/intl";
 import { logoutAction } from "@/actions/auth";
 import type { SessionUser } from "@/lib/auth-helpers";
 
@@ -18,7 +20,7 @@ export async function SiteFooter({
   address,
   phone,
   email,
-  statusText,
+  status,
 }: {
   shopName: string;
   user: SessionUser | null;
@@ -26,18 +28,25 @@ export async function SiteFooter({
   address: string;
   phone: string;
   email: string;
-  statusText: string;
+  status: ShopStatus;
 }) {
-  const t = await getTranslations("nav");
-  const year = new Date().getFullYear();
+  const [t, tFooter, tStatus, locale] = await Promise.all([
+    getTranslations("nav"),
+    getTranslations("footer"),
+    getTranslations("common.status"),
+    getLocale(),
+  ]);
+  // Yıl dize olarak geçer: ICU sayıyı biçimlendirir ve Türkçede
+  // binlik ayracı koyardı ("2.026").
+  const year = String(new Date().getFullYear());
   return (
     <footer className="relative overflow-hidden bg-primary text-primary-foreground">
       <AfroPattern variant="mud" size={80} opacity={0.12} />
       <div className="relative mx-auto max-w-6xl px-5 py-14">
         <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 sm:gap-10 lg:grid-cols-4">
           <div>
-            <p className="display-lg">{shopName.toLocaleUpperCase("tr-TR")}</p>
-            <p className="editorial-note mt-4 text-primary-foreground/90">Aynı gün randevu. Yarına değil, bugüne.</p>
+            <p className="display-lg">{shopName.toLocaleUpperCase(intlLocale(locale))}</p>
+            <p className="editorial-note mt-4 text-primary-foreground/90">{tFooter("tagline")}</p>
             <SocialLinks
               settings={social}
               className="-ml-2 mt-5"
@@ -47,7 +56,7 @@ export async function SiteFooter({
           </div>
 
           <nav aria-label={t("siteLinks")}>
-            <h2 className={HEADING}>SİTE</h2>
+            <h2 className={HEADING}>{tFooter("site")}</h2>
             <ul className="mt-4 space-y-2.5">
               {SECTION_LINKS.map((l) => (
                 <li key={l.href}>
@@ -60,7 +69,7 @@ export async function SiteFooter({
           </nav>
 
           <nav aria-label={t("quickLinks")}>
-            <h2 className={HEADING}>HIZLI BAĞLANTILAR</h2>
+            <h2 className={HEADING}>{tFooter("quickLinks")}</h2>
             <ul className="mt-4 space-y-2.5">
               <li>
                 <Link href="/randevu" className={LINK}>
@@ -108,7 +117,7 @@ export async function SiteFooter({
           </nav>
 
           <div>
-            <h2 className={HEADING}>İLETİŞİM</h2>
+            <h2 className={HEADING}>{tFooter("contact")}</h2>
             <address className="mt-4 space-y-2.5 not-italic">
               <p className="text-primary-foreground/90">{address}</p>
               <p>
@@ -124,12 +133,12 @@ export async function SiteFooter({
                 </p>
               )}
             </address>
-            <p className="editorial-note mt-4 text-primary-foreground/90">{statusText}</p>
+            <p className="editorial-note mt-4 text-primary-foreground/90">{shopStatusText(tStatus, status)}</p>
           </div>
         </div>
 
         <p className="mt-14 border-t border-primary-foreground/30 pt-5 text-sm text-primary-foreground/80">
-          © {year} {shopName}. Tüm hakları saklıdır.
+          {tFooter("rights", { year, shopName })}
         </p>
       </div>
     </footer>

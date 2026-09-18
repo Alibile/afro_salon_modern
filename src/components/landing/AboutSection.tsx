@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { ImageSlot } from "@/components/brand/ImageSlot";
 import { Reveal } from "@/components/motion/Reveal";
@@ -13,6 +14,7 @@ function paragraphs(text: string) {
 }
 
 export function AboutSection({ title, text }: { title: string; text: string }) {
+  const t = useTranslations("landing.about");
   const parts = paragraphs(text);
   if (parts.length === 0) return null;
   return (
@@ -22,12 +24,16 @@ export function AboutSection({ title, text }: { title: string; text: string }) {
           <div className="relative aspect-[3/2] w-full overflow-hidden border border-border md:aspect-[4/5]">
             {/* Fotoğraf çerçevesi ızgarada sabit; içindeki kare yavaşça kayar. */}
             <Parallax className="absolute inset-x-0 -top-10 -bottom-10" range={40} speed={0.5}>
-              <ImageSlot name="about.jpg" alt="Salonun içinden bir kare" variant="mud" sizes="(min-width: 768px) 40vw, 100vw" />
+              <ImageSlot
+                name="about.jpg"
+                alt={t("photoAlt")}
+                label={t("photoSoon")}
+                variant="mud"
+                sizes="(min-width: 768px) 40vw, 100vw"
+              />
             </Parallax>
           </div>
-          <figcaption className="editorial-note mt-3 text-sm text-muted-foreground">
-            Koltuk, ayna, tarak: gerisini saçın kendisi söyler.
-          </figcaption>
+          <figcaption className="editorial-note mt-3 text-sm text-muted-foreground">{t("caption")}</figcaption>
         </Reveal>
         <div className="md:col-span-7">
           <Reveal as="h2" className="display-lg">
@@ -43,7 +49,7 @@ export function AboutSection({ title, text }: { title: string; text: string }) {
               href="/randevu"
               className="display-sm mt-9 inline-block border-b-2 border-primary pb-1 text-primary transition-colors hover:border-foreground hover:text-foreground"
             >
-              Bugüne yer ayır
+              {t("cta")}
             </Link>
           </Reveal>
         </div>

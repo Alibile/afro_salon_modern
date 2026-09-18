@@ -1,5 +1,6 @@
 "use client";
 import { useMemo, useOptimistic, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { filterByTag, paginate, GALLERY_PAGE_SIZE, type GalleryPhoto } from "@/lib/gallery-utils";
@@ -13,6 +14,7 @@ import { Lightbox } from "./Lightbox";
  * durumda uygulanır (anında tepki), URL'ye yalnızca paylaşılabilirlik için yazılır.
  */
 export function GalleryBrowser({ photos, tags }: { photos: GalleryPhoto[]; tags: string[] }) {
+  const t = useTranslations("landing.gallery");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -70,7 +72,7 @@ export function GalleryBrowser({ photos, tags }: { photos: GalleryPhoto[]; tags:
       </div>
 
       <p aria-live="polite" className="sr-only">
-        {active ? `${active} etiketinde ${filtered.length} fotoğraf` : `${filtered.length} fotoğraf`}
+        {active ? t("countWithTag", { tag: active, count: filtered.length }) : t("count", { count: filtered.length })}
       </p>
 
       {remaining > 0 && (
@@ -80,7 +82,7 @@ export function GalleryBrowser({ photos, tags }: { photos: GalleryPhoto[]; tags:
             onClick={() => setPage((p) => p + 1)}
             className="border border-foreground/30 px-6 py-3 transition-colors hover:border-foreground hover:bg-foreground hover:text-background"
           >
-            Daha fazla göster ({remaining})
+            {t("showMore", { remaining })}
           </button>
         </div>
       )}

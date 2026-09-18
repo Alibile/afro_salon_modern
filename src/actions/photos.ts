@@ -8,7 +8,7 @@ import type { AddHaircutPhotoInput } from "@/schemas/photo";
 
 export async function addHaircutPhoto(input: AddHaircutPhotoInput): Promise<ActionResult<{ id: string; deletedKeys: string[] }>> {
   const actor = await getSessionUser();
-  if (!actor) return fail("Yetkiniz yok");
+  if (!actor) return fail("errors.notAllowed");
   const r = await addHaircutPhotoAs(actor, input);
   if (r.ok) revalidatePath(`/[locale]/panel/musteriler/${input.customerId}`, "page");
   return r;
@@ -16,7 +16,7 @@ export async function addHaircutPhoto(input: AddHaircutPhotoInput): Promise<Acti
 
 export async function deleteHaircutPhoto(id: string): Promise<ActionResult<void>> {
   const actor = await getSessionUser();
-  if (!actor) return fail("Yetkiniz yok");
+  if (!actor) return fail("errors.notAllowed");
   const r = await deleteHaircutPhotoAs(actor, id);
   if (!r.ok) return r;
   revalidatePath(`/[locale]/panel/musteriler/${r.data.customerId}`, "page");

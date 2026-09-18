@@ -8,10 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageUploader } from "./ImageUploader";
 import { createBarber, updateBarber, resetBarberPassword } from "@/actions/barbers";
+import { useActionError } from "@/lib/use-action-error";
 
 type Barber = { id: string; name: string; email: string; bio: string; photoKey: string; isActive: boolean };
 
 export function BarberForm(props: { mode: "create" } | { mode: "edit"; barber: Barber }) {
+  const showError = useActionError();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -27,7 +29,7 @@ export function BarberForm(props: { mode: "create" } | { mode: "edit"; barber: B
           const r = barber
             ? await updateBarber(barber.id, { name: String(fd.get("name")), bio: String(fd.get("bio")), photoKey: String(fd.get("photoKey")), isActive: fd.get("isActive") === "on" })
             : await createBarber({ name: String(fd.get("name")), email: String(fd.get("email")), password: String(fd.get("password")), bio: String(fd.get("bio")), photoKey: String(fd.get("photoKey")) });
-          if (!r.ok) { setError(r.error); return; }
+          if (!r.ok) { setError(showError(r)); return; }
           setError(null);
           toast.success(barber ? "Berber güncellendi" : "Berber eklendi");
           if (barber) router.refresh(); else router.push(`/panel/berberler/${(r.data as { barberId: string }).barberId}`);
@@ -54,7 +56,7 @@ export function BarberForm(props: { mode: "create" } | { mode: "edit"; barber: B
             if (!pw) return;
             start(async () => {
               const r = await resetBarberPassword(barber.id, pw);
-              if (r.ok) toast.success("Şifre güncellendi"); else toast.error(r.error);
+              if (r.ok) toast.success("Şifre güncellendi"); else toast.error(showError(r));
             });
           }}>
           Şifreyi sıfırla

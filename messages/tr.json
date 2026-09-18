@@ -7,7 +7,24 @@
       "en": "İngilizce",
       "fr": "Fransızca"
     },
-    "close": "Kapat"
+    "close": "Kapat",
+    "loading": "Yükleniyor…",
+    "minutes": "{count} dakika",
+    "minutesShort": "{count} dk",
+    "theme": {
+      "label": "Tema",
+      "toDark": "Koyu moda geç",
+      "toLight": "Açık moda geç"
+    },
+    "status": {
+      "open": "Bugün açık · {opensAt}–{closesAt}",
+      "closedToday": "Bugün kapalıyız",
+      "closedNow": "Bugün kapandık"
+    }
+  },
+  "meta": {
+    "title": "Afro Salon Modern",
+    "description": "Afro saç kesimi, örgü ve şekillendirme. Aynı gün randevu."
   },
   "nav": {
     "mainMenu": "Ana menü",
@@ -28,5 +45,226 @@
     "panel": "Panel",
     "logout": "Çıkış",
     "book": "Randevu al"
+  },
+  "landing": {
+    "hero": {
+      "photoAlt": "Koyu bir stüdyo ışığında, geniş afro saçlı bir adamın portresi",
+      "headline1": "KIVRIMIN KENDİ",
+      "headline2": "GEOMETRİSİ VAR.",
+      "subtitle": "Erkeklere özel afro kesim, fade, örgü ve twist — hepsi bugünün içinde.",
+      "book": "Bugün randevu al",
+      "services": "Hizmetler ve fiyatlar",
+      "scroll": "Kaydır"
+    },
+    "about": {
+      "photoAlt": "Salonun içinden bir kare",
+      "photoSoon": "Fotoğraf yakında",
+      "caption": "Koltuk, ayna, tarak: gerisini saçın kendisi söyler.",
+      "cta": "Bugüne yer ayır"
+    },
+    "services": {
+      "title": "HİZMETLER",
+      "note": "Süreler yaklaşıktır; birden fazla hizmeti aynı randevuda birleştirebilirsin.",
+      "empty": "Fiyat listesi güncelleniyor. Bu arada salonu arayabilirsin:"
+    },
+    "whyUs": {
+      "title": "NEDEN BİZ",
+      "note": "Sıra beklemeden, dokunu bilen ellere oturmak için üç sebep.",
+      "satisfaction": "müşteri memnuniyeti",
+      "experience": "deneyim",
+      "yearsUnit": "yıl"
+    },
+    "team": {
+      "title": "EKİP",
+      "note": "Berberini seçerek başlayabilir, saatleri doğrudan onun takviminden görebilirsin.",
+      "portraitAlt": "{name} portresi",
+      "bookWith": "{name} ile randevu al"
+    },
+    "gallery": {
+      "title": "GALERİ",
+      "note": "Salonda çekilmiş son kesimler. İsim paylaşmıyoruz, yalnızca işi gösteriyoruz.",
+      "placeholderAlt": "Galeri fotoğrafı için ayrılmış alan",
+      "photosSoon": "Fotoğraflar yakında",
+      "all": "Tümü",
+      "filterLabel": "Etikete göre süz",
+      "showMore": "Daha fazla göster ({remaining})",
+      "count": "{count} fotoğraf",
+      "countWithTag": "{tag} etiketinde {count} fotoğraf",
+      "photoAlt": "Galeri fotoğrafı",
+      "enlarge": "{label} — büyüt",
+      "lightboxHelp": "Sol ve sağ ok tuşlarıyla fotoğraflar arasında gezinebilir, Esc ile kapatabilirsin.",
+      "previousPhoto": "Önceki fotoğraf",
+      "nextPhoto": "Sonraki fotoğraf"
+    },
+    "testimonials": {
+      "title": "YORUMLAR",
+      "note": "Koltuktan kalkarken söylenenler; olduğu gibi aktarıyoruz.",
+      "rating": "5 üzerinden {value} puan"
+    },
+    "contact": {
+      "title": "İLETİŞİM",
+      "note": "Randevusuz geldiğinde sıraya bakarız; garantisi yok. Aynı gün için yer ayırmak birkaç dakika sürer.",
+      "whereTitle": "NEREDEYİZ",
+      "emailLabel": "E-posta",
+      "whatsappLabel": "WhatsApp",
+      "whatsappText": "Mesaj gönder",
+      "whatsappMessage": "Merhaba, bugün için randevu almak istiyorum.",
+      "mapsLabel": "Harita",
+      "mapsText": "Haritada aç",
+      "hoursTitle": "ÇALIŞMA SAATLERİ",
+      "today": "bugün",
+      "closed": "Kapalı",
+      "formTitle": "MESAJ BIRAK",
+      "formNote": "Randevu almak için forma gerek yok, doğrudan saat seçebilirsin. Aklına takılan bir şey varsa buradan yaz."
+    },
+    "form": {
+      "honeypot": "Web siteniz",
+      "name": "Adınız",
+      "phone": "Telefon (isteğe bağlı)",
+      "servicesLegend": "İlgilendiğiniz hizmetler",
+      "message": "Mesajınız",
+      "messagePlaceholder": "Ne yaptırmak istediğinizi ve uygun olduğunuz saatleri yazabilirsiniz.",
+      "submit": "Mesajı gönder",
+      "sending": "Gönderiliyor…",
+      "success": "Mesajınız alındı, en kısa sürede dönüş yapacağız"
+    }
+  },
+  "booking": {
+    "title": "BUGÜN İÇİN RANDEVU AL",
+    "step1": "1. Hizmet seç",
+    "step2": "2. Berber seç",
+    "step3": "3. Saat seç",
+    "slotsError": "Saatler yüklenemedi",
+    "closedToday": "Bugün kapalıyız.",
+    "noSlots": "Bugün için uygun saat kalmadı.",
+    "tryTomorrow": "Yarın {time} itibarıyla tekrar deneyin.",
+    "saving": "Kaydediliyor…",
+    "confirm": "Randevuyu onayla",
+    "loginAndConfirm": "Giriş yap ve onayla",
+    "created": "Randevun oluşturuldu",
+    "cancel": "İptal et",
+    "cancelling": "İptal ediliyor…",
+    "cancelled": "Randevu iptal edildi",
+    "cancelByPhone": "İptal için dükkanı arayın: {phone}",
+    "status": {
+      "SCHEDULED": "Planlandı",
+      "COMPLETED": "Tamamlandı",
+      "CANCELLED": "İptal",
+      "NO_SHOW": "Gelmedi"
+    }
+  },
+  "account": {
+    "todayTitle": "BUGÜNKÜ RANDEVUM",
+    "noToday": "Bugün için randevun yok.",
+    "bookToday": "Bugüne yer ayır",
+    "photosTitle": "KESİM FOTOĞRAFLARIN",
+    "photoAlt": "{date} tarihli kesim",
+    "pastTitle": "GEÇMİŞ",
+    "noPast": "Henüz geçmiş randevun yok."
+  },
+  "auth": {
+    "asideHeadline": "BUGÜNÜN SAATİ SENİ BEKLİYOR.",
+    "asideNote": "Hesabın randevunu, kesim geçmişini ve fotoğraflarını bir arada tutar.",
+    "forbidden": "Bu sayfaya erişim yetkin yok",
+    "fields": {
+      "name": "Ad Soyad",
+      "email": "E-posta",
+      "password": "Şifre",
+      "phone": "Telefon (isteğe bağlı)"
+    },
+    "login": {
+      "title": "GİRİŞ YAP",
+      "subtitle": "Randevunu onaylamak için hesabına gir.",
+      "submit": "Giriş yap",
+      "submitting": "Giriş yapılıyor…",
+      "noAccount": "Hesabın yok mu?",
+      "register": "Kayıt ol"
+    },
+    "register": {
+      "title": "KAYIT OL",
+      "subtitle": "Bir dakika sürer; sonrasında randevun iki dokunuş uzakta.",
+      "submit": "Kayıt ol",
+      "submitting": "Kaydediliyor…",
+      "haveAccount": "Zaten hesabın var mı?",
+      "login": "Giriş yap"
+    }
+  },
+  "footer": {
+    "tagline": "Aynı gün randevu. Yarına değil, bugüne.",
+    "site": "SİTE",
+    "quickLinks": "HIZLI BAĞLANTILAR",
+    "contact": "İLETİŞİM",
+    "rights": "© {year} {shopName}. Tüm hakları saklıdır."
+  },
+  "errors": {
+    "notAllowed": "Yetkiniz yok",
+    "loginRequired": "Giriş yapmalısınız",
+    "loginRequiredToBook": "Randevu almak için giriş yapmalısınız",
+    "invalidCredentials": "E-posta veya şifre hatalı",
+    "emailTaken": "Bu e-posta ile zaten bir hesap var",
+    "userNotFound": "Kullanıcı bulunamadı",
+    "wrongPassword": "Mevcut şifre hatalı",
+    "invalidInput": "Geçersiz bilgi",
+    "tooManyRequests": "Çok fazla deneme, lütfen biraz sonra tekrar deneyin",
+    "barberNotFound": "Berber bulunamadı",
+    "selectedServiceNotFound": "Seçilen hizmet bulunamadı",
+    "slotUnavailable": "Bu saat artık uygun değil, lütfen başka bir saat seçin",
+    "slotTaken": "Bu saat az önce doldu, lütfen başka bir saat seçin",
+    "appointmentNotFound": "Randevu bulunamadı",
+    "appointmentNotScheduled": "Bu randevu zaten iptal edilmiş veya tamamlanmış",
+    "appointmentStatusChanged": "Bu randevunun durumu zaten değiştirilmiş",
+    "cancelWindow": "Randevuya {minutes} dakikadan az kaldığı için iptal edilemez, lütfen dükkanı arayın",
+    "serviceNotFound": "Hizmet bulunamadı",
+    "serviceInUse": "Bu hizmet geçmiş randevularda kullanılmış, silinemez; pasife alın",
+    "serviceHasRelations": "Bu hizmetin bağlı kayıtları var, silinemez; pasife alın",
+    "cannotDeleteOwnAccount": "Kendi hesabınızı silemezsiniz",
+    "barberHasHistory": "Bu berberin randevu veya fotoğraf geçmişi var, silinemez; pasife alın",
+    "userHasHistory": "Bu kullanıcının müşteri olarak randevu veya fotoğraf geçmişi var, silinemez; pasife alın",
+    "barberHasRelations": "Bu berberin bağlı kayıtları var, silinemez; pasife alın",
+    "photoNotFound": "Fotoğraf bulunamadı",
+    "photoMissing": "Fotoğraf yüklenmemiş",
+    "barberNotSelected": "Berber seçilmedi",
+    "customerNotFound": "Müşteri bulunamadı",
+    "invalidPhotoKey": "Geçersiz fotoğraf anahtarı",
+    "invalidPhotoSize": "Fotoğraf boyutu okunamadı",
+    "invalidAspectRatio": "Geçersiz görsel oranı",
+    "selectPhoto": "En az bir fotoğraf seçin",
+    "tooManyPhotos": "Tek seferde en fazla 24 fotoğraf yüklenebilir",
+    "invalidDirection": "Geçersiz yön",
+    "captionTooLong": "Başlık en fazla 120 karakter",
+    "tagRequired": "En az bir etiket girin",
+    "invalidTags": "Etiketler 2–20 karakter, en fazla 6",
+    "timeOffNotFound": "İzin bulunamadı",
+    "invalidDate": "Tarih YYYY-AA-GG olmalı",
+    "invalidTimeRange": "Saat aralığı geçersiz",
+    "invalidTime": "Saat HH:mm olmalı",
+    "endBeforeStart": "Bitiş saati başlangıçtan sonra olmalı",
+    "testimonialNotFound": "Yorum bulunamadı",
+    "testimonialTooShort": "Yorum en az 10 karakter",
+    "ratingRange": "Puan 1-5 arası olmalı",
+    "nameMin2": "Ad en az 2 karakter",
+    "nameMax60": "Ad en fazla 60 karakter",
+    "fullNameMin2": "Ad soyad en az 2 karakter olmalı",
+    "fullNameMin3": "Ad soyad en az 3 karakter",
+    "enterValidEmail": "Geçerli bir e-posta girin",
+    "invalidEmail": "Geçersiz e-posta",
+    "passwordMin8": "Şifre en az 8 karakter olmalı",
+    "passwordRequired": "Şifre gerekli",
+    "currentPasswordRequired": "Mevcut şifre gerekli",
+    "photoRequired": "Profil fotoğrafı zorunlu",
+    "phoneMax20": "Telefon en fazla 20 karakter",
+    "messageMin10": "Mesaj en az 10 karakter",
+    "messageMax1000": "Mesaj en fazla 1000 karakter",
+    "selectService": "En az bir hizmet seçin",
+    "invalidDateTime": "Geçersiz saat",
+    "serviceNameMin2": "Hizmet adı en az 2 karakter",
+    "durationStep5": "Süre 5'in katı olmalı",
+    "priceNegative": "Fiyat negatif olamaz",
+    "shopNameRequired": "Dükkan adı gerekli",
+    "invalidSlotStep": "Slot adımı 5, 10, 15, 20, 30 veya 60 olmalı",
+    "invalidInstagram": "Geçersiz Instagram adresi",
+    "invalidFacebook": "Geçersiz Facebook adresi",
+    "invalidWhatsapp": "WhatsApp numarası ülke koduyla, sadece rakam olmalı (örn. 905551112233)",
+    "invalidMapsUrl": "Geçersiz harita adresi"
   }
 }

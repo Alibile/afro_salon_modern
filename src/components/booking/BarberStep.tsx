@@ -1,14 +1,16 @@
 "use client";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { publicUrl } from "@/lib/storage-public";
 
 export type BarberItem = { id: string; name: string; bio: string | null; photoKey: string; recentPhotoKeys: string[] };
 
 export function BarberStep({ barbers, selectedId, onSelect }: { barbers: BarberItem[]; selectedId: string | null; onSelect: (id: string) => void }) {
+  const t = useTranslations("booking");
   return (
     <section>
-      <h2 className="display-md mb-4">2. Berber seç</h2>
+      <h2 className="display-md mb-4">{t("step2")}</h2>
       <ul className="grid gap-3">
         {barbers.map((b) => (
           <li key={b.id}>

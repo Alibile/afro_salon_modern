@@ -8,7 +8,7 @@ import { sendAppointmentConfirmed, sendAppointmentCancelled, sendNewAppointmentT
 
 export async function createAppointment(input: CreateAppointmentInput): Promise<ActionResult<{ id: string }>> {
   const user = await getSessionUser();
-  if (!user) return fail("Randevu almak için giriş yapmalısınız");
+  if (!user) return fail("errors.loginRequiredToBook");
   const r = await createAppointmentFor(user.id, new Date(), input);
   if (r.ok) await Promise.all([sendAppointmentConfirmed(r.data.id), sendNewAppointmentToBarber(r.data.id)]);
   return r;
@@ -16,7 +16,7 @@ export async function createAppointment(input: CreateAppointmentInput): Promise<
 
 export async function cancelAppointmentByCustomer(appointmentId: string): Promise<ActionResult<void>> {
   const user = await getSessionUser();
-  if (!user) return fail("Giriş yapmalısınız");
+  if (!user) return fail("errors.loginRequired");
   const r = await cancelAppointmentByCustomerFor(user.id, new Date(), appointmentId);
   if (r.ok) await sendAppointmentCancelled(appointmentId, "CUSTOMER");
   return r;

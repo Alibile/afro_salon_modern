@@ -26,7 +26,7 @@ describe("cancelAppointmentByCustomer", () => {
     const c = await createCustomer();
     const a = await appt(c.id, barber.id, "2026-09-17T12:00:00Z");
     const r = await cancelAppointmentByCustomerFor(c.id, new Date("2026-09-17T10:30:00Z"), a.id);
-    expect(r).toEqual({ ok: false, error: "Randevuya 120 dakikadan az kaldığı için iptal edilemez, lütfen dükkanı arayın" });
+    expect(r).toEqual({ ok: false, error: "errors.cancelWindow", params: { minutes: 120 } });
   });
 
   it("refuses other customer's appointment", async () => {
@@ -35,7 +35,7 @@ describe("cancelAppointmentByCustomer", () => {
     const c2 = await createCustomer();
     const a = await appt(c1.id, barber.id, "2026-09-17T12:00:00Z");
     const r = await cancelAppointmentByCustomerFor(c2.id, new Date("2026-09-17T08:00:00Z"), a.id);
-    expect(r).toEqual({ ok: false, error: "Randevu bulunamadı" });
+    expect(r).toEqual({ ok: false, error: "errors.appointmentNotFound" });
   });
 
   it("refuses already cancelled", async () => {

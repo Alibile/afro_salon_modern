@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { AfroPattern } from "@/components/brand/AfroPattern";
 import { Reveal } from "@/components/motion/Reveal";
 import { Parallax } from "@/components/motion/Parallax";
@@ -15,16 +16,15 @@ export function WhyUsSection({
   satisfactionPercent: number;
   yearsExperience: number;
 }) {
+  const t = useTranslations("landing.whyUs");
   const filled = items.filter((i) => i.title.trim() !== "" || i.text.trim() !== "");
   if (filled.length === 0) return null;
   return (
     <section id="neden-biz" className="scroll-mt-20 border-b border-border">
       <div className="mx-auto max-w-6xl px-5 py-16 md:py-24">
         <Reveal className="flex flex-wrap items-end justify-between gap-4">
-          <h2 className="display-lg">NEDEN BİZ</h2>
-          <p className="editorial-note max-w-[38ch] text-muted-foreground">
-            Sıra beklemeden, dokunu bilen ellere oturmak için üç sebep.
-          </p>
+          <h2 className="display-lg">{t("title")}</h2>
+          <p className="editorial-note max-w-[38ch] text-muted-foreground">{t("note")}</p>
         </Reveal>
         <ul className="mt-12 grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-8">
           {filled.map((i, index) => (
@@ -44,15 +44,15 @@ export function WhyUsSection({
         <dl className="relative mx-auto grid max-w-6xl grid-cols-1 gap-10 px-5 py-14 sm:grid-cols-2 md:py-16">
           {/* Sayı gözde önce gelsin diye sütun ters çevrilir; işaretlemede dt önce kalır. */}
           <Reveal className="flex flex-col-reverse items-start gap-3">
-            <dt className="text-lg text-secondary-foreground">müşteri memnuniyeti</dt>
+            <dt className="text-lg text-secondary-foreground">{t("satisfaction")}</dt>
             <dd className="display-hero text-primary">
               <CountUp value={satisfactionPercent} prefix="%" />
             </dd>
           </Reveal>
           <Reveal className="flex flex-col-reverse items-start gap-3 sm:border-l sm:border-border sm:pl-10" delay={staggerDelay(1)}>
-            <dt className="text-lg text-secondary-foreground">deneyim</dt>
+            <dt className="text-lg text-secondary-foreground">{t("experience")}</dt>
             <dd className="display-hero text-primary">
-              <CountUp value={yearsExperience} suffix="+" unit="yıl" />
+              <CountUp value={yearsExperience} suffix="+" unit={t("yearsUnit")} />
             </dd>
           </Reveal>
         </dl>

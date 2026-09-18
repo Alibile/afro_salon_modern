@@ -68,7 +68,7 @@ describe("createAppointment", () => {
     const customer = await createCustomer();
     const s1 = await createService();
     const r = await createAppointmentFor(customer.id, NOW, { barberId: barber.id, serviceIds: [s1.id], startsAt: "2026-09-17T07:00:00.000Z" });
-    expect(r).toEqual({ ok: false, error: "Bu saat artık uygun değil, lütfen başka bir saat seçin" });
+    expect(r).toEqual({ ok: false, error: "errors.slotUnavailable" });
   });
 
   it("rejects conflicting slot (second booking of same time)", async () => {
@@ -104,7 +104,7 @@ describe("createAppointment", () => {
     const results = [a, b];
     expect(results.filter((r) => r.ok)).toHaveLength(1);
     const loser = results.find((r) => !r.ok);
-    expect(loser && !loser.ok && loser.error).toMatch(/Bu saat (az önce doldu|artık uygun değil)/);
+    expect(loser && !loser.ok && loser.error).toMatch(/^errors\.(slotTaken|slotUnavailable)$/);
     const scheduled = await prisma.appointment.count({ where: { barberId: barber.id, status: "SCHEDULED" } });
     expect(scheduled).toBe(1);
   });
@@ -131,7 +131,7 @@ describe("createAppointment", () => {
     const r = await createAppointmentFor(c2.id, NOW, { barberId: barber.id, serviceIds: [s1.id], startsAt: startsAt.toISOString() });
 
     spy.mockRestore();
-    expect(r).toEqual({ ok: false, error: "Bu saat az önce doldu, lütfen başka bir saat seçin" });
+    expect(r).toEqual({ ok: false, error: "errors.slotTaken" });
   });
 
   it("rejects inactive service", async () => {
@@ -139,6 +139,6 @@ describe("createAppointment", () => {
     const customer = await createCustomer();
     const s1 = await prisma.service.create({ data: { name: "Eski", durationMinutes: 30, priceKurus: 100, isActive: false } });
     const r = await createAppointmentFor(customer.id, NOW, { barberId: barber.id, serviceIds: [s1.id], startsAt: "2026-09-17T08:00:00.000Z" });
-    expect(r).toEqual({ ok: false, error: "Seçilen hizmet bulunamadı" });
+    expect(r).toEqual({ ok: false, error: "errors.selectedServiceNotFound" });
   });
 });

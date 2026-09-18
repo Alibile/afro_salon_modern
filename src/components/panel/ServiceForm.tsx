@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { upsertService } from "@/actions/services";
+import { useActionError } from "@/lib/use-action-error";
 
 type Initial = { id: string; name: string; durationMinutes: number; priceKurus: number; sortOrder: number };
 
 export function ServiceForm({ initial, onDone }: { initial?: Initial; onDone?: () => void }) {
+  const showError = useActionError();
   const [pending, start] = useTransition();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +30,7 @@ export function ServiceForm({ initial, onDone }: { initial?: Initial; onDone?: (
             priceLira: Number(fd.get("priceLira")),
             sortOrder: Number(fd.get("sortOrder")),
           });
-          if (!r.ok) { setError(r.error); return; }
+          if (!r.ok) { setError(showError(r)); return; }
           setError(null);
           toast.success(initial ? "Hizmet güncellendi" : "Hizmet eklendi");
           router.refresh();

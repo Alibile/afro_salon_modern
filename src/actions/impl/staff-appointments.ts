@@ -11,11 +11,11 @@ export async function setAppointmentStatusAs(
   status: StaffAppointmentStatus,
 ): Promise<ActionResult<void>> {
   const actor = asStaffActor(actorInput);
-  if (!actor) return fail("Yetkiniz yok");
+  if (!actor) return fail("errors.notAllowed");
 
   const appt = await prisma.appointment.findFirst({ where: { id: appointmentId, ...staffScope(actor) } });
-  if (!appt) return fail("Randevu bulunamadı");
-  if (appt.status !== "SCHEDULED") return fail("Bu randevunun durumu zaten değiştirilmiş");
+  if (!appt) return fail("errors.appointmentNotFound");
+  if (appt.status !== "SCHEDULED") return fail("errors.appointmentStatusChanged");
 
   await prisma.appointment.update({
     where: { id: appt.id },

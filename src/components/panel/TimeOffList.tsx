@@ -5,10 +5,12 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { deleteTimeOff } from "@/actions/timeoff";
 import { formatShopDate, formatShopTime } from "@/lib/time";
+import { useActionError } from "@/lib/use-action-error";
 
 type Item = { id: string; barberName: string; startsAt: Date; endsAt: Date; reason: string | null };
 
 export function TimeOffList({ items }: { items: Item[] }) {
+  const showError = useActionError();
   const [pending, start] = useTransition();
   const router = useRouter();
   if (items.length === 0) return <p className="text-muted-foreground">Yaklaşan izin yok.</p>;
@@ -22,7 +24,7 @@ export function TimeOffList({ items }: { items: Item[] }) {
           </div>
           <Button size="sm" variant="outline" disabled={pending} onClick={() => start(async () => {
             const r = await deleteTimeOff(t.id);
-            if (r.ok) { toast.success("İzin silindi"); router.refresh(); } else toast.error(r.error);
+            if (r.ok) { toast.success("İzin silindi"); router.refresh(); } else toast.error(showError(r));
           })}>Sil</Button>
         </li>
       ))}

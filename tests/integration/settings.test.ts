@@ -72,7 +72,7 @@ describe("updateSettings", () => {
   it("rejects invalid whatsapp", async () => {
     const r = await updateSettingsAs(admin, { ...base, whatsapp: "not-a-number" });
     expect(r.ok).toBe(false);
-    expect(r.ok ? "" : r.error).toContain("WhatsApp");
+    expect(r.ok ? "" : r.error).toBe("errors.invalidWhatsapp");
   });
 
   it("accepts empty whatsapp", async () => {

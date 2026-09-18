@@ -5,8 +5,10 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ImageUploader } from "./ImageUploader";
 import { addHaircutPhoto } from "@/actions/photos";
+import { useActionError } from "@/lib/use-action-error";
 
 export function PhotoUploadButton({ customerId, barbers }: { customerId: string; barbers: { id: string; name: string }[] | null }) {
+  const showError = useActionError();
   const [open, setOpen] = useState(false);
   const [barberId, setBarberId] = useState(barbers?.[0]?.id);
   const [pending, start] = useTransition();
@@ -21,7 +23,7 @@ export function PhotoUploadButton({ customerId, barbers }: { customerId: string;
       )}
       <ImageUploader kind="haircut" name="storageKey" onUploaded={(key) => start(async () => {
         const r = await addHaircutPhoto({ customerId, storageKey: key, barberId });
-        if (!r.ok) { toast.error(r.error); return; }
+        if (!r.ok) { toast.error(showError(r)); return; }
         toast.success(r.data.deletedKeys.length ? "Fotoğraf eklendi, en eski fotoğraf silindi" : "Fotoğraf eklendi");
         setOpen(false);
         router.refresh();

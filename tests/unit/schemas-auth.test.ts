@@ -10,10 +10,10 @@ describe("registerSchema", () => {
       expect(r.data.email).toBe("ali@test.com");
     }
   });
-  it("rejects short password with Turkish message", () => {
+  it("rejects short password with an error key", () => {
     const r = registerSchema.safeParse({ name: "A", email: "a@b.co", password: "123" });
     expect(r.success).toBe(false);
-    if (!r.success) expect(r.error.issues.map((i) => i.message)).toContain("Şifre en az 8 karakter olmalı");
+    if (!r.success) expect(r.error.issues.map((i) => i.message)).toContain("errors.passwordMin8");
   });
 });
 

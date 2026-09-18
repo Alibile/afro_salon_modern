@@ -31,7 +31,7 @@ describe("testimonials actions", () => {
 
   it("barber is refused on upsert", async () => {
     const r = await upsertTestimonialAs(barber, sample);
-    expect(r).toEqual({ ok: false, error: "Yetkiniz yok" });
+    expect(r).toEqual({ ok: false, error: "errors.notAllowed" });
   });
 
   it("rejects invalid rating", async () => {
@@ -50,7 +50,7 @@ describe("testimonials actions", () => {
     const c = await upsertTestimonialAs(admin, sample);
     if (!c.ok) throw new Error();
     const r = await toggleTestimonialAs(barber, c.data.id, false);
-    expect(r).toEqual({ ok: false, error: "Yetkiniz yok" });
+    expect(r).toEqual({ ok: false, error: "errors.notAllowed" });
   });
 
   it("delete removes the row, count 0", async () => {
@@ -65,21 +65,21 @@ describe("testimonials actions", () => {
     const c = await upsertTestimonialAs(admin, sample);
     if (!c.ok) throw new Error();
     const r = await deleteTestimonialAs(barber, c.data.id);
-    expect(r).toEqual({ ok: false, error: "Yetkiniz yok" });
+    expect(r).toEqual({ ok: false, error: "errors.notAllowed" });
   });
 
   it("upsert non-existent returns not found", async () => {
     const r = await upsertTestimonialAs(admin, { id: "yok", ...sample });
-    expect(r).toEqual({ ok: false, error: "Yorum bulunamadı" });
+    expect(r).toEqual({ ok: false, error: "errors.testimonialNotFound" });
   });
 
   it("toggle non-existent returns not found", async () => {
     const r = await toggleTestimonialAs(admin, "yok", false);
-    expect(r).toEqual({ ok: false, error: "Yorum bulunamadı" });
+    expect(r).toEqual({ ok: false, error: "errors.testimonialNotFound" });
   });
 
   it("delete non-existent returns not found", async () => {
     const r = await deleteTestimonialAs(admin, "yok");
-    expect(r).toEqual({ ok: false, error: "Yorum bulunamadı" });
+    expect(r).toEqual({ ok: false, error: "errors.testimonialNotFound" });
   });
 });

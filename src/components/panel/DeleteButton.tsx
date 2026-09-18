@@ -15,6 +15,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useActionError } from "@/lib/use-action-error";
 
 export function DeleteButton({
   title,
@@ -35,6 +36,7 @@ export function DeleteButton({
   successMessage: string;
   redirectTo?: string;
 }) {
+  const showError = useActionError();
   const [pending, start] = useTransition();
   const router = useRouter();
 
@@ -68,7 +70,7 @@ export function DeleteButton({
               start(async () => {
                 const r = await onConfirm();
                 if (!r.ok) {
-                  toast.error(r.error);
+                  toast.error(showError(r));
                   return;
                 }
                 toast.success(successMessage);

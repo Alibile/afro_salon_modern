@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Manrope, Bebas_Neue, Fraunces } from "next/font/google";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import { routing } from "@/i18n/routing";
@@ -60,10 +61,11 @@ const frauncesItalic = Fraunces({
  */
 const bebas = Bebas_Neue({ weight: "400", subsets: ["latin", "latin-ext"], variable: "--font-label", display: "swap" });
 
-export const metadata: Metadata = {
-  title: "Afro Salon Modern",
-  description: "Afro saç kesimi, örgü ve şekillendirme. Aynı gün randevu.",
-};
+/** Sekme başlığı ve arama sonucu açıklaması da ziyaretçinin dilinde gelir. */
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("meta");
+  return { title: t("title"), description: t("description") };
+}
 
 /**
  * Uygulamanın tek kök yerleşimi bu dosyadır: `[locale]` segmenti kökün üstünde
