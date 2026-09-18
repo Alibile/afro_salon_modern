@@ -12,8 +12,8 @@ import { deleteObject } from "@/lib/storage";
 import { deleteServiceAs } from "@/actions/impl/services";
 import { deleteBarberAs } from "@/actions/impl/barbers";
 
-const admin: SessionUser = { id: "a", name: "Admin", email: "a@t", role: "ADMIN", barberId: null };
-const barberActor: SessionUser = { id: "b", name: "B", email: "b@t", role: "BARBER", barberId: "x" };
+const admin: SessionUser = { id: "a", name: "Admin", email: "a@t", role: "ADMIN", barberId: null, locale: "tr" };
+const barberActor: SessionUser = { id: "b", name: "B", email: "b@t", role: "BARBER", barberId: "x", locale: "tr" };
 
 describe("deleteServiceAs", () => {
   it("refuses barber actor", async () => {
@@ -126,7 +126,7 @@ describe("deleteBarberAs", () => {
 
   it("refuses admin deleting their own barber record", async () => {
     const { user, barber } = await createBarber();
-    const selfAdmin: SessionUser = { id: user.id, name: user.name, email: user.email, role: "ADMIN", barberId: barber.id };
+    const selfAdmin: SessionUser = { id: user.id, name: user.name, email: user.email, role: "ADMIN", barberId: barber.id, locale: "tr" };
     const r = await deleteBarberAs(selfAdmin, barber.id);
     expect(r).toEqual({ ok: false, error: "Kendi hesabınızı silemezsiniz" });
     expect(await prisma.barber.count()).toBe(1);

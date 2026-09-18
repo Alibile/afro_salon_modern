@@ -1,6 +1,6 @@
 "use client";
 import { useState, useTransition, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { formatKurus, parsePriceInput } from "@/lib/money";

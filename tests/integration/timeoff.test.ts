@@ -4,7 +4,7 @@ import { createBarber, createCustomer } from "./helpers";
 import { createTimeOffAs, deleteTimeOffAs } from "@/actions/impl/timeoff";
 import type { SessionUser } from "@/lib/auth-helpers";
 
-const asBarber = (u: { id: string; name: string; email: string }, barberId: string): SessionUser => ({ ...u, role: "BARBER", barberId });
+const asBarber = (u: { id: string; name: string; email: string }, barberId: string): SessionUser => ({ ...u, role: "BARBER", barberId, locale: "tr" });
 
 describe("timeoff", () => {
   it("all-day off covers Istanbul day and reports conflicts", async () => {
@@ -47,7 +47,7 @@ describe("timeoff", () => {
   });
 
   it("admin creating time off for nonexistent barber fails", async () => {
-    const admin: SessionUser = { id: "a", name: "Admin", email: "a@t", role: "ADMIN", barberId: null };
+    const admin: SessionUser = { id: "a", name: "Admin", email: "a@t", role: "ADMIN", barberId: null, locale: "tr" };
     const r = await createTimeOffAs(admin, { barberId: "yok", date: "2026-09-17", allDay: true });
     expect(r).toEqual({ ok: false, error: "Berber bulunamadı" });
   });

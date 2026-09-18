@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { formatShopTime } from "@/lib/time";
 import { formatKurus } from "@/lib/money";

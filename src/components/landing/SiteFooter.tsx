@@ -1,5 +1,7 @@
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { AfroPattern } from "@/components/brand/AfroPattern";
+import { LocaleSwitcher } from "@/components/brand/LocaleSwitcher";
 import { SocialLinks, telHref, type SocialSettings } from "@/components/brand/SocialLinks";
 import { SECTION_LINKS } from "./sections";
 import { logoutAction } from "@/actions/auth";
@@ -9,7 +11,7 @@ const LINK = "border-b border-primary-foreground/40 pb-0.5 transition-colors hov
 /* Küçük kapital sütun başlıkları Bebas'ın tek işi: sıkışık, geniş aralıklı, gövdeye karışmaz. */
 const HEADING = "label text-primary-foreground/70";
 
-export function SiteFooter({
+export async function SiteFooter({
   shopName,
   user,
   social,
@@ -26,6 +28,7 @@ export function SiteFooter({
   email: string;
   statusText: string;
 }) {
+  const t = await getTranslations("nav");
   const year = new Date().getFullYear();
   return (
     <footer className="relative overflow-hidden bg-primary text-primary-foreground">
@@ -43,45 +46,45 @@ export function SiteFooter({
             />
           </div>
 
-          <nav aria-label="Site bağlantıları">
+          <nav aria-label={t("siteLinks")}>
             <h2 className={HEADING}>SİTE</h2>
             <ul className="mt-4 space-y-2.5">
               {SECTION_LINKS.map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className={LINK}>
-                    {l.label}
+                    {t(l.key)}
                   </Link>
                 </li>
               ))}
             </ul>
           </nav>
 
-          <nav aria-label="Hızlı bağlantılar">
+          <nav aria-label={t("quickLinks")}>
             <h2 className={HEADING}>HIZLI BAĞLANTILAR</h2>
             <ul className="mt-4 space-y-2.5">
               <li>
                 <Link href="/randevu" className={LINK}>
-                  Randevu al
+                  {t("book")}
                 </Link>
               </li>
               {user ? (
                 <>
                   <li>
                     <Link href="/randevularim" className={LINK}>
-                      Randevularım
+                      {t("myAppointments")}
                     </Link>
                   </li>
                   {user.role !== "CUSTOMER" && (
                     <li>
                       <Link href="/panel" className={LINK}>
-                        Panel
+                        {t("panel")}
                       </Link>
                     </li>
                   )}
                   <li>
                     <form action={logoutAction}>
                       <button type="submit" className={LINK}>
-                        Çıkış
+                        {t("logout")}
                       </button>
                     </form>
                   </li>
@@ -90,17 +93,18 @@ export function SiteFooter({
                 <>
                   <li>
                     <Link href="/giris" className={LINK}>
-                      Giriş
+                      {t("login")}
                     </Link>
                   </li>
                   <li>
                     <Link href="/kayit" className={LINK}>
-                      Kayıt ol
+                      {t("register")}
                     </Link>
                   </li>
                 </>
               )}
             </ul>
+            <LocaleSwitcher tone="inverted" className="mt-6 -ml-1" />
           </nav>
 
           <div>

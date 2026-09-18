@@ -1,6 +1,7 @@
 "use client";
 import { useMemo, useOptimistic, useState, useTransition } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { filterByTag, paginate, GALLERY_PAGE_SIZE, type GalleryPhoto } from "@/lib/gallery-utils";
 import { GalleryFilters } from "./GalleryFilters";
 import { MasonryGrid } from "./MasonryGrid";

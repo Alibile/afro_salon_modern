@@ -9,7 +9,7 @@ vi.mock("@/lib/storage", () => ({
 
 import { createBarberAs, saveWorkingHoursAs, updateBarberAs } from "@/actions/impl/barbers";
 
-const admin: SessionUser = { id: "a", name: "Admin", email: "a@t", role: "ADMIN", barberId: null };
+const admin: SessionUser = { id: "a", name: "Admin", email: "a@t", role: "ADMIN", barberId: null, locale: "tr" };
 
 describe("barbers actions", () => {
   it("creates user+barber with default hours (Sunday off)", async () => {

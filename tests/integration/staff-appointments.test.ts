@@ -4,7 +4,7 @@ import { createBarber, createCustomer } from "./helpers";
 import { setAppointmentStatusAs } from "@/actions/impl/staff-appointments";
 import type { SessionUser } from "@/lib/auth-helpers";
 
-const asUser = (u: { id: string; name: string; email: string; role: "BARBER" | "ADMIN" }, barberId: string | null): SessionUser => ({ ...u, barberId });
+const asUser = (u: { id: string; name: string; email: string; role: "BARBER" | "ADMIN" }, barberId: string | null): SessionUser => ({ ...u, barberId, locale: "tr" });
 
 async function appt(customerId: string, barberId: string) {
   return prisma.appointment.create({ data: { customerId, barberId, startsAt: new Date("2026-09-17T08:00:00Z"), endsAt: new Date("2026-09-17T08:30:00Z") } });

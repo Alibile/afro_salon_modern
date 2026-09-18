@@ -3,8 +3,8 @@ import { prisma } from "@/lib/db";
 import { upsertTestimonialAs, toggleTestimonialAs, deleteTestimonialAs } from "@/actions/impl/testimonials";
 import type { SessionUser } from "@/lib/auth-helpers";
 
-const admin: SessionUser = { id: "a", name: "Admin", email: "a@t", role: "ADMIN", barberId: null };
-const barber: SessionUser = { id: "b", name: "B", email: "b@t", role: "BARBER", barberId: "x" };
+const admin: SessionUser = { id: "a", name: "Admin", email: "a@t", role: "ADMIN", barberId: null, locale: "tr" };
+const barber: SessionUser = { id: "b", name: "B", email: "b@t", role: "BARBER", barberId: "x", locale: "tr" };
 
 const sample = { name: "Emre K.", text: "Harika bir deneyimdi, kesinlikle tavsiye ederim.", rating: 5, sortOrder: 1 };
 

@@ -32,6 +32,9 @@ model User {
   passwordHash String
   phone        String?
   role         Role     @default(CUSTOMER)
+  /// Arayüz ve e-posta dili: "tr" | "en" | "fr". Kayıt sırasında o anki site
+  /// dili yazılır; panelden değiştirilebilir (Tur 5, Task 3).
+  locale       String   @default("tr")
   createdAt    DateTime @default(now()) @db.Timestamptz(3)
 
   barber       Barber?

@@ -10,7 +10,7 @@ export async function createTimeOff(input: TimeOffInput): Promise<ActionResult<{
   const actor = await getSessionUser();
   if (!actor) return fail("Yetkiniz yok");
   const r = await createTimeOffAs(actor, input);
-  if (r.ok) revalidatePath("/panel/izinler");
+  if (r.ok) revalidatePath("/[locale]/panel/izinler", "page");
   return r;
 }
 
@@ -18,6 +18,6 @@ export async function deleteTimeOff(id: string): Promise<ActionResult<void>> {
   const actor = await getSessionUser();
   if (!actor) return fail("Yetkiniz yok");
   const r = await deleteTimeOffAs(actor, id);
-  if (r.ok) revalidatePath("/panel/izinler");
+  if (r.ok) revalidatePath("/[locale]/panel/izinler", "page");
   return r;
 }

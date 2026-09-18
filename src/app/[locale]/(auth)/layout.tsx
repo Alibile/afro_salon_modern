@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { AfroPattern } from "@/components/brand/AfroPattern";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 import { Parallax } from "@/components/motion/Parallax";

@@ -1,10 +1,14 @@
-/** Navbar ve footer aynı bölüm listesini kullanır; sıra sayfadaki sırayla aynıdır. */
+/**
+ * Navbar ve footer aynı bölüm listesini kullanır; sıra sayfadaki sırayla aynıdır.
+ * Etiketler `messages/*.json` içindeki `nav` ad alanından gelir: liste yalnızca
+ * sırayı ve hedefi tutar.
+ */
 export const SECTION_LINKS = [
-  { href: "/", label: "Ana Sayfa" },
-  { href: "#hakkimizda", label: "Hakkımızda" },
-  { href: "#hizmetler", label: "Hizmetler" },
-  { href: "#ekip", label: "Ekip" },
-  { href: "#galeri", label: "Galeri" },
-  { href: "#yorumlar", label: "Yorumlar" },
-  { href: "#iletisim", label: "İletişim" },
+  { href: "/", key: "home" },
+  { href: "#hakkimizda", key: "about" },
+  { href: "#hizmetler", key: "services" },
+  { href: "#ekip", key: "team" },
+  { href: "#galeri", key: "gallery" },
+  { href: "#yorumlar", key: "testimonials" },
+  { href: "#iletisim", key: "contact" },
 ] as const;

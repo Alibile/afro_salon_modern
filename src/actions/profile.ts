@@ -11,8 +11,8 @@ export async function updateOwnProfile(input: UserProfileInput | BarberProfileIn
   if (!actor) return fail("Yetkiniz yok");
   const r = await updateOwnProfileAs(actor, input);
   if (r.ok) {
-    revalidatePath("/panel/profil");
-    revalidatePath("/");
+    revalidatePath("/[locale]/panel/profil", "page");
+    revalidatePath("/[locale]", "page");
   }
   return r;
 }

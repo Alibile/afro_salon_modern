@@ -17,9 +17,9 @@ import {
 } from "@/actions/impl/gallery";
 import { getGalleryData } from "@/lib/queries/gallery";
 
-const admin: SessionUser = { id: "a", name: "Admin", email: "a@t", role: "ADMIN", barberId: null };
-const barber: SessionUser = { id: "b", name: "B", email: "b@t", role: "BARBER", barberId: "x" };
-const customer: SessionUser = { id: "c", name: "C", email: "c@t", role: "CUSTOMER", barberId: null };
+const admin: SessionUser = { id: "a", name: "Admin", email: "a@t", role: "ADMIN", barberId: null, locale: "tr" };
+const barber: SessionUser = { id: "b", name: "B", email: "b@t", role: "BARBER", barberId: "x", locale: "tr" };
+const customer: SessionUser = { id: "c", name: "C", email: "c@t", role: "CUSTOMER", barberId: null, locale: "tr" };
 
 /** Presign ucunun ürettiği biçimde geçerli bir R2 anahtarı. */
 const key = () => `gallery/${randomUUID()}.jpg`;

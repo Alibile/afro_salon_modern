@@ -12,9 +12,9 @@ vi.mock("@/lib/storage", () => ({
 import { deleteObject } from "@/lib/storage";
 import { updateOwnProfileAs, changeOwnPasswordAs } from "@/actions/impl/profile";
 
-const asBarber = (u: { id: string; name: string; email: string }, barberId: string): SessionUser => ({ ...u, role: "BARBER", barberId });
-const asAdmin = (u: { id: string; name: string; email: string }): SessionUser => ({ ...u, role: "ADMIN", barberId: null });
-const customer: SessionUser = { id: "c1", name: "Müşteri", email: "c@t", role: "CUSTOMER", barberId: null };
+const asBarber = (u: { id: string; name: string; email: string }, barberId: string): SessionUser => ({ ...u, role: "BARBER", barberId, locale: "tr" });
+const asAdmin = (u: { id: string; name: string; email: string }): SessionUser => ({ ...u, role: "ADMIN", barberId: null, locale: "tr" });
+const customer: SessionUser = { id: "c1", name: "Müşteri", email: "c@t", role: "CUSTOMER", barberId: null, locale: "tr" };
 // createPresignedUpload'ın ürettiği biçim: barbers/<uuid>.<uzantı>
 const uploadedKey = "barbers/3f1d2c44-0a5b-4c7e-9f11-2b6d8e7a0c31.jpg";
 

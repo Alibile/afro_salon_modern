@@ -1,6 +1,6 @@
 "use client";
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ImageUploader } from "./ImageUploader";

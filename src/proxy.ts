@@ -1,30 +1,52 @@
 import { NextResponse } from "next/server";
+import createMiddleware from "next-intl/middleware";
 import { auth } from "@/lib/auth";
+import { routing } from "@/i18n/routing";
+import { stripLocale, withLocale } from "@/lib/locale-path";
+
+/**
+ * Tek bir proxy iki işi sırayla yapar:
+ *
+ * 1. **Yetki.** Auth.js sarmalayıcısı oturumu okur. Kural yolun kendisine
+ *    bakar, diline değil: `/en/panel` da `/panel` kadar korumalıdır, bu yüzden
+ *    dil öneki `stripLocale` ile bir kez soyulur. Üretilen yönlendirme adresine
+ *    önek `withLocale` ile geri eklenir — `/en/panel` isteyen ziyaretçi
+ *    `/en/giris`e düşer, İngilizce sayfadan Türkçeye savrulmaz.
+ * 2. **Dil.** Yetki bir yönlendirme üretmediyse istek next-intl middleware'ine
+ *    devredilir: öneksiz yollar varsayılan dile göre `[locale]` segmentine
+ *    yeniden yazılır, EN/FR için `/en`, `/fr` öneki uygulanır, `NEXT_LOCALE`
+ *    çerezi eşitlenir.
+ *
+ * `api`, `_next` ve uzantılı dosyalar matcher dışında kalır; `/api/*` ağacı
+ * `[locale]` altına taşınmadı ve taşınmamalı.
+ */
+const intlMiddleware = createMiddleware(routing);
 
 export const proxy = auth((req) => {
-  const { pathname, search } = req.nextUrl;
+  const { search } = req.nextUrl;
+  const { locale, path } = stripLocale(req.nextUrl.pathname);
   const user = req.auth?.user;
 
-  if (pathname.startsWith("/panel")) {
-    if (!user) {
-      const url = new URL("/giris", req.nextUrl);
-      url.searchParams.set("next", pathname + search);
-      return NextResponse.redirect(url);
-    }
-    if (user.role !== "BARBER" && user.role !== "ADMIN") {
-      return NextResponse.redirect(new URL("/403", req.nextUrl));
-    }
-  }
-
-  if (pathname.startsWith("/randevularim") && !user) {
-    const url = new URL("/giris", req.nextUrl);
-    url.searchParams.set("next", pathname + search);
+  const toLogin = () => {
+    const url = new URL(withLocale(locale, "/giris"), req.nextUrl);
+    url.searchParams.set("next", withLocale(locale, path) + search);
     return NextResponse.redirect(url);
+  };
+
+  if (path === "/panel" || path.startsWith("/panel/")) {
+    if (!user) return toLogin();
+    if (user.role !== "BARBER" && user.role !== "ADMIN") {
+      return NextResponse.redirect(new URL(withLocale(locale, "/403"), req.nextUrl));
+    }
   }
 
-  return NextResponse.next();
+  if ((path === "/randevularim" || path.startsWith("/randevularim/")) && !user) {
+    return toLogin();
+  }
+
+  return intlMiddleware(req);
 });
 
 export const config = {
-  matcher: ["/panel/:path*", "/randevularim/:path*"],
+  matcher: ["/((?!api|_next|.*\\..*).*)"],
 };

@@ -11,8 +11,8 @@ export async function updateSettings(input: SettingsInput): Promise<ActionResult
   if (!actor) return fail("Yetkiniz yok");
   const r = await updateSettingsAs(actor, input);
   if (r.ok) {
-    revalidatePath("/");
-    revalidatePath("/panel/ayarlar");
+    revalidatePath("/[locale]", "page");
+    revalidatePath("/[locale]/panel/ayarlar", "page");
   }
   return r;
 }

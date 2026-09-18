@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { AfroPattern } from "@/components/brand/AfroPattern";
 import { Parallax } from "@/components/motion/Parallax";

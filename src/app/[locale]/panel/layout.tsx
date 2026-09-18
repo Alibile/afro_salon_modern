@@ -2,6 +2,7 @@ import { Inter } from "next/font/google";
 import { requireStaff } from "@/lib/auth-helpers";
 import { PanelNav } from "@/components/panel/PanelNav";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { LocaleSwitcher } from "@/components/brand/LocaleSwitcher";
 import { logoutAction } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 
@@ -27,7 +28,10 @@ export default async function PanelLayout({ children }: { children: React.ReactN
           </div>
         </div>
         <PanelNav isAdmin={user.role === "ADMIN"} />
-        <p className="px-4 pb-3 text-xs text-muted-foreground">{user.name}</p>
+        <div className="flex items-center justify-between gap-2 px-4 pb-3">
+          <p className="text-xs text-muted-foreground">{user.name}</p>
+          <LocaleSwitcher />
+        </div>
       </aside>
       <main className="p-4 md:p-6">{children}</main>
     </div>

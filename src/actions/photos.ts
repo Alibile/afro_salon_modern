@@ -10,7 +10,7 @@ export async function addHaircutPhoto(input: AddHaircutPhotoInput): Promise<Acti
   const actor = await getSessionUser();
   if (!actor) return fail("Yetkiniz yok");
   const r = await addHaircutPhotoAs(actor, input);
-  if (r.ok) revalidatePath(`/panel/musteriler/${input.customerId}`);
+  if (r.ok) revalidatePath(`/[locale]/panel/musteriler/${input.customerId}`, "page");
   return r;
 }
 
@@ -19,6 +19,6 @@ export async function deleteHaircutPhoto(id: string): Promise<ActionResult<void>
   if (!actor) return fail("Yetkiniz yok");
   const r = await deleteHaircutPhotoAs(actor, id);
   if (!r.ok) return r;
-  revalidatePath(`/panel/musteriler/${r.data.customerId}`);
+  revalidatePath(`/[locale]/panel/musteriler/${r.data.customerId}`, "page");
   return ok(undefined);
 }

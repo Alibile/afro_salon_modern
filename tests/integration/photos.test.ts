@@ -12,7 +12,7 @@ vi.mock("@/lib/storage", () => ({
 import { deleteObject } from "@/lib/storage";
 import { addHaircutPhotoAs, deleteHaircutPhotoAs } from "@/actions/impl/photos";
 
-const asBarber = (u: { id: string; name: string; email: string }, barberId: string): SessionUser => ({ ...u, role: "BARBER", barberId });
+const asBarber = (u: { id: string; name: string; email: string }, barberId: string): SessionUser => ({ ...u, role: "BARBER", barberId, locale: "tr" });
 
 /** Presign ucunun ürettiği biçimde geçerli bir R2 anahtarı (haircuts/<uuid>.jpg) */
 const keys = new Map<string, string>();

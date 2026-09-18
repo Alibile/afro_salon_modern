@@ -1,20 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { Menu, X } from "lucide-react";
 import { useMotionValueEvent, useScroll } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { LocaleSwitcher } from "@/components/brand/LocaleSwitcher";
 import { SECTION_LINKS } from "./sections";
 import { cn } from "@/lib/utils";
 import type { SessionUser } from "@/lib/auth-helpers";
 
 /** Oturum durumuna göre tek bir hesap bağlantısı. */
 function accountLink(user: SessionUser | null) {
-  if (!user) return { href: "/giris", label: "Giriş" };
-  if (user.role !== "CUSTOMER") return { href: "/panel", label: "Panel" };
-  return { href: "/randevularim", label: "Randevularım" };
+  if (!user) return { href: "/giris", key: "login" } as const;
+  if (user.role !== "CUSTOMER") return { href: "/panel", key: "panel" } as const;
+  return { href: "/randevularim", key: "myAppointments" } as const;
 }
 
 const NAV_LINK = "border-b border-transparent pb-0.5 text-sm transition-colors hover:border-primary hover:text-primary";
@@ -30,6 +32,7 @@ const EXPAND_AT = 60;
 export function SiteNav({ shopName, user }: { shopName: string; user: SessionUser | null }) {
   const [open, setOpen] = useState(false);
   const [shrunk, setShrunk] = useState(false);
+  const t = useTranslations("nav");
   const account = accountLink(user);
 
   // Kaydırma değeri React durumuna her karede değil, yalnızca eşik geçildiğinde
@@ -107,25 +110,26 @@ export function SiteNav({ shopName, user }: { shopName: string; user: SessionUse
           {shopName}
         </Link>
 
-        <nav aria-label="Ana menü" className="mx-auto hidden items-center gap-5 lg:flex xl:gap-7">
+        <nav aria-label={t("mainMenu")} className="mx-auto hidden items-center gap-5 lg:flex xl:gap-7">
           {SECTION_LINKS.map((l) => (
             <Link key={l.href} href={l.href} className={cn(NAV_LINK, !solid && "hover:border-accent hover:text-accent")}>
-              {l.label}
+              {t(l.key)}
             </Link>
           ))}
         </nav>
 
         <div className="ml-auto flex items-center gap-1 lg:ml-0">
+          <LocaleSwitcher tone={solid ? "default" : "hero"} className="hidden lg:flex" />
           <ThemeToggle />
           <Link href={account.href} className={cn(NAV_LINK, "mx-2 hidden lg:inline-block", !solid && "hover:border-accent hover:text-accent")}>
-            {account.label}
+            {t(account.key)}
           </Link>
           <Button asChild className={cn("shrink-0 rounded-none px-3 text-sm transition-[height] duration-300 sm:px-4", shrunk ? "h-9" : "h-10")}>
-            <Link href="/randevu">Randevu al</Link>
+            <Link href="/randevu">{t("book")}</Link>
           </Button>
           <button
             type="button"
-            aria-label={open ? "Menüyü kapat" : "Menüyü aç"}
+            aria-label={open ? t("closeMenu") : t("openMenu")}
             aria-expanded={open}
             aria-controls="mobil-menu"
             onClick={() => setOpen((v) => !v)}
@@ -141,7 +145,7 @@ export function SiteNav({ shopName, user }: { shopName: string; user: SessionUse
 
       {open && (
         <div id="mobil-menu" className="animate-in slide-in-from-top-2 border-t border-border bg-background duration-150 lg:hidden">
-          <nav aria-label="Ana menü" className="mx-auto max-w-6xl px-5 pb-4">
+          <nav aria-label={t("mainMenu")} className="mx-auto max-w-6xl px-5 pb-4">
             {SECTION_LINKS.map((l) => (
               <Link
                 key={l.href}
@@ -149,7 +153,7 @@ export function SiteNav({ shopName, user }: { shopName: string; user: SessionUse
                 onClick={() => setOpen(false)}
                 className="display-sm block border-b border-border py-3.5 transition-colors hover:text-primary"
               >
-                {l.label}
+                {t(l.key)}
               </Link>
             ))}
             <Link
@@ -157,8 +161,9 @@ export function SiteNav({ shopName, user }: { shopName: string; user: SessionUse
               onClick={() => setOpen(false)}
               className="display-sm block border-b border-border py-3.5 text-primary transition-colors hover:text-foreground"
             >
-              {account.label}
+              {t(account.key)}
             </Link>
+            <LocaleSwitcher tone="default" className="pt-4" />
           </nav>
         </div>
       )}

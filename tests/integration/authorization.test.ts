@@ -30,7 +30,7 @@ import { resetRateLimit } from "@/lib/rate-limit";
 
 const mockedSession = vi.mocked(getSessionUser);
 
-const customer: SessionUser = { id: "c1", name: "Müşteri", email: "c@t", role: "CUSTOMER", barberId: null };
+const customer: SessionUser = { id: "c1", name: "Müşteri", email: "c@t", role: "CUSTOMER", barberId: null, locale: "tr" };
 
 function setSession(user: SessionUser | null) {
   mockedSession.mockResolvedValue(user);

@@ -5,8 +5,8 @@ import { createBarber, createCustomer } from "./helpers";
 import { searchCustomers, getCustomerDetail } from "@/lib/queries/customers";
 import type { SessionUser } from "@/lib/auth-helpers";
 
-const admin: SessionUser = { id: "a", name: "Admin", email: "a@t", role: "ADMIN", barberId: null };
-const asBarber = (u: { id: string; name: string; email: string }, barberId: string): SessionUser => ({ ...u, role: "BARBER", barberId });
+const admin: SessionUser = { id: "a", name: "Admin", email: "a@t", role: "ADMIN", barberId: null, locale: "tr" };
+const asBarber = (u: { id: string; name: string; email: string }, barberId: string): SessionUser => ({ ...u, role: "BARBER", barberId, locale: "tr" });
 
 async function appt(customerId: string, barberId: string, startsAt: string, status: "SCHEDULED" | "COMPLETED" = "COMPLETED") {
   return prisma.appointment.create({

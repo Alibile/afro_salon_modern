@@ -4,7 +4,7 @@ import { updateSettingsAs } from "@/actions/impl/settings";
 import type { SessionUser } from "@/lib/auth-helpers";
 import type { SettingsInput } from "@/schemas/settings";
 
-const admin: SessionUser = { id: "a", name: "Admin", email: "a@t", role: "ADMIN", barberId: null };
+const admin: SessionUser = { id: "a", name: "Admin", email: "a@t", role: "ADMIN", barberId: null, locale: "tr" };
 
 const base: SettingsInput = {
   shopName: "Afro Salon",

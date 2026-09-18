@@ -3,15 +3,21 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { loginSchema } from "@/schemas/auth";
+import { routing, type AppLocale } from "@/i18n/routing";
+
+/** DB `String` sütununu uygulama dil birliğine indirger; tanınmayan değer varsayılana düşer. */
+function toLocale(value: string): AppLocale {
+  return (routing.locales as readonly string[]).includes(value) ? (value as AppLocale) : routing.defaultLocale;
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
   pages: { signIn: "/giris" },
   providers: [
     Credentials({
-      credentials: { email: {}, password: {} },
-      async authorize(raw) {
-        const parsed = loginSchema.safeParse(raw);
+      credentials: { email: {}, password: {}, locale: {} },
+      async authorize(rawInput) {
+        const parsed = loginSchema.safeParse(rawInput);
         if (!parsed.success) return null;
         const user = await prisma.user.findUnique({
           where: { email: parsed.data.email },
@@ -20,7 +26,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!user) return null;
         const okPw = await bcrypt.compare(parsed.data.password, user.passwordHash);
         if (!okPw) return null;
-        return { id: user.id, name: user.name, email: user.email, role: user.role, barberId: user.barber?.id ?? null };
+
+        // Giriş yapılan dil kullanıcının tercihi sayılır ve kaydedilir — ama
+        // ancak şifre doğrulandıktan sonra, yoksa e-postayı bilen herkes bir
+        // hesabın dilini değiştirebilirdi. İstek dili yoksa (doğrudan API
+        // çağrısı) kayıtlı tercih olduğu gibi kalır.
+        const raw = typeof rawInput?.locale === "string" ? rawInput.locale : undefined;
+        const locale = raw ? toLocale(raw) : toLocale(user.locale);
+        if (raw && locale !== user.locale) {
+          await prisma.user.update({ where: { id: user.id }, data: { locale } });
+        }
+
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          barberId: user.barber?.id ?? null,
+          locale,
+        };
       },
     }),
   ],
@@ -30,6 +54,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id = user.id as string;
         token.role = user.role;
         token.barberId = user.barberId;
+        token.locale = user.locale;
       }
       return token;
     },
@@ -37,6 +62,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       session.user.id = token.id;
       session.user.role = token.role;
       session.user.barberId = token.barberId;
+      session.user.locale = token.locale;
       return session;
     },
   },

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { requireUser } from "@/lib/auth-helpers";
 import { getCustomerAppointments, getCustomerPhotos } from "@/lib/queries/customer";
 import { getSettings } from "@/lib/settings";

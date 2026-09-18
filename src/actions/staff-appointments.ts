@@ -12,7 +12,7 @@ export async function setAppointmentStatus(appointmentId: string, status: StaffA
   const r = await setAppointmentStatusAs(actor, appointmentId, status);
   if (r.ok) {
     if (status === "CANCELLED") await sendAppointmentCancelled(appointmentId, "STAFF");
-    revalidatePath("/panel");
+    revalidatePath("/[locale]/panel", "page");
   }
   return r;
 }

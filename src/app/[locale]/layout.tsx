@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { Manrope, Bebas_Neue, Fraunces } from "next/font/google";
+import { notFound } from "next/navigation";
+import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
-import "./globals.css";
+import { routing } from "@/i18n/routing";
+import "../globals.css";
 
 /**
  * Üç yüz, üç iş: Fraunces manşet ve başlıklarda (yüksek `opsz` ile keskin,
@@ -62,9 +65,29 @@ export const metadata: Metadata = {
   description: "Afro saç kesimi, örgü ve şekillendirme. Aynı gün randevu.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+/**
+ * Uygulamanın tek kök yerleşimi bu dosyadır: `[locale]` segmenti kökün üstünde
+ * durduğu için `<html lang>` doğrudan seçilen dile bağlanır. `generateStaticParams`
+ * üç dili de bildirir; segment bilinmeyen yollar için de eşleştiğinden
+ * (`/de`, `/robots.txt`) gelen değer `hasLocale` ile doğrulanır ve geçersizse 404
+ * verilir.
+ */
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
+export default async function RootLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) notFound();
+
   return (
-    <html lang="tr" suppressHydrationWarning className={`${manrope.variable} ${fraunces.variable} ${frauncesItalic.variable} ${bebas.variable}`}>
+    <html lang={locale} suppressHydrationWarning className={`${manrope.variable} ${fraunces.variable} ${frauncesItalic.variable} ${bebas.variable}`}>
       <head>
         {/*
          * JavaScript kapalıyken Motion hiç bağlanmaz ve sunucudan gelen satır içi
@@ -77,10 +100,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </noscript>
       </head>
       <body className="min-h-dvh">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
-          <Toaster />
-        </ThemeProvider>
+        <NextIntlClientProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            {children}
+            <Toaster />
+          </ThemeProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

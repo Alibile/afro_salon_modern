@@ -1,0 +1,32 @@
+{
+  "common": {
+    "brand": "Afro Salon Modern",
+    "language": "Dil",
+    "languages": {
+      "tr": "Türkçe",
+      "en": "İngilizce",
+      "fr": "Fransızca"
+    },
+    "close": "Kapat"
+  },
+  "nav": {
+    "mainMenu": "Ana menü",
+    "openMenu": "Menüyü aç",
+    "closeMenu": "Menüyü kapat",
+    "siteLinks": "Site bağlantıları",
+    "quickLinks": "Hızlı bağlantılar",
+    "home": "Ana Sayfa",
+    "about": "Hakkımızda",
+    "services": "Hizmetler",
+    "team": "Ekip",
+    "gallery": "Galeri",
+    "testimonials": "Yorumlar",
+    "contact": "İletişim",
+    "login": "Giriş",
+    "register": "Kayıt ol",
+    "myAppointments": "Randevularım",
+    "panel": "Panel",
+    "logout": "Çıkış",
+    "book": "Randevu al"
+  }
+}

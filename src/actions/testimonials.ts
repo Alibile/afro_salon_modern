@@ -11,8 +11,8 @@ export async function upsertTestimonial(input: TestimonialInput & { id?: string 
   if (!actor) return fail("Yetkiniz yok");
   const r = await upsertTestimonialAs(actor, input);
   if (r.ok) {
-    revalidatePath("/");
-    revalidatePath("/panel/yorumlar");
+    revalidatePath("/[locale]", "page");
+    revalidatePath("/[locale]/panel/yorumlar", "page");
   }
   return r;
 }
@@ -22,8 +22,8 @@ export async function toggleTestimonial(id: string, isActive: boolean): Promise<
   if (!actor) return fail("Yetkiniz yok");
   const r = await toggleTestimonialAs(actor, id, isActive);
   if (r.ok) {
-    revalidatePath("/");
-    revalidatePath("/panel/yorumlar");
+    revalidatePath("/[locale]", "page");
+    revalidatePath("/[locale]/panel/yorumlar", "page");
   }
   return r;
 }
@@ -33,8 +33,8 @@ export async function deleteTestimonial(id: string): Promise<ActionResult<void>>
   if (!actor) return fail("Yetkiniz yok");
   const r = await deleteTestimonialAs(actor, id);
   if (r.ok) {
-    revalidatePath("/");
-    revalidatePath("/panel/yorumlar");
+    revalidatePath("/[locale]", "page");
+    revalidatePath("/[locale]/panel/yorumlar", "page");
   }
   return r;
 }

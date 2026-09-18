@@ -1,4 +1,5 @@
 import type { Role } from "@/generated/prisma/enums";
+import type { AppLocale } from "@/i18n/routing";
 import type { DefaultSession } from "next-auth";
 
 declare module "next-auth" {
@@ -7,11 +8,13 @@ declare module "next-auth" {
       id: string;
       role: Role;
       barberId: string | null;
+      locale: AppLocale;
     } & DefaultSession["user"];
   }
   interface User {
     role: Role;
     barberId: string | null;
+    locale: AppLocale;
   }
 }
 
@@ -20,6 +23,7 @@ declare module "next-auth/jwt" {
     id: string;
     role: Role;
     barberId: string | null;
+    locale: AppLocale;
   }
 }
 
@@ -33,5 +37,6 @@ declare module "@auth/core/jwt" {
     id: string;
     role: Role;
     barberId: string | null;
+    locale: AppLocale;
   }
 }

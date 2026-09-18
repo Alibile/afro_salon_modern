@@ -12,8 +12,10 @@ import {
 import type { GalleryItemInput, UpdateGalleryPhotoInput, GalleryDirection } from "@/schemas/gallery";
 
 function revalidateGallery() {
-  revalidatePath("/");
-  revalidatePath("/panel/galeri");
+  // Yol artık `[locale]` segmentinin altında: düz "/" hiçbir rota dosyasıyla
+  // eşleşmez. Rota deseni + "page" üç dili de tek çağrıda tazeler.
+  revalidatePath("/[locale]", "page");
+  revalidatePath("/[locale]/panel/galeri", "page");
 }
 
 export async function addGalleryPhotos(items: GalleryItemInput[]): Promise<ActionResult<{ ids: string[] }>> {

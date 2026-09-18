@@ -1,0 +1,32 @@
+{
+  "common": {
+    "brand": "Afro Salon Modern",
+    "language": "Langue",
+    "languages": {
+      "tr": "Turc",
+      "en": "Anglais",
+      "fr": "Français"
+    },
+    "close": "Fermer"
+  },
+  "nav": {
+    "mainMenu": "Menu principal",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
+    "siteLinks": "Liens du site",
+    "quickLinks": "Liens rapides",
+    "home": "Accueil",
+    "about": "À propos",
+    "services": "Prestations",
+    "team": "Équipe",
+    "gallery": "Galerie",
+    "testimonials": "Avis",
+    "contact": "Contact",
+    "login": "Connexion",
+    "register": "Créer un compte",
+    "myAppointments": "Mes rendez-vous",
+    "panel": "Panel",
+    "logout": "Déconnexion",
+    "book": "Réserver"
+  }
+}

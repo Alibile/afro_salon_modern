@@ -10,7 +10,7 @@ export async function createBarber(input: CreateBarberInput): Promise<ActionResu
   const actor = await getSessionUser();
   if (!actor) return fail("Yetkiniz yok");
   const r = await createBarberAs(actor, input);
-  if (r.ok) revalidatePath("/panel/berberler");
+  if (r.ok) revalidatePath("/[locale]/panel/berberler", "page");
   return r;
 }
 
@@ -18,7 +18,7 @@ export async function updateBarber(barberId: string, input: UpdateBarberInput): 
   const actor = await getSessionUser();
   if (!actor) return fail("Yetkiniz yok");
   const r = await updateBarberAs(actor, barberId, input);
-  if (r.ok) revalidatePath("/panel/berberler");
+  if (r.ok) revalidatePath("/[locale]/panel/berberler", "page");
   return r;
 }
 
@@ -26,7 +26,7 @@ export async function saveWorkingHours(barberId: string, input: WorkingHoursInpu
   const actor = await getSessionUser();
   if (!actor) return fail("Yetkiniz yok");
   const r = await saveWorkingHoursAs(actor, barberId, input);
-  if (r.ok) revalidatePath(`/panel/berberler/${barberId}`);
+  if (r.ok) revalidatePath(`/[locale]/panel/berberler/${barberId}`, "page");
   return r;
 }
 
@@ -40,6 +40,6 @@ export async function deleteBarber(barberId: string): Promise<ActionResult<void>
   const actor = await getSessionUser();
   if (!actor) return fail("Yetkiniz yok");
   const r = await deleteBarberAs(actor, barberId);
-  if (r.ok) revalidatePath("/panel/berberler");
+  if (r.ok) revalidatePath("/[locale]/panel/berberler", "page");
   return r;
 }

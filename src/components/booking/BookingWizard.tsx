@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { createAppointment } from "@/actions/appointments";
 import { ServiceStep, type ServiceItem } from "./ServiceStep";

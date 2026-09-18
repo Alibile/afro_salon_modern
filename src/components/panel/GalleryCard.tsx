@@ -1,7 +1,7 @@
 "use client";
 import { useState, useTransition } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { publicUrl } from "@/lib/storage-public";
 import { updateGalleryPhoto, moveGalleryPhoto, deleteGalleryPhoto } from "@/actions/gallery";

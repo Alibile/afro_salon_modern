@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { publicUrl } from "@/lib/storage-public";
 import { AfroPattern } from "@/components/brand/AfroPattern";
 import { Reveal } from "@/components/motion/Reveal";

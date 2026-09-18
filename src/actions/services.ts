@@ -10,7 +10,7 @@ export async function upsertService(input: ServiceInput & { id?: string }): Prom
   const actor = await getSessionUser();
   if (!actor) return fail("Yetkiniz yok");
   const r = await upsertServiceAs(actor, input);
-  if (r.ok) revalidatePath("/panel/hizmetler");
+  if (r.ok) revalidatePath("/[locale]/panel/hizmetler", "page");
   return r;
 }
 
@@ -18,7 +18,7 @@ export async function toggleService(id: string, isActive: boolean): Promise<Acti
   const actor = await getSessionUser();
   if (!actor) return fail("Yetkiniz yok");
   const r = await toggleServiceAs(actor, id, isActive);
-  if (r.ok) revalidatePath("/panel/hizmetler");
+  if (r.ok) revalidatePath("/[locale]/panel/hizmetler", "page");
   return r;
 }
 
@@ -26,6 +26,6 @@ export async function deleteService(id: string): Promise<ActionResult<void>> {
   const actor = await getSessionUser();
   if (!actor) return fail("Yetkiniz yok");
   const r = await deleteServiceAs(actor, id);
-  if (r.ok) revalidatePath("/panel/hizmetler");
+  if (r.ok) revalidatePath("/[locale]/panel/hizmetler", "page");
   return r;
 }

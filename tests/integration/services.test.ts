@@ -3,8 +3,8 @@ import { prisma } from "@/lib/db";
 import { upsertServiceAs, toggleServiceAs } from "@/actions/impl/services";
 import type { SessionUser } from "@/lib/auth-helpers";
 
-const admin: SessionUser = { id: "a", name: "Admin", email: "a@t", role: "ADMIN", barberId: null };
-const barber: SessionUser = { id: "b", name: "B", email: "b@t", role: "BARBER", barberId: "x" };
+const admin: SessionUser = { id: "a", name: "Admin", email: "a@t", role: "ADMIN", barberId: null, locale: "tr" };
+const barber: SessionUser = { id: "b", name: "B", email: "b@t", role: "BARBER", barberId: "x", locale: "tr" };
 
 describe("services actions", () => {
   it("admin creates with kurus conversion", async () => {
