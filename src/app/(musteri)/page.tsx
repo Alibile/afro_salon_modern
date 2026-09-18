@@ -42,7 +42,7 @@ export default async function LandingPage() {
         yearsExperience={settings.yearsExperience}
       />
       <TeamSection barbers={barbers.map((b) => ({ id: b.id, name: b.name, bio: b.bio, photoKey: b.photoKey }))} />
-      <GallerySection photos={gallery.photos} tags={gallery.tags} />
+      <GallerySection photos={gallery.photos} tags={gallery.tags} tagPreviews={gallery.tagPreviews} />
       <TestimonialsSection items={testimonials} />
       <ContactSection
         address={settings.address}

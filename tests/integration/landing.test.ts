@@ -23,7 +23,10 @@ describe("getLandingData", () => {
     expect(d.services.map((s) => s.name)).toEqual(["Sakal", "Saç"]);
     expect(d.barbers).toHaveLength(1);
     expect(d.gallery.photos.map((p) => p.storageKey)).toEqual(["landing/gallery-1.jpg", "landing/gallery-2.jpg"]);
-    expect(d.gallery.tags).toEqual(["Fade", "Twist"]);
+    // "Twist" sabit kategori listesinden, "Fade" serbest etiket: serbest olan sona gelir.
+    expect(d.gallery.tags).toEqual(["Twist", "Fade"]);
+    // Çip görselleri aktif fotoğraflardan, görüntüleme sırasına göre türetilir.
+    expect(d.gallery.tagPreviews).toEqual({ Fade: "landing/gallery-1.jpg", Twist: "landing/gallery-1.jpg" });
     expect(d.weeklyHours).toHaveLength(7);
     expect(d.weeklyHours[0]).toEqual({ dayLabel: "Pazartesi", text: "09:00–19:00" });
     expect(d.weeklyHours[6]).toEqual({ dayLabel: "Pazar", text: "Kapalı" });

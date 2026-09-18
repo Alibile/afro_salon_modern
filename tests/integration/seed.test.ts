@@ -1,7 +1,15 @@
 import { describe, it, expect } from "vitest";
 import { prisma } from "@/lib/db";
 import { Role } from "@/generated/prisma/enums";
-import { runSeed, DEFAULT_LANDING_CONTENT, DEFAULT_GALLERY, LEGACY_ABOUT_TEXT, LEGACY_NADIA_TEXT } from "../../prisma/seed";
+import {
+  runSeed,
+  DEFAULT_LANDING_CONTENT,
+  DEFAULT_GALLERY,
+  LEGACY_GALLERY_KEYS,
+  LEGACY_ABOUT_TEXT,
+  LEGACY_NADIA_TEXT,
+} from "../../prisma/seed";
+import { GALLERY_TAGS } from "@/lib/gallery-tags";
 
 describe("runSeed", () => {
   it("eski seed/ yer tutucu fotoğraf anahtarını landing/ ile değiştirir, gerçek yüklenmiş anahtara dokunmaz", async () => {
@@ -51,7 +59,7 @@ describe("runSeed", () => {
     const first = await prisma.galleryPhoto.findFirstOrThrow({ where: { storageKey: "landing/gallery-1.jpg" } });
     expect(first.width).toBe(1367);
     expect(first.height).toBe(1367);
-    expect(first.tags).toEqual(["Fade", "Line-up"]);
+    expect(first.tags).toEqual(["Taper Fade", "Line-up", "Düz Saç"]);
     expect(first.isActive).toBe(true);
 
     await prisma.galleryPhoto.update({ where: { id: first.id }, data: { caption: "Panelden yazıldı", tags: ["Fade"] } });
@@ -120,5 +128,78 @@ describe("runSeed", () => {
     await runSeed(prisma);
     expect(await prisma.testimonial.count({ where: { name: "Derrick B." } })).toBe(1);
     expect(await prisma.testimonial.count({ where: { name: "Nadia T." } })).toBe(0);
+  });
+
+  it("her seed fotoğrafı sabit kategori listesinden 1–3 etiket taşır", () => {
+    for (const g of DEFAULT_GALLERY) {
+      expect(g.tags.length).toBeGreaterThanOrEqual(1);
+      expect(g.tags.length).toBeLessThanOrEqual(3);
+      for (const tag of g.tags) expect(GALLERY_TAGS).toContain(tag);
+    }
+  });
+
+  it("sabit kategori listesindeki her etiketin en az bir fotoğrafı vardır (hiçbir çip boş kalmaz)", () => {
+    const used = new Set(DEFAULT_GALLERY.flatMap((g) => g.tags));
+    expect([...GALLERY_TAGS].filter((t) => !used.has(t))).toEqual([]);
+  });
+
+  it("dosyası silinen eski landing fotoğrafını pasife alır, satırı silmez", async () => {
+    const legacy = await prisma.galleryPhoto.create({
+      data: {
+        storageKey: LEGACY_GALLERY_KEYS[0],
+        caption: "Admin başlığı",
+        tags: ["Afro"],
+        width: 1600,
+        height: 1067,
+        sortOrder: 3,
+      },
+    });
+
+    await runSeed(prisma);
+
+    const after = await prisma.galleryPhoto.findUniqueOrThrow({ where: { id: legacy.id } });
+    expect(after.isActive).toBe(false);
+    // Satır ve admin verisi korunur: yalnızca yayından kaldırılır.
+    expect(after.caption).toBe("Admin başlığı");
+    expect(after.tags).toEqual(["Afro"]);
+    expect(after.sortOrder).toBe(3);
+  });
+
+  it("panelden yüklenmiş fotoğrafa (gallery/<uuid>.jpg) dokunmaz", async () => {
+    const uploaded = await prisma.galleryPhoto.create({
+      data: {
+        storageKey: "gallery/2b0a6f1c-9b3e-4e2a-8f77-1d5c6e0a9b21.jpg",
+        caption: "Panelden yüklendi",
+        tags: ["Fade"],
+        width: 1200,
+        height: 900,
+      },
+    });
+
+    await runSeed(prisma);
+
+    const after = await prisma.galleryPhoto.findUniqueOrThrow({ where: { id: uploaded.id } });
+    expect(after.isActive).toBe(true);
+    expect(after.caption).toBe("Panelden yüklendi");
+    expect(after.tags).toEqual(["Fade"]);
+  });
+
+  it("pasifleştirme idempotenttir: ikinci çalıştırmada satır sayısı ve durum değişmez", async () => {
+    await prisma.galleryPhoto.create({
+      data: { storageKey: LEGACY_GALLERY_KEYS[1], tags: ["Afro"], width: 1600, height: 1067 },
+    });
+
+    await runSeed(prisma);
+    const afterFirst = await prisma.galleryPhoto.count();
+    await runSeed(prisma);
+
+    expect(await prisma.galleryPhoto.count()).toBe(afterFirst);
+    expect(afterFirst).toBe(DEFAULT_GALLERY.length + 1);
+    expect(await prisma.galleryPhoto.count({ where: { isActive: true } })).toBe(DEFAULT_GALLERY.length);
+  });
+
+  it("eski anahtar hiç yoksa yeni bir satır uydurmaz", async () => {
+    await runSeed(prisma);
+    expect(await prisma.galleryPhoto.count({ where: { storageKey: { in: LEGACY_GALLERY_KEYS } } })).toBe(0);
   });
 });

@@ -1,9 +1,12 @@
 import { test, expect } from "@playwright/test";
 
-// Seed'in eklediği 8 galeri fotoğrafından 4'ü "Afro" etiketli (prisma/seed.ts).
+// Seed 22 galeri fotoğrafı ekler (prisma/seed.ts). Landing bir sayfada 12 tanesini
+// basar (GALLERY_PAGE_SIZE), kalanı "Daha fazla göster" ile açılır.
 // Bu testler saate bağlı değildir: dükkânın açık/kapalı olması sonucu etkilemez.
-const SEEDED_TOTAL = 8;
-const AFRO_COUNT = 4;
+const SEEDED_TOTAL = 22;
+const PAGE_SIZE = 12;
+const LOW_TAPER_COUNT = 3;
+const AFRO_COUNT = 2;
 
 test.describe("landing galeri", () => {
   test("etiket filtresi görünen kart sayısını değiştirir", async ({ page }) => {
@@ -12,37 +15,59 @@ test.describe("landing galeri", () => {
     const cards = gallery.getByRole("button", { name: /büyüt$/ });
     // Filtre düğmeleri ile fotoğraf düğmeleri aynı bölümde: etiketler kendi grubundan seçilir.
     const filters = gallery.getByRole("group", { name: "Etikete göre süz" });
-    await expect(cards).toHaveCount(SEEDED_TOTAL);
+    await expect(cards).toHaveCount(PAGE_SIZE);
 
     await filters.getByRole("button", { name: /^Afro/ }).click();
     await expect(cards).toHaveCount(AFRO_COUNT);
     await expect(page).toHaveURL(/etiket=Afro/);
 
     await filters.getByRole("button", { name: /^Tümü/ }).click();
+    await expect(cards).toHaveCount(PAGE_SIZE);
+
+    // Sayfalama: tüm fotoğraflar tek bir "daha fazla" ile açılır.
+    await gallery.getByRole("button", { name: /^Daha fazla göster/ }).click();
     await expect(cards).toHaveCount(SEEDED_TOTAL);
+  });
+
+  test("kategori çipi örnek fotoğrafla gelir ve o etikete süzer", async ({ page }) => {
+    await page.goto("/");
+    const gallery = page.locator("#galeri");
+    const cards = gallery.getByRole("button", { name: /büyüt$/ });
+    const filters = gallery.getByRole("group", { name: "Etikete göre süz" });
+
+    const lowTaper = filters.getByRole("button", { name: /^Low Taper Fade/ });
+    // Çipin küçük yuvarlak karesi: etiketin ilk fotoğrafından gelir.
+    await expect(lowTaper.locator("img")).toBeVisible();
+    // "Tümü" çipinde görsel yoktur.
+    await expect(filters.getByRole("button", { name: /^Tümü/ }).locator("img")).toHaveCount(0);
+
+    await expect(lowTaper).toHaveAttribute("aria-pressed", "false");
+    await lowTaper.click();
+    await expect(lowTaper).toHaveAttribute("aria-pressed", "true");
+    await expect(cards).toHaveCount(LOW_TAPER_COUNT);
+    await expect(page).toHaveURL(/etiket=Low\+Taper\+Fade/);
   });
 
   test("karta tıklayınca lightbox açılır, ok tuşuyla ilerler, Esc kapatır", async ({ page }) => {
     // Etiket doğrudan URL'den gelir: filtre paylaşılabilir bir bağlantıdır.
-    await page.goto("/?etiket=Afro");
+    await page.goto("/?etiket=Low+Taper+Fade");
     const gallery = page.locator("#galeri");
     const cards = gallery.getByRole("button", { name: /büyüt$/ });
-    await expect(cards).toHaveCount(AFRO_COUNT);
+    await expect(cards).toHaveCount(LOW_TAPER_COUNT);
 
     await cards.first().click();
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
-    // Sayaç filtrelenmiş listenin tamamını gösterir (basılı sayfayı değil):
-    // seed'de 8 fotoğraf var, sayfa boyu 12 — ikisi de aynı sayıya çıkar.
-    await expect(dialog.getByText(`1 / ${AFRO_COUNT}`)).toBeVisible();
+    // Sayaç filtrelenmiş listenin tamamını gösterir (basılı sayfayı değil).
+    await expect(dialog.getByText(`1 / ${LOW_TAPER_COUNT}`)).toBeVisible();
 
     await page.keyboard.press("ArrowRight");
-    await expect(dialog.getByText(`2 / ${AFRO_COUNT}`)).toBeVisible();
+    await expect(dialog.getByText(`2 / ${LOW_TAPER_COUNT}`)).toBeVisible();
 
     // Baştan geriye gidince listenin sonuna sarar.
     await page.keyboard.press("ArrowLeft");
     await page.keyboard.press("ArrowLeft");
-    await expect(dialog.getByText(`${AFRO_COUNT} / ${AFRO_COUNT}`)).toBeVisible();
+    await expect(dialog.getByText(`${LOW_TAPER_COUNT} / ${LOW_TAPER_COUNT}`)).toBeVisible();
 
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();

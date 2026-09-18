@@ -26,7 +26,15 @@ function PatternPlaceholder() {
   );
 }
 
-export function GallerySection({ photos, tags }: { photos: GalleryPhoto[]; tags: string[] }) {
+export function GallerySection({
+  photos,
+  tags,
+  tagPreviews,
+}: {
+  photos: GalleryPhoto[];
+  tags: string[];
+  tagPreviews: Record<string, string>;
+}) {
   return (
     <section id="galeri" className="scroll-mt-20 border-b border-border">
       <div className="mx-auto max-w-6xl px-5 py-16 md:py-24">
@@ -40,7 +48,7 @@ export function GallerySection({ photos, tags }: { photos: GalleryPhoto[]; tags:
           <PatternPlaceholder />
         ) : (
           <Suspense fallback={<div className="mt-8 h-96" aria-hidden />}>
-            <GalleryBrowser photos={photos} tags={tags} />
+            <GalleryBrowser photos={photos} tags={tags} tagPreviews={tagPreviews} />
           </Suspense>
         )}
       </div>

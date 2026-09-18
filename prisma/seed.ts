@@ -40,14 +40,44 @@ export const DEFAULT_LANDING_CONTENT = {
  * panelden düzenlenmiş başlık/etiketlerin üzerine yazılmaz.
  */
 export const DEFAULT_GALLERY = [
-  { file: "gallery-1.jpg", width: 1367, height: 1367, caption: "Keskin geçişli fade", tags: ["Fade", "Line-up"] },
+  { file: "gallery-9.jpg", width: 1066, height: 1600, caption: "Yüksek üst, keskin taper", tags: ["Taper Fade", "Line-up", "Sakal"] },
+  { file: "gallery-22.jpg", width: 1066, height: 1600, caption: "Skin fade ve sakal birleşimi", tags: ["Skin Fade", "Düz Saç", "Sakal"] },
+  { file: "gallery-10.jpg", width: 1600, height: 1067, caption: "Low taper ve sakal hattı", tags: ["Low Taper Fade", "Sakal"] },
+  { file: "gallery-24.jpg", width: 1066, height: 1600, caption: "Jiletle çekilmiş hat", tags: ["Skin Fade", "Line-up", "Sakal"] },
+  { file: "gallery-19.jpg", width: 1600, height: 1600, caption: "Sıfıra inen skin fade", tags: ["Skin Fade", "Kısa Saç"] },
+  { file: "gallery-1.jpg", width: 1367, height: 1367, caption: "Keskin geçişli taper fade", tags: ["Taper Fade", "Line-up", "Düz Saç"] },
+  { file: "gallery-12.jpg", width: 1600, height: 1067, caption: "Kıvırcık üst, alçak geçiş", tags: ["Low Taper Fade", "Kıvırcık"] },
+  { file: "gallery-17.jpg", width: 1143, height: 1600, caption: "Ensede taper ve temiz hat", tags: ["Taper Fade", "Line-up"] },
+  { file: "gallery-23.jpg", width: 1210, height: 1600, caption: "Buzz cut ve alın hattı", tags: ["Buzz Cut", "Line-up"] },
+  { file: "gallery-27.jpg", width: 1280, height: 1600, caption: "Örgü ve şakakta geçiş", tags: ["Örgü", "Taper Fade"] },
+  { file: "gallery-13.jpg", width: 1600, height: 1067, caption: "Makineyle taper geçişi", tags: ["Taper Fade", "Kıvırcık"] },
+  { file: "gallery-20.jpg", width: 1600, height: 1067, caption: "Dokulu perçem, net hat", tags: ["Textured Fringe", "Line-up"] },
+  { file: "gallery-11.jpg", width: 1066, height: 1600, caption: "Taze low taper, temiz ense", tags: ["Low Taper Fade", "Kısa Saç"] },
+  { file: "gallery-21.jpg", width: 1600, height: 1600, caption: "Tarakla fade kontrolü", tags: ["Skin Fade", "Textured Fringe"] },
+  { file: "gallery-15.jpg", width: 1066, height: 1600, caption: "Alın hattında line-up", tags: ["Line-up", "Sakal"] },
+  { file: "gallery-26.jpg", width: 1600, height: 1067, caption: "Afro tarağıyla şekillendirme", tags: ["Afro", "Kıvırcık"] },
+  { file: "gallery-14.jpg", width: 1600, height: 1067, caption: "Kıvırcık üstte makas işi", tags: ["Kıvırcık", "Taper Fade"] },
+  { file: "gallery-18.jpg", width: 1066, height: 1600, caption: "Kulak çevresinde geçiş", tags: ["Taper Fade", "Kıvırcık"] },
+  { file: "gallery-25.jpg", width: 1600, height: 1067, caption: "Sakalda son rötuş", tags: ["Sakal", "Kısa Saç"] },
+  { file: "gallery-16.jpg", width: 1600, height: 1067, caption: "Afroda makas düzeltmesi", tags: ["Afro"] },
   { file: "gallery-2.jpg", width: 1280, height: 1600, caption: "Twist ve dolgun sakal", tags: ["Twist", "Sakal"] },
-  { file: "gallery-3.jpg", width: 1600, height: 1067, caption: "Örgüde son düzeltme", tags: ["Örgü", "Sakal"] },
-  { file: "gallery-4.jpg", width: 1600, height: 1600, caption: "Uzun örgü, net hat", tags: ["Örgü", "Line-up"] },
-  { file: "gallery-5.jpg", width: 1600, height: 1600, caption: "Doğal hacimli afro", tags: ["Afro"] },
-  { file: "gallery-6.jpg", width: 1280, height: 1600, caption: "Şekillendirilmiş afro", tags: ["Afro", "Sakal"] },
-  { file: "gallery-7.jpg", width: 1600, height: 1067, caption: "Yüksek afro, temiz hat", tags: ["Afro", "Line-up"] },
-  { file: "gallery-8.jpg", width: 1600, height: 1600, caption: "Afro ve sakal bakımı", tags: ["Afro", "Sakal"] },
+  { file: "gallery-28.jpg", width: 1066, height: 1600, caption: "Yüksek skin fade, düz üst", tags: ["Skin Fade", "Buzz Cut"] },
+];
+
+/**
+ * Tur 4'te galeriden çıkarılan (dosyası `public/landing/` altından silinen)
+ * seed fotoğraflarının anahtarları. Seed bu satırları **silmez** — admin
+ * başlığı/etiketi düzenlemiş ya da sırayı değiştirmiş olabilir — yalnızca
+ * pasife alır, böylece landing'de var olmayan bir dosyaya bakan kırık kart
+ * kalmaz. Zaten pasifse ya da hiç yoksa hiçbir şey yapılmaz.
+ */
+export const LEGACY_GALLERY_KEYS = [
+  "landing/gallery-3.jpg",
+  "landing/gallery-4.jpg",
+  "landing/gallery-5.jpg",
+  "landing/gallery-6.jpg",
+  "landing/gallery-7.jpg",
+  "landing/gallery-8.jpg",
 ];
 
 const DEFAULT_TESTIMONIALS = [
@@ -186,6 +216,12 @@ export async function runSeed(client: PrismaClient) {
       await client.galleryPhoto.update({ where: { id: exists.id }, data: { width: g.width, height: g.height } });
     }
   }
+
+  // Dosyası artık olmayan eski seed fotoğrafları: satır korunur, yalnızca yayından kaldırılır.
+  await client.galleryPhoto.updateMany({
+    where: { storageKey: { in: LEGACY_GALLERY_KEYS }, isActive: true },
+    data: { isActive: false },
+  });
 
   const shown = process.env.SEED_PASSWORD?.trim() ? "SEED_PASSWORD değeri" : DEFAULT_SEED_PASSWORD;
   console.log(`Seed tamam. Admin: admin@afrosalon.local / ${shown}`);

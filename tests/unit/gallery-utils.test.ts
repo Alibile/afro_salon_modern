@@ -1,5 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { filterByTag, paginate, nextIndex, prevIndex, normalizeTags, distributeColumns } from "@/lib/gallery-utils";
+import {
+  filterByTag,
+  paginate,
+  nextIndex,
+  prevIndex,
+  normalizeTags,
+  distributeColumns,
+  buildTagPreviews,
+} from "@/lib/gallery-utils";
 
 const photos = [
   { id: "1", tags: ["Fade", "Line-up"] },
@@ -139,5 +147,40 @@ describe("distributeColumns", () => {
     for (const n of [1, 2, 3, 4, 5]) {
       expect(distributeColumns(items, n).flat().sort()).toEqual([...items].sort());
     }
+  });
+});
+
+describe("buildTagPreviews", () => {
+  const list = [
+    { storageKey: "landing/a.jpg", tags: ["Taper Fade", "Sakal"] },
+    { storageKey: "landing/b.jpg", tags: ["Sakal"] },
+    { storageKey: "landing/c.jpg", tags: ["Afro"] },
+  ];
+
+  it("her etiket için görüntüleme sırasındaki ilk fotoğrafın anahtarını verir", () => {
+    expect(buildTagPreviews(list)).toEqual({
+      "Taper Fade": "landing/a.jpg",
+      Sakal: "landing/a.jpg",
+      Afro: "landing/c.jpg",
+    });
+  });
+
+  it("sonraki fotoğraflar ilk seçimi ezmez", () => {
+    const previews = buildTagPreviews([...list].reverse());
+    expect(previews.Sakal).toBe("landing/b.jpg");
+  });
+
+  it("etiketsiz fotoğraf hiçbir çipe girmez", () => {
+    expect(buildTagPreviews([{ storageKey: "landing/x.jpg", tags: [] }])).toEqual({});
+  });
+
+  it("boş listede boş nesne döner", () => {
+    expect(buildTagPreviews([])).toEqual({});
+  });
+
+  it("aynı fotoğrafta tekrarlanan etiket sorun çıkarmaz", () => {
+    expect(buildTagPreviews([{ storageKey: "landing/x.jpg", tags: ["Afro", "Afro"] }])).toEqual({
+      Afro: "landing/x.jpg",
+    });
   });
 });

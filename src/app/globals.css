@@ -212,6 +212,9 @@
     font-variation-settings: normal;
     text-wrap: initial;
   }
+  /* Yatay kayan şeritlerde (galeri çipleri) çubuk gizlenir; kaydırma kalır. */
+  .scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
   .measure { max-width: 62ch; }
   /* Fiyat listesinde adı fiyata bağlayan ince kılavuz çizgi. */
   .leader { flex: 1 1 auto; height: 1px; background: var(--border); transform: translateY(-0.35em); }

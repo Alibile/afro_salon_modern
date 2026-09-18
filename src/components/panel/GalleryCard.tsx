@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { publicUrl } from "@/lib/storage-public";
 import { updateGalleryPhoto, moveGalleryPhoto, deleteGalleryPhoto } from "@/actions/gallery";
-import { MAX_TAGS, TAG_MIN_LENGTH, TAG_MAX_LENGTH } from "@/lib/gallery-utils";
+import { normalizeTags } from "@/lib/gallery-utils";
+import { splitTags } from "@/lib/gallery-tags";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { GalleryTagPicker } from "./GalleryTagPicker";
 import { DeleteButton } from "./DeleteButton";
 
 export type PanelGalleryPhoto = {
@@ -24,9 +26,14 @@ export type PanelGalleryPhoto = {
 
 export function GalleryCard({ photo, index, total }: { photo: PanelGalleryPhoto; index: number; total: number }) {
   const [caption, setCaption] = useState(photo.caption);
-  const [tags, setTags] = useState(photo.tags.join(", "));
+  // Kayıtlı etiketler forma bölünür: listedekiler çipe, gerisi "Diğer" alanına.
+  const [selectedTags, setSelectedTags] = useState(() => splitTags(photo.tags).selected);
+  const [customTags, setCustomTags] = useState(() => splitTags(photo.tags).custom);
   const [pending, start] = useTransition();
   const router = useRouter();
+
+  /** İki alan tek diziye birleşir; tekilleştirmeyi `normalizeTags` yapar. */
+  const tags = () => normalizeTags([...selectedTags, ...normalizeTags(customTags)]);
 
   function run(action: () => Promise<{ ok: boolean; error?: string }>, success: string) {
     start(async () => {
@@ -68,22 +75,20 @@ export function GalleryCard({ photo, index, total }: { photo: PanelGalleryPhoto;
         />
       </div>
 
-      <div className="space-y-1">
-        <Label htmlFor={`tags-${photo.id}`}>Etiketler</Label>
-        <Input
-          id={`tags-${photo.id}`}
-          value={tags}
-          placeholder="Fade, Line-up"
-          onChange={(e) => setTags(e.target.value)}
-        />
-        <p className="text-xs text-muted-foreground">
-          Virgülle ayır. En az bir etiket zorunlu; en fazla {MAX_TAGS} etiket, her biri{" "}
-          {TAG_MIN_LENGTH}–{TAG_MAX_LENGTH} karakter.
-        </p>
-      </div>
+      <GalleryTagPicker
+        id={photo.id}
+        selected={selectedTags}
+        custom={customTags}
+        onSelectedChange={setSelectedTags}
+        onCustomChange={setCustomTags}
+      />
 
       <div className="flex flex-wrap items-center gap-2">
-        <Button size="sm" disabled={pending} onClick={() => run(() => updateGalleryPhoto(photo.id, { caption, tags }), "Fotoğraf kaydedildi")}>
+        <Button
+          size="sm"
+          disabled={pending}
+          onClick={() => run(() => updateGalleryPhoto(photo.id, { caption, tags: tags() }), "Fotoğraf kaydedildi")}
+        >
           Kaydet
         </Button>
         <Button

@@ -80,3 +80,19 @@ export function distributeColumns<T>(items: T[], columns: number): T[][] {
   items.forEach((item, i) => result[i % count].push(item));
   return result;
 }
+
+/**
+ * Etiket çiplerinin küçük örnek görseli: her etiket için o etikete sahip
+ * **ilk** fotoğrafın anahtarı. Liste görüntüleme sırasında (panelde verilen
+ * sıra) gelmelidir; böylece çipteki kare, ızgarada o etikete tıklandığında
+ * ilk görünecek fotoğrafla aynı olur. Etiketsiz fotoğraflar hiçbir çipe girmez.
+ */
+export function buildTagPreviews(photos: { storageKey: string; tags: string[] }[]): Record<string, string> {
+  const previews: Record<string, string> = {};
+  for (const photo of photos) {
+    for (const tag of photo.tags) {
+      if (previews[tag] === undefined) previews[tag] = photo.storageKey;
+    }
+  }
+  return previews;
+}
