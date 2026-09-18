@@ -19,3 +19,12 @@
 
 ### Task 2: Son kontrol
 - README (kategori listesi, panel etiket seçimi); tam doğrulama zinciri; commit "Tur 4 son kontrol".
+
+### Task 3: Sinematik hero ve navbar sadeleştirme (kullanıcı talebi)
+
+**Kararlar:**
+- **Hero (tam ekran, fotoğraf üzerinde yazı):** `min-h-[92svh]` tam genişlik hero; arka planda `hero.jpg` (`next/image fill`, `priority`, `object-cover`, focal point yüz/kesim), üstünde koyu kahve→şeffaf gradyan (alt %60 koyu) ve düşük opaklıkta ince `AfroPattern` (≤ 0.08) — okunabilirlik için kontrast ≥ 4.5:1; sol-alt hizalı içerik: küçük etiket ("Bugün açık · 09:00–19:00"), manşet (Fraunces, `clamp(3rem,9vw,8rem)`, açık kum rengi), tek satır alt metin, birincil "Bugün randevu al" + ikincil "Hizmetler" bağlantısı; sağ-altta küçük dikey "Kaydır" ipucu. Açılışta fotoğraf 1.06→1.0 yavaş yakınlaşma (8 sn, transform-only, reduced-motion'da kapalı), manşet satırları `.rise`. Kum rengi desen bloku ve yan fotoğraf sütunu kaldırılır; boşluk yok.
+- **Hero fotoğrafı:** yeni, afro hissi veren lisanslı fotoğraf (Pexels/Unsplash): belirgin afro/kıvırcık doku, koyu ten, berber ortamı veya stüdyo, yatay (≥ 2000 px geniş, 3:2 veya 16:9), ≤ 500 KB; mevcut `hero.jpg` (berber kesim yapan) değiştirilir, CREDITS güncellenir. Mobil için aynı fotoğrafın dikey kırpımı `hero-mobile.jpg` (4:5) ve `<picture>`/`sizes` ile seçim (ImageSlot yerine doğrudan `next/image`, dosya yoksa mevcut desen fallback).
+- **Navbar:** sosyal medya ikonları navbar ve mobil menüden kaldırılır (iletişim bölümü ve footer'da kalır); `SocialLinks` bileşeni footer/iletişim için kalır. Hero tam ekran olduğundan navbar hero üzerinde şeffaf başlar (`bg-transparent`, açık renk metin), 80px kaydırınca mevcut incelme + kum zemin (`.scrolled`).
+- Testler: e2e (hero'da "Bugün randevu al" bağlantısı kalır, navbar'da sosyal ikon `aria-label` yok); Lighthouse mobil ≥ 85 (hero görseli LCP; `priority` + doğru `sizes`). Ekran görüntüleri 1440/390 + kaydırma sonrası nav.
+- Commit: "Sinematik hero ve sade navbar".
