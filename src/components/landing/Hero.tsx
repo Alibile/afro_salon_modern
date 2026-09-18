@@ -33,17 +33,17 @@ function riseDelay(index: number) {
  * `hidden`/`block` ikilisiyle değil: gizlenmiş bir `<img>` de indirilir, o yolda
  * her cihaz iki dosyayı birden çekerdi. `getImageProps`, Next'in görsel
  * iyileştirmesini (`/_next/image`, AVIF/WebP, `srcset`) `<picture>` içinde de
- * korur. Görsel gövdenin ilk öğesidir ve `fetchPriority="high"` ile istenir:
- * LCP bu fotoğraftır.
+ * korur. Görsel gövdenin ilk öğesidir, `fetchPriority="high"` ile istenir ve
+ * aşağıda `media`'lı `preload` ile ayrıca duyurulur: LCP bu fotoğraftır.
  */
 export function Hero({ status }: { status: ShopStatus }) {
   const open = status.isOpenToday && status.text.startsWith("Bugün açık");
-  // Next 16'da `priority` bıraktı; iki kırpımdan hangisinin LCP olacağı ekran
-  // genişliğine bağlı olduğu için belgelerin sanat yönetimi için önerdiği yol
-  // izlenir: `preload` yok, `loading="eager"` + `fetchPriority="high"` var —
-  // yalnızca `media` ile seçilen dosya indirilir ve o dosya en yüksek öncelikle
-  // istenir. Kalite varsayılan (75) bırakılır; `images.qualities` allowlist'i
-  // Next 16'da yalnızca bu değeri içerir.
+  // Next 16'da `priority` deprecate edildi; iki kırpımdan hangisinin LCP olacağı
+  // ekran genişliğine bağlı olduğu için belgelerin sanat yönetimi için önerdiği
+  // yol izlenir: `Image`'ın kendi `preload`'u yerine `loading="eager"` +
+  // `fetchPriority="high"` (duyuru aşağıda elle, `media` ile yapılır; böylece
+  // her cihaz tek dosya çeker). Kalite varsayılan (75) bırakılır;
+  // `images.qualities` allowlist'i Next 16'da yalnızca bu değeri içerir.
   const shared = { alt: PHOTO_ALT, sizes: "100vw", loading: "eager", fetchPriority: "high" } as const;
   const { props: wide } = getImageProps({ ...shared, src: "/landing/hero.jpg", width: 2000, height: 1333 });
   const { props: tall } = getImageProps({ ...shared, src: "/landing/hero-mobile.jpg", width: 1200, height: 1500 });
@@ -54,6 +54,16 @@ export function Hero({ status }: { status: ShopStatus }) {
       // en üstünden başlar ve yapışkan çubuk onun üstünde durur.
       className="relative isolate -mt-20 flex min-h-[92svh] flex-col justify-end overflow-hidden border-b border-border bg-hero-ink text-hero-sand"
     >
+      {/*
+        Fotoğraf LCP öğesi ve gövdede, yazı tipleri ise `<head>`'deki stil
+        bloğunda duyuruluyor: ön tarama yazı tiplerini önce görüyor ve görsel
+        ~270 KB'lık yüz kuyruğunun arkasına düşüyordu. `media`'lı iki preload
+        isteği belgenin başında görünür kılar; hangisinin indirileceğine ekran
+        genişliği karar verdiği için her cihaz yine tek dosya çeker.
+      */}
+      <link rel="preload" as="image" imageSrcSet={wide.srcSet} imageSizes="100vw" media="(min-width: 768px)" fetchPriority="high" />
+      <link rel="preload" as="image" imageSrcSet={tall.srcSet} imageSizes="100vw" media="(max-width: 767px)" fetchPriority="high" />
+
       <div className="hero-zoom absolute inset-0 -z-20">
         <picture>
           <source media="(min-width: 768px)" srcSet={wide.srcSet} sizes="100vw" />

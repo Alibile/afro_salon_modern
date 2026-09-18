@@ -87,8 +87,11 @@
   --font-display: var(--font-display);
   --font-sans: var(--font-sans);
   --font-label: var(--font-label);
-  /* Editoryal notların italik yüzü manşetlerle aynı aileden gelir. */
-  --font-serif: var(--font-display);
+  /*
+   * Editoryal notların italik yüzü manşetlerle aynı aileden gelir; yalnızca
+   * ayrı bir `next/font` örneğinden (önden yüklenmeyen italik kesim) okunur.
+   */
+  --font-serif: var(--font-display-italic);
   --font-heading: var(--font-display);
 }
 
