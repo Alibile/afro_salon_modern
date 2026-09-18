@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { getImageProps } from "next/image";
 import { Button } from "@/components/ui/button";
 import { AfroPattern } from "@/components/brand/AfroPattern";
 import { Parallax } from "@/components/motion/Parallax";
+import { HERO_ALT, heroSources } from "@/lib/hero-image";
 import { staggerDelay } from "@/lib/motion-utils";
 import type { ShopStatus } from "@/lib/shop-status";
 import { cn } from "@/lib/utils";
@@ -13,8 +13,6 @@ import { cn } from "@/lib/utils";
  * sıralı girişi mümkün kılar. Metin değişmez; yalnızca nerede kırıldığı bilinir.
  */
 const HEADLINE_LINES = ["KIVRIMIN KENDİ", "GEOMETRİSİ VAR."];
-
-const PHOTO_ALT = "Koyu bir stüdyo ışığında, geniş afro saçlı bir adamın portresi";
 
 /**
  * Açılış sırası: manşet satırları 60 ms arayla, ardından alt metin ve düğmeler.
@@ -29,24 +27,19 @@ function riseDelay(index: number) {
  * Tam ekran sinematik hero: tek bir fotoğraf, üstünde metin.
  *
  * Fotoğraf iki kırpımda hazırdır — masaüstü için 3:2 (`hero.jpg`), telefon için
- * 4:5 (`hero-mobile.jpg`). Seçim `<picture>` içindeki `media` ile yapılır,
- * `hidden`/`block` ikilisiyle değil: gizlenmiş bir `<img>` de indirilir, o yolda
- * her cihaz iki dosyayı birden çekerdi. `getImageProps`, Next'in görsel
- * iyileştirmesini (`/_next/image`, AVIF/WebP, `srcset`) `<picture>` içinde de
- * korur. Görsel gövdenin ilk öğesidir, `fetchPriority="high"` ile istenir ve
+ * 4:5 (`hero-mobile.jpg`); ikisi de `heroSources()` ile okunur. Seçim
+ * `<picture>` içindeki `media` ile yapılır, `hidden`/`block` ikilisiyle değil:
+ * gizlenmiş bir `<img>` de indirilir, o yolda her cihaz iki dosyayı birden
+ * çekerdi. Görsel gövdenin ilk öğesidir, `fetchPriority="high"` ile istenir ve
  * aşağıda `media`'lı `preload` ile ayrıca duyurulur: LCP bu fotoğraftır.
  */
 export function Hero({ status }: { status: ShopStatus }) {
   const open = status.isOpenToday && status.text.startsWith("Bugün açık");
-  // Next 16'da `priority` deprecate edildi; iki kırpımdan hangisinin LCP olacağı
-  // ekran genişliğine bağlı olduğu için belgelerin sanat yönetimi için önerdiği
-  // yol izlenir: `Image`'ın kendi `preload`'u yerine `loading="eager"` +
-  // `fetchPriority="high"` (duyuru aşağıda elle, `media` ile yapılır; böylece
-  // her cihaz tek dosya çeker). Kalite varsayılan (75) bırakılır;
-  // `images.qualities` allowlist'i Next 16'da yalnızca bu değeri içerir.
-  const shared = { alt: PHOTO_ALT, sizes: "100vw", loading: "eager", fetchPriority: "high" } as const;
-  const { props: wide } = getImageProps({ ...shared, src: "/landing/hero.jpg", width: 2000, height: 1333 });
-  const { props: tall } = getImageProps({ ...shared, src: "/landing/hero-mobile.jpg", width: 1200, height: 1500 });
+  const { wide, tall } = heroSources();
+  // Tek kırpım varsa iki ekranda da o kullanılır; `<source>` ancak iki dosya da
+  // gerçekten diskteyse yazılır (eşleşmeyen bir `media` fotoğrafı büsbütün
+  // kaybettirirdi). Hiçbiri yoksa aşağıda desenli yer tutucuya düşülür.
+  const photo = tall ?? wide;
 
   return (
     <section
@@ -54,23 +47,28 @@ export function Hero({ status }: { status: ShopStatus }) {
       // en üstünden başlar ve yapışkan çubuk onun üstünde durur.
       className="relative isolate -mt-20 flex min-h-[92svh] flex-col justify-end overflow-hidden border-b border-border bg-hero-ink text-hero-sand"
     >
-      {/*
-        Fotoğraf LCP öğesi ve gövdede, yazı tipleri ise `<head>`'deki stil
-        bloğunda duyuruluyor: ön tarama yazı tiplerini önce görüyor ve görsel
-        ~270 KB'lık yüz kuyruğunun arkasına düşüyordu. `media`'lı iki preload
-        isteği belgenin başında görünür kılar; hangisinin indirileceğine ekran
-        genişliği karar verdiği için her cihaz yine tek dosya çeker.
-      */}
-      <link rel="preload" as="image" imageSrcSet={wide.srcSet} imageSizes="100vw" media="(min-width: 768px)" fetchPriority="high" />
-      <link rel="preload" as="image" imageSrcSet={tall.srcSet} imageSizes="100vw" media="(max-width: 767px)" fetchPriority="high" />
-
-      <div className="hero-zoom absolute inset-0 -z-20">
-        <picture>
-          <source media="(min-width: 768px)" srcSet={wide.srcSet} sizes="100vw" />
-          {/* `alt` zaten `tall` içinde; linter yayılmış prop'u göremediği için ayrıca yazılır. */}
-          <img {...tall} alt={PHOTO_ALT} className="size-full object-cover object-[50%_42%]" />
-        </picture>
-      </div>
+      {wide && tall && (
+        <>
+          <link rel="preload" as="image" imageSrcSet={wide.srcSet} imageSizes="100vw" media="(min-width: 768px)" fetchPriority="high" />
+          <link rel="preload" as="image" imageSrcSet={tall.srcSet} imageSizes="100vw" media="(max-width: 767px)" fetchPriority="high" />
+        </>
+      )}
+      {photo ? (
+        <div className="hero-zoom absolute inset-0 -z-20">
+          <picture>
+            {wide && tall && <source media="(min-width: 768px)" srcSet={wide.srcSet} sizes="100vw" />}
+            {/* `alt` zaten `photo` içinde; linter yayılmış prop'u göremediği için ayrıca yazılır. */}
+            <img {...photo} alt={HERO_ALT} className="size-full object-cover object-[50%_42%]" />
+          </picture>
+        </div>
+      ) : (
+        // Salon kendi fotoğrafını henüz koymadıysa kırık kare yerine `ImageSlot`
+        // ile aynı dil: koyu zemin ve afrika geometrik deseni. Metin katmanı
+        // değişmediği için manşet ve düğmeler aynı yerinde durur.
+        <div role="img" aria-label={HERO_ALT} className="absolute inset-0 -z-20 bg-hero-ink text-hero-sand">
+          <AfroPattern variant="kente" size={96} opacity={0.12} />
+        </div>
+      )}
 
       <div aria-hidden className="hero-scrim absolute inset-0 -z-10" />
 

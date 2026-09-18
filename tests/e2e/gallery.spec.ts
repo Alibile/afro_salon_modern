@@ -36,10 +36,15 @@ test.describe("landing galeri", () => {
     const filters = gallery.getByRole("group", { name: "Etikete göre süz" });
 
     const lowTaper = filters.getByRole("button", { name: /^Low Taper Fade/ });
-    // Çip yalnızca metin: etiket adı ve yanında sayısı.
+    const all = filters.getByRole("button", { name: /^Tümü/ });
+    // Çip yalnızca metin: etiket adı ve yanında ayrı bir `span` içinde sayısı.
+    // İkisi ayrı ayrı doğrulanır; bitişik okunuşları ("Low Taper Fade3") çipin
+    // görünümünü değil, yalnızca düğüm sınırlarının yokluğunu anlatırdı.
     await expect(lowTaper).toBeVisible();
-    await expect(lowTaper).toHaveText(`Low Taper Fade${LOW_TAPER_COUNT}`);
-    await expect(filters.getByRole("button", { name: /^Tümü/ })).toHaveText(`Tümü${SEEDED_TOTAL}`);
+    await expect(lowTaper).toHaveText(new RegExp(`^Low Taper Fade\\s*${LOW_TAPER_COUNT}$`));
+    await expect(lowTaper.locator("span")).toHaveText(String(LOW_TAPER_COUNT));
+    await expect(all).toHaveText(new RegExp(`^Tümü\\s*${SEEDED_TOTAL}$`));
+    await expect(all.locator("span")).toHaveText(String(SEEDED_TOTAL));
     // Hiçbir çipte görsel yok.
     await expect(filters.locator("img")).toHaveCount(0);
 

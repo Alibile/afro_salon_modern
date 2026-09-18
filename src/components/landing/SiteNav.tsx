@@ -44,14 +44,17 @@ export function SiteNav({ shopName, user }: { shopName: string; user: SessionUse
 
   // Sayfa kaydırılmış bir konumda açılabilir (yenileme, `#bolum` bağlantısı,
   // geri tuşu) ve `change` olayı yalnızca değer değiştiğinde çalışır: ilk hâl
-  // bir kez elle okunmazsa çubuk sayfanın ortasında "açık" kalırdı. Okuma bir
-  // sonraki kareye bırakılır, çünkü tarayıcı kaydırma konumunu hidrasyondan
-  // sonra geri yükler.
+  // bir kez elle okunmazsa çubuk sayfanın ortasında "açık" kalırdı. Değer iki
+  // kez okunur: hidrasyonun hemen ardından (tarayıcı kaydırmayı çoktan geri
+  // yüklemişse çubuk ilk boyamada solid gelir, sayfanın ortasında bir kare bile
+  // şeffaf durmaz) ve bir sonraki karede (geri yükleme hidrasyondan sonraysa).
   useEffect(() => {
-    const frame = requestAnimationFrame(() => {
+    const seed = () => {
       const y = scrollY.get();
       setShrunk((was) => (was ? y >= EXPAND_AT : y > COLLAPSE_AT));
-    });
+    };
+    seed();
+    const frame = requestAnimationFrame(seed);
     return () => cancelAnimationFrame(frame);
   }, [scrollY]);
 
@@ -64,9 +67,12 @@ export function SiteNav({ shopName, user }: { shopName: string; user: SessionUse
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
-  // Çubuk hero fotoğrafının üstünde başlar: zemin yok, metin kum rengi. Toplanma
-  // eşiği geçilince (ya da mobil menü açılınca — açık panel kum zeminlidir,
-  // çubuğun şeffaf kalması paneli havada bırakırdı) her zamanki kum zemine döner.
+  // Çubuk hero fotoğrafının üstünde başlar: düz zemin yok, yalnızca yukarıdan
+  // aşağı sönen ince bir karartma ve kum rengi metin. Karartma CSS'tir, JavaScript
+  // beklemez: hidrasyondan önce ya da JavaScript hiç çalışmadığında da metin
+  // fotoğrafın açık bölgelerinin üstünde okunur kalır. Toplanma eşiği geçilince
+  // (ya da mobil menü açılınca — açık panel kum zeminlidir, çubuğun şeffaf
+  // kalması paneli havada bırakırdı) her zamanki kum zemine döner.
   const solid = shrunk || open;
   return (
     <header
@@ -76,7 +82,7 @@ export function SiteNav({ shopName, user }: { shopName: string; user: SessionUse
         "sticky top-0 z-30 w-full border-b transition-colors duration-300",
         solid
           ? "border-border bg-background/95 text-foreground shadow-[0_1px_0_0_var(--border)] backdrop-blur"
-          : "border-transparent bg-transparent text-hero-sand",
+          : "border-transparent bg-gradient-to-b from-hero-ink/45 to-transparent text-hero-sand",
       )}
     >
       <div

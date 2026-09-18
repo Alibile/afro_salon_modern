@@ -48,7 +48,7 @@ export const DEFAULT_GALLERY = [
   { file: "gallery-1.jpg", width: 1367, height: 1367, caption: "Keskin geçişli taper fade", tags: ["Taper Fade", "Line-up", "Düz Saç"] },
   { file: "gallery-12.jpg", width: 1600, height: 1067, caption: "Kıvırcık üst, alçak geçiş", tags: ["Low Taper Fade", "Kıvırcık"] },
   { file: "gallery-17.jpg", width: 1143, height: 1600, caption: "Ensede taper ve temiz hat", tags: ["Taper Fade", "Line-up"] },
-  { file: "gallery-23.jpg", width: 1280, height: 1600, caption: "Buzz cut ve alın hattı", tags: ["Buzz Cut", "Line-up"] },
+  { file: "gallery-23.jpg", width: 1280, height: 1600, caption: "Kısa kesim ve alın hattı", tags: ["Line-up", "Kısa Saç"] },
   { file: "gallery-27.jpg", width: 1280, height: 1600, caption: "Örgü ve şakakta geçiş", tags: ["Örgü", "Taper Fade"] },
   { file: "gallery-13.jpg", width: 1600, height: 1067, caption: "Makineyle taper geçişi", tags: ["Taper Fade", "Kıvırcık"] },
   { file: "gallery-20.jpg", width: 1600, height: 1067, caption: "Dokulu perçem, net hat", tags: ["Textured Fringe", "Line-up"] },
@@ -222,6 +222,11 @@ export async function runSeed(client: PrismaClient) {
   // varsa yalnızca boyutları tazelenir — dosya yeniden kırpıldığında (ör. kare fotoğraf
   // dikey/yatay yapıldığında) masonry oranı DB'deki eski boyutta kalmasın; başlık ve
   // etiketler panelden düzenlenmiş olabileceği için asla ezilmez.
+  //
+  // `sortOrder` yalnızca ilk eklemede yazılır: önceden kurulmuş bir veritabanında
+  // bu listenin sırası yeniden temellenmez. Bilinçli — sıra panelden değiştirilmiş
+  // olabilir ve seed'in onu her çalıştığında geri alması, admin'in düzenini silerdi.
+  // Yeni (boş) bir kurulumda sıra buradaki dizilimdir.
   for (const [i, g] of DEFAULT_GALLERY.entries()) {
     const storageKey = `landing/${g.file}`;
     const exists = await client.galleryPhoto.findFirst({ where: { storageKey } });

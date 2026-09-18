@@ -26,8 +26,10 @@ const fraunces = Fraunces({
   display: "swap",
 });
 /**
- * İtalik yüz ayrı bir örnek. Tek kullanıcısı `.editorial-note` ve o da her
- * sayfada ilk ekranın altında kalıyor; buna karşılık iki alt kümesi
+ * İtalik yüz ayrı bir örnek. Tek kullanıcısı `.editorial-note`: ana sayfada
+ * ilk ekranın altında kalır (giriş/kayıt ve randevu akışında ilk ekranda
+ * görünebilir — orada yedek yüzle başlayıp swap etmesi kabul edilen tercih);
+ * buna karşılık iki alt kümesi
  * (latin + latin-ext) birlikte 150 KB tutuyor ve hero fotoğrafıyla (LCP) aynı
  * bant genişliğini paylaşıyordu. İki değişiklik:
  *

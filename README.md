@@ -15,6 +15,11 @@ npm run dev
 
 http://localhost:3000 adresinde açılır.
 
+Bu sürüme yükselten mevcut bir kurulumda `npm run db:seed` bir kez daha
+çalıştırılmalı: galeri setinden çıkarılan fotoğrafların pasifleştirilmesi ve
+kalanların yeni başlık/etiketlerine taşınması seed'de yapılır (seed
+idempotenttir, panelden düzenlenmiş kayıtlara dokunmaz).
+
 ## Rotalar
 
 - `/` — landing page
@@ -166,14 +171,14 @@ değişmez.
 | `public/landing/hero.jpg` | Hero görseli (masaüstü) | Yatay, 2000px geniş, 3:2 veya 16:9 |
 | `public/landing/hero-mobile.jpg` | Hero görseli (mobil) | Dikey, 4:5, 1200×1500 |
 | `public/landing/about.jpg` | Hakkımızda görseli | Yatay, 3:2 |
-| `public/landing/gallery-1.jpg` … `gallery-22.jpg` | Galeri yer tutucusu (seed) | Kare (1:1), en az 800×800; 22 fotoğraf, kategori etiketli, ≤400 KB |
+| `public/landing/gallery-1.jpg`, `gallery-2.jpg`, `gallery-9.jpg` … `gallery-28.jpg` | Galeri yer tutucusu (seed) | Karışık oran (1:1, 3:2, 2:3), uzun kenar ≥ 1600 px; 22 fotoğraf, kategori etiketli, ≤400 KB |
 | `public/landing/team-1.jpg`, `team-2.jpg` | Ekip portreleri (yedek) | Kare (1:1), portre |
 
 **Galeri:** Landing page'deki galeri bölümü (`#galeri`) panelden yüklenen
 fotoğrafları gösterir (R2 altında `gallery/` anahtarı). Sabit kategori listesi
 (Low Taper Fade, Taper Fade, Skin Fade, Buzz Cut, Line-up, Kıvırcık, Düz Saç,
-Kısa Saç, Textured Fringe, Afro, Örgü, Twist, Sakal) — çiplerde sayı ve ilk
-fotoğraf görseli. Panelde (`/panel/galeri`) etiket seçimi sabit listeden
+Kısa Saç, Textured Fringe, Afro, Örgü, Twist, Sakal) — çiplerde etiket adı ve
+fotoğraf sayısı. Panelde (`/panel/galeri`) etiket seçimi sabit listeden
 çoklu seçim + "Diğer" serbest metin alanı. Etiketlere göre filtreleme
 (`?etiket=`), masonry ızgara, lightbox ve "Daha fazla göster" sayfalama.
 Seed: 22 lisanslı fotoğraf (`public/landing/gallery-N.jpg`). Yönetim:

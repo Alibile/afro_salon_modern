@@ -191,10 +191,13 @@
    * dokunmaz, böylece tek bir dönüşüm zinciri kalır. Hareket azaltılmışsa
    * yukarıdaki medya sorgusu süreyi sıfırlar ve `both` dolgusu görseli
    * doğrudan son ölçeğinde (1) bırakır.
+   *
+   * `will-change` yazılmaz: yalnızca `transform` değiştiği için katman zaten
+   * composited, ama bildirim animasyon bittikten sonra da geçerli kalır ve
+   * ekranın tamamı kadar bir dokuyu bellekte tutardı.
    */
   .hero-zoom {
     animation: hero-zoom 8s cubic-bezier(0.16, 1, 0.3, 1) both;
-    will-change: transform;
   }
   .display-lg {
     font-family: var(--font-display);
