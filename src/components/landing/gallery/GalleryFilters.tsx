@@ -1,17 +1,11 @@
 "use client";
-import Image from "next/image";
-import { publicUrl } from "@/lib/storage-public";
 import { cn } from "@/lib/utils";
 
 /**
- * Kategori çipleri. Her çip, o etiketin ilk fotoğrafından alınmış 40px'lik
- * yuvarlak bir kareyle gelir: müşteri "Low Taper Fade" ile "Skin Fade"in ne
- * demek olduğunu okumadan, bakarak ayırt eder. Yuvarlak kare, sayfanın köşesiz
- * kutularının içinde duran tek yuvarlak biçimdir — şeridi ızgaradan ayırır.
- *
- * Şerit dar ekranda yatay kayar (kenarlarda maske, gizli kaydırma çubuğu),
- * geniş ekranda sığdığı kadar satıra yayılır. Seçim `aria-pressed` ile
- * duyurulur; sıralama ve görseller sunucudan hazır gelir.
+ * Kategori çipleri: yalnızca etiket adı ve sayı. Şerit dar ekranda yatay kayar
+ * (kenarlarda maske, gizli kaydırma çubuğu), geniş ekranda sığdığı kadar satıra
+ * yayılır. Seçim `aria-pressed` ile duyurulur; görsel dil sayfanın geri
+ * kalanıyla aynı: köşesiz kutular, ince çizgi, seçili olan dolu terracotta.
  */
 export function GalleryFilters({
   tags,
@@ -19,7 +13,6 @@ export function GalleryFilters({
   onSelect,
   counts,
   totalCount,
-  previews,
 }: {
   tags: string[];
   active: string | null;
@@ -27,18 +20,10 @@ export function GalleryFilters({
   /** Etiket başına fotoğraf sayısı; "Tümü" burada değil, `totalCount` içinde. */
   counts: Record<string, number>;
   totalCount: number;
-  /** Etiket → örnek fotoğrafın depo anahtarı. Eksikse çip görselsiz çizilir. */
-  previews: Record<string, string>;
 }) {
-  const items: { key: string; label: string; value: string | null; count: number; preview?: string }[] = [
+  const items: { key: string; label: string; value: string | null; count: number }[] = [
     { key: "all", label: "Tümü", value: null, count: totalCount },
-    ...tags.map((t) => ({
-      key: t,
-      label: t,
-      value: t as string | null,
-      count: counts[t] ?? 0,
-      preview: previews[t],
-    })),
+    ...tags.map((t) => ({ key: t, label: t, value: t as string | null, count: counts[t] ?? 0 })),
   ];
   return (
     <div
@@ -60,28 +45,15 @@ export function GalleryFilters({
             aria-pressed={selected}
             onClick={() => onSelect(item.value)}
             className={cn(
-              "flex shrink-0 snap-start items-center gap-2.5 border py-1 text-sm transition-colors",
+              "flex h-9 shrink-0 snap-start items-center whitespace-nowrap border px-3.5 text-sm transition-colors",
               "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
-              item.preview ? "pl-1 pr-3.5" : "px-4",
               selected
                 ? "border-primary bg-primary text-primary-foreground"
                 : "border-border text-muted-foreground hover:border-foreground hover:text-foreground",
             )}
           >
-            {item.preview && (
-              <Image
-                src={publicUrl(item.preview)}
-                alt=""
-                width={40}
-                height={40}
-                sizes="40px"
-                className="size-10 shrink-0 rounded-full bg-secondary object-cover"
-              />
-            )}
-            <span className="flex h-10 items-center whitespace-nowrap">
-              {item.label}
-              <span className="ml-2 text-xs tabular-nums opacity-70">{item.count}</span>
-            </span>
+            {item.label}
+            <span className="ml-2 text-xs tabular-nums opacity-70">{item.count}</span>
           </button>
         );
       })}

@@ -275,36 +275,10 @@ describe("getGalleryData", () => {
     expect(d.tags).toEqual(["Low Taper Fade", "Afro", "Sakal", "Ombre"]);
   });
 
-  it("her etiket için görüntüleme sırasındaki ilk fotoğrafın anahtarını çip görseli olarak döner", async () => {
-    const a = await addOne();
-    const b = await addOne();
-    await updateGalleryPhotoAs(admin, a, { tags: "Skin Fade, Sakal" });
-    await updateGalleryPhotoAs(admin, b, { tags: "Sakal" });
-
-    const d = await getGalleryData();
-    const keyOf = (id: string) => d.photos.find((p) => p.id === id)!.storageKey;
-    expect(d.tagPreviews["Skin Fade"]).toBe(keyOf(a));
-    // İkinci fotoğraf da "Sakal" taşıyor ama ilkini ezmiyor.
-    expect(d.tagPreviews.Sakal).toBe(keyOf(a));
-    expect(Object.keys(d.tagPreviews).sort()).toEqual(["Sakal", "Skin Fade"]);
-  });
-
-  it("pasif fotoğraf çip görseli olmaz", async () => {
-    const a = await addOne();
-    const b = await addOne();
-    await updateGalleryPhotoAs(admin, a, { tags: "Afro", isActive: false });
-    await updateGalleryPhotoAs(admin, b, { tags: "Afro" });
-
-    const d = await getGalleryData();
-    expect(d.tagPreviews.Afro).toBe(d.photos[0].storageKey);
-    expect(d.photos).toHaveLength(1);
-  });
-
   it("galeri boşsa boş liste döner", async () => {
     const d = await getGalleryData();
     expect(d.photos).toEqual([]);
     expect(d.tags).toEqual([]);
-    expect(d.tagPreviews).toEqual({});
   });
 
   it("kesim fotoğraflarını (HaircutPhoto) galeriye karıştırmaz", async () => {

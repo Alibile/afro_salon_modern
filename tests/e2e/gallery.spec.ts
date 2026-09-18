@@ -29,17 +29,19 @@ test.describe("landing galeri", () => {
     await expect(cards).toHaveCount(SEEDED_TOTAL);
   });
 
-  test("kategori çipi örnek fotoğrafla gelir ve o etikete süzer", async ({ page }) => {
+  test("kategori çipi etiket adı ve sayısıyla gelir, o etikete süzer", async ({ page }) => {
     await page.goto("/");
     const gallery = page.locator("#galeri");
     const cards = gallery.getByRole("button", { name: /büyüt$/ });
     const filters = gallery.getByRole("group", { name: "Etikete göre süz" });
 
     const lowTaper = filters.getByRole("button", { name: /^Low Taper Fade/ });
-    // Çipin küçük yuvarlak karesi: etiketin ilk fotoğrafından gelir.
-    await expect(lowTaper.locator("img")).toBeVisible();
-    // "Tümü" çipinde görsel yoktur.
-    await expect(filters.getByRole("button", { name: /^Tümü/ }).locator("img")).toHaveCount(0);
+    // Çip yalnızca metin: etiket adı ve yanında sayısı.
+    await expect(lowTaper).toBeVisible();
+    await expect(lowTaper).toHaveText(`Low Taper Fade${LOW_TAPER_COUNT}`);
+    await expect(filters.getByRole("button", { name: /^Tümü/ })).toHaveText(`Tümü${SEEDED_TOTAL}`);
+    // Hiçbir çipte görsel yok.
+    await expect(filters.locator("img")).toHaveCount(0);
 
     await expect(lowTaper).toHaveAttribute("aria-pressed", "false");
     await lowTaper.click();

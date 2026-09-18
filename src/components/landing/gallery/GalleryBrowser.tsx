@@ -11,15 +11,7 @@ import { Lightbox } from "./Lightbox";
  * göster" sayfalaması ve lightbox durumu burada tutulur. Seçim önce yerel
  * durumda uygulanır (anında tepki), URL'ye yalnızca paylaşılabilirlik için yazılır.
  */
-export function GalleryBrowser({
-  photos,
-  tags,
-  tagPreviews,
-}: {
-  photos: GalleryPhoto[];
-  tags: string[];
-  tagPreviews: Record<string, string>;
-}) {
+export function GalleryBrowser({ photos, tags }: { photos: GalleryPhoto[]; tags: string[] }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -70,14 +62,7 @@ export function GalleryBrowser({
 
   return (
     <>
-      <GalleryFilters
-        tags={tags}
-        active={active}
-        onSelect={selectTag}
-        counts={tagCounts}
-        totalCount={photos.length}
-        previews={tagPreviews}
-      />
+      <GalleryFilters tags={tags} active={active} onSelect={selectTag} counts={tagCounts} totalCount={photos.length} />
 
       <div className="mt-8">
         <MasonryGrid photos={visible} onSelect={showIndex} />
