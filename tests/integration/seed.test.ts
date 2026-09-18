@@ -6,6 +6,7 @@ import {
   DEFAULT_LANDING_CONTENT,
   DEFAULT_GALLERY,
   LEGACY_GALLERY_KEYS,
+  LEGACY_GALLERY_DEFAULTS,
   LEGACY_ABOUT_TEXT,
   LEGACY_NADIA_TEXT,
 } from "../../prisma/seed";
@@ -201,5 +202,83 @@ describe("runSeed", () => {
   it("eski anahtar hiç yoksa yeni bir satır uydurmaz", async () => {
     await runSeed(prisma);
     expect(await prisma.galleryPhoto.count({ where: { storageKey: { in: LEGACY_GALLERY_KEYS } } })).toBe(0);
+  });
+
+  it("Tur 3 varsayılanıyla duran galeri satırının başlık ve etiketlerini yeni sete taşır", async () => {
+    const legacy = LEGACY_GALLERY_DEFAULTS["landing/gallery-1.jpg"];
+    const row = await prisma.galleryPhoto.create({
+      data: {
+        storageKey: "landing/gallery-1.jpg",
+        caption: legacy.caption,
+        tags: legacy.tags,
+        width: 1367,
+        height: 1367,
+        sortOrder: 0,
+      },
+    });
+
+    await runSeed(prisma);
+
+    const migrated = await prisma.galleryPhoto.findUniqueOrThrow({ where: { id: row.id } });
+    const target = DEFAULT_GALLERY.find((g) => g.file === "gallery-1.jpg")!;
+    expect(migrated.caption).toBe(target.caption);
+    expect(migrated.tags).toEqual(target.tags);
+    // Serbest "Fade" etiketi artık hiçbir aktif fotoğrafta yok.
+    const active = await prisma.galleryPhoto.findMany({ where: { isActive: true }, select: { tags: true } });
+    expect(active.flatMap((p) => p.tags)).not.toContain("Fade");
+  });
+
+  it("admin tarafından düzenlenmiş başlığa sahip eski satıra dokunmaz", async () => {
+    const legacy = LEGACY_GALLERY_DEFAULTS["landing/gallery-1.jpg"];
+    const row = await prisma.galleryPhoto.create({
+      data: {
+        storageKey: "landing/gallery-1.jpg",
+        caption: "Ahmet'in kesimi",
+        tags: legacy.tags,
+        width: 1367,
+        height: 1367,
+      },
+    });
+
+    await runSeed(prisma);
+
+    const untouched = await prisma.galleryPhoto.findUniqueOrThrow({ where: { id: row.id } });
+    expect(untouched.caption).toBe("Ahmet'in kesimi");
+    expect(untouched.tags).toEqual(legacy.tags);
+  });
+
+  it("etiketleri düzenlenmiş eski satıra dokunmaz", async () => {
+    const legacy = LEGACY_GALLERY_DEFAULTS["landing/gallery-1.jpg"];
+    const row = await prisma.galleryPhoto.create({
+      data: {
+        storageKey: "landing/gallery-1.jpg",
+        caption: legacy.caption,
+        tags: ["Fade"],
+        width: 1367,
+        height: 1367,
+      },
+    });
+
+    await runSeed(prisma);
+
+    const untouched = await prisma.galleryPhoto.findUniqueOrThrow({ where: { id: row.id } });
+    expect(untouched.tags).toEqual(["Fade"]);
+    expect(untouched.caption).toBe(legacy.caption);
+  });
+
+  it("taşıma idempotenttir: ikinci çalıştırma taşınmış satırı geri almaz", async () => {
+    const legacy = LEGACY_GALLERY_DEFAULTS["landing/gallery-1.jpg"];
+    const row = await prisma.galleryPhoto.create({
+      data: { storageKey: "landing/gallery-1.jpg", caption: legacy.caption, tags: legacy.tags, width: 1367, height: 1367 },
+    });
+
+    await runSeed(prisma);
+    await runSeed(prisma);
+
+    const target = DEFAULT_GALLERY.find((g) => g.file === "gallery-1.jpg")!;
+    const after = await prisma.galleryPhoto.findUniqueOrThrow({ where: { id: row.id } });
+    expect(after.caption).toBe(target.caption);
+    expect(after.tags).toEqual(target.tags);
+    expect(await prisma.galleryPhoto.count()).toBe(DEFAULT_GALLERY.length);
   });
 });

@@ -25,7 +25,7 @@ boyutlandırılmış olsa da orijinal eser aşağıdaki fotoğrafçılara aittir
 | `gallery-20.jpg` | Brian Silva | https://www.pexels.com/photo/man-getting-modern-haircut-at-barbershop-39559262/ | Pexels License |
 | `gallery-21.jpg` | Brian Silva | https://www.pexels.com/photo/close-up-of-barber-trimming-man-s-hair-39559268/ | Pexels License |
 | `gallery-22.jpg` | Brian Silva | https://www.pexels.com/photo/modern-fade-haircut-with-sharp-beard-style-39559324/ | Pexels License |
-| `gallery-23.jpg` | Sephina Cornwall | https://www.pexels.com/photo/professional-barber-giving-haircut-to-client-32351058/ | Pexels License |
+| `gallery-23.jpg` | Sephina Cornwall | https://www.pexels.com/photo/professional-barber-grooming-a-client-s-hair-32351049/ | Pexels License |
 | `gallery-24.jpg` | Sephina Cornwall | https://www.pexels.com/photo/black-and-white-close-up-barbershop-haircut-32351040/ | Pexels License |
 | `gallery-25.jpg` | RDNE Stock project | https://www.pexels.com/photo/person-holding-a-gold-razor-7697316/ | Pexels License |
 | `gallery-26.jpg` | RDNE Stock project | https://www.pexels.com/photo/a-barber-combing-a-man-s-hair-7697400/ | Pexels License |

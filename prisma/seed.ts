@@ -48,7 +48,7 @@ export const DEFAULT_GALLERY = [
   { file: "gallery-1.jpg", width: 1367, height: 1367, caption: "Keskin geçişli taper fade", tags: ["Taper Fade", "Line-up", "Düz Saç"] },
   { file: "gallery-12.jpg", width: 1600, height: 1067, caption: "Kıvırcık üst, alçak geçiş", tags: ["Low Taper Fade", "Kıvırcık"] },
   { file: "gallery-17.jpg", width: 1143, height: 1600, caption: "Ensede taper ve temiz hat", tags: ["Taper Fade", "Line-up"] },
-  { file: "gallery-23.jpg", width: 1210, height: 1600, caption: "Buzz cut ve alın hattı", tags: ["Buzz Cut", "Line-up"] },
+  { file: "gallery-23.jpg", width: 1280, height: 1600, caption: "Buzz cut ve alın hattı", tags: ["Buzz Cut", "Line-up"] },
   { file: "gallery-27.jpg", width: 1280, height: 1600, caption: "Örgü ve şakakta geçiş", tags: ["Örgü", "Taper Fade"] },
   { file: "gallery-13.jpg", width: 1600, height: 1067, caption: "Makineyle taper geçişi", tags: ["Taper Fade", "Kıvırcık"] },
   { file: "gallery-20.jpg", width: 1600, height: 1067, caption: "Dokulu perçem, net hat", tags: ["Textured Fringe", "Line-up"] },
@@ -58,7 +58,7 @@ export const DEFAULT_GALLERY = [
   { file: "gallery-26.jpg", width: 1600, height: 1067, caption: "Afro tarağıyla şekillendirme", tags: ["Afro", "Kıvırcık"] },
   { file: "gallery-14.jpg", width: 1600, height: 1067, caption: "Kıvırcık üstte makas işi", tags: ["Kıvırcık", "Taper Fade"] },
   { file: "gallery-18.jpg", width: 1066, height: 1600, caption: "Kulak çevresinde geçiş", tags: ["Taper Fade", "Kıvırcık"] },
-  { file: "gallery-25.jpg", width: 1600, height: 1067, caption: "Sakalda son rötuş", tags: ["Sakal", "Kısa Saç"] },
+  { file: "gallery-25.jpg", width: 1600, height: 1067, caption: "Sakalda son rötuş", tags: ["Sakal"] },
   { file: "gallery-16.jpg", width: 1600, height: 1067, caption: "Afroda makas düzeltmesi", tags: ["Afro"] },
   { file: "gallery-2.jpg", width: 1280, height: 1600, caption: "Twist ve dolgun sakal", tags: ["Twist", "Sakal"] },
   { file: "gallery-28.jpg", width: 1066, height: 1600, caption: "Yüksek skin fade, düz üst", tags: ["Skin Fade", "Buzz Cut"] },
@@ -79,6 +79,23 @@ export const LEGACY_GALLERY_KEYS = [
   "landing/gallery-7.jpg",
   "landing/gallery-8.jpg",
 ];
+
+/**
+ * Tur 3 seed'inin galeriye yazdığı tam varsayılan başlık/etiketler — yalnızca
+ * sette **kalan** fotoğraflar için. Bir kurulumda bu satırlar hâlâ birebir bu
+ * değerleri taşıyorsa admin onlara hiç dokunmamış demektir; seed o zaman yeni
+ * `DEFAULT_GALLERY` değerlerine taşır (`LEGACY_ABOUT_TEXT` ile aynı kural).
+ * Başlık ya da etiketlerden biri farklıysa (panelden düzenlenmiş) hiç dokunulmaz.
+ */
+export const LEGACY_GALLERY_DEFAULTS: Record<string, { caption: string; tags: string[] }> = {
+  "landing/gallery-1.jpg": { caption: "Keskin geçişli fade", tags: ["Fade", "Line-up"] },
+  "landing/gallery-2.jpg": { caption: "Twist ve dolgun sakal", tags: ["Twist", "Sakal"] },
+};
+
+/** Etiket dizilerinin sıra dahil birebir eşitliği. */
+function sameTags(a: string[], b: string[]): boolean {
+  return a.length === b.length && a.every((tag, i) => tag === b[i]);
+}
 
 const DEFAULT_TESTIMONIALS = [
   { name: "Emre K.", text: "Fade kesim tam istediğim gibi oldu, ekip çok ilgili. Kesinlikle tekrar geleceğim.", rating: 5, sortOrder: 1 },
@@ -212,8 +229,17 @@ export async function runSeed(client: PrismaClient) {
       await client.galleryPhoto.create({
         data: { storageKey, caption: g.caption, tags: g.tags, width: g.width, height: g.height, sortOrder: i },
       });
-    } else if (exists.width !== g.width || exists.height !== g.height) {
-      await client.galleryPhoto.update({ where: { id: exists.id }, data: { width: g.width, height: g.height } });
+    } else {
+      if (exists.width !== g.width || exists.height !== g.height) {
+        await client.galleryPhoto.update({ where: { id: exists.id }, data: { width: g.width, height: g.height } });
+      }
+      // Başlık/etiket hâlâ Tur 3 varsayılansa (admin hiç düzenlememiş) yeni metne taşı.
+      const legacy = LEGACY_GALLERY_DEFAULTS[storageKey];
+      const untouched = legacy !== undefined && exists.caption === legacy.caption && sameTags(exists.tags, legacy.tags);
+      const differs = exists.caption !== g.caption || !sameTags(exists.tags, g.tags);
+      if (untouched && differs) {
+        await client.galleryPhoto.update({ where: { id: exists.id }, data: { caption: g.caption, tags: g.tags } });
+      }
     }
   }
 
