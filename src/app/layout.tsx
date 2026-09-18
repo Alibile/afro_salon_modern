@@ -47,6 +47,14 @@ const frauncesItalic = Fraunces({
   display: "swap",
   preload: false,
 });
+/**
+ * Bebas yalnızca `.label` küçük kapitallerinde: hero'daki durum satırı, bölüm
+ * üst etiketleri. İki alt kümesi ön yüklenen yüz kuyruğuna ~14 KB ekliyor;
+ * `preload: false` denendi ve ölçümde geri alındı: ön yükleme kalkınca dosya
+ * ilk turda değil, düzen yüzü isteyince "VeryHigh" öncelikle isteniyor, yani
+ * ilk boyamanın zincirine giriyor — Lighthouse'un varsayılan benzetiminde FCP
+ * 1.5 sn'den 1.8 sn'ye, puan 85'ten 82'ye düşüyor. Ön yükleme kalıyor.
+ */
 const bebas = Bebas_Neue({ weight: "400", subsets: ["latin", "latin-ext"], variable: "--font-label", display: "swap" });
 
 export const metadata: Metadata = {

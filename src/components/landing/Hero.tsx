@@ -31,7 +31,7 @@ function riseDelay(index: number) {
  * `<picture>` içindeki `media` ile yapılır, `hidden`/`block` ikilisiyle değil:
  * gizlenmiş bir `<img>` de indirilir, o yolda her cihaz iki dosyayı birden
  * çekerdi. Görsel gövdenin ilk öğesidir, `fetchPriority="high"` ile istenir ve
- * aşağıda `media`'lı `preload` ile ayrıca duyurulur: LCP bu fotoğraftır.
+ * ana sayfada `preloadHero()` ile ayrıca duyurulur: LCP bu fotoğraftır.
  */
 export function Hero({ status }: { status: ShopStatus }) {
   const open = status.isOpenToday && status.text.startsWith("Bugün açık");
@@ -47,12 +47,6 @@ export function Hero({ status }: { status: ShopStatus }) {
       // en üstünden başlar ve yapışkan çubuk onun üstünde durur.
       className="relative isolate -mt-20 flex min-h-[92svh] flex-col justify-end overflow-hidden border-b border-border bg-hero-ink text-hero-sand"
     >
-      {wide && tall && (
-        <>
-          <link rel="preload" as="image" imageSrcSet={wide.srcSet} imageSizes="100vw" media="(min-width: 768px)" fetchPriority="high" />
-          <link rel="preload" as="image" imageSrcSet={tall.srcSet} imageSizes="100vw" media="(max-width: 767px)" fetchPriority="high" />
-        </>
-      )}
       {photo ? (
         <div className="hero-zoom absolute inset-0 -z-20">
           <picture>

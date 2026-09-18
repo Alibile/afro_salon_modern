@@ -202,8 +202,21 @@ yalnızca iletişim bölümü ve footer'da görülür.
 
 ## Performans
 
-Ana sayfanın Lighthouse mobil performans puanı **85** (varsayılan simülasyon);
-DevTools ölçümü yaklaşık **96**. Hero görseli LCP kritik kaynağı. CSS satır
-içi optimizasyonu (`next.config.ts`'de `experimental.inlineCss: true`) etkindir.
-Devre dışı bırakmak için `false` yapıp rebuild edin; Lighthouse puanı 2–3
-puan düşebilir.
+Ana sayfanın Lighthouse mobil performans puanı **85** (varsayılan simülasyon,
+5 koşunun medyanı); DevTools ölçümü yaklaşık **96**. Hero görseli LCP kritik
+kaynağı; LCP 4.4 sn'den **4.3 sn**'ye indi. CSS satır içi optimizasyonu
+(`next.config.ts`'de `experimental.inlineCss: true`) etkindir. Devre dışı
+bırakmak için `false` yapıp rebuild edin; Lighthouse puanı 2–3 puan düşebilir.
+
+LCP için üç ayar:
+
+- `images.formats` listesinde **AVIF** WebP'nin önünde: hero'nun mobil kırpımı
+  29 KB yerine 22 KB iniyor (destekleyen tarayıcılarda).
+- Duyuru `preloadHero()` ile ana sayfada, veri beklenmeden yapılır
+  (`src/lib/hero-image.ts`): `ReactDOM.preload()` `<link>`i satır içi stil
+  bloğundan **önce**, `<head>`in en başına koyar. `media` ile cihaz başına tek
+  dosya indirilir.
+- Yazı tiplerinde ön yükleme **açık** kalır. Bebas'ta `preload: false` denendi
+  ve geri alındı: dosya ilk turda değil, düzen onu isteyince "VeryHigh"
+  önceliğiyle çekiliyor, yani ilk boyamanın zincirine giriyor — FCP 1.5 → 1.8
+  sn, puan 85 → 82. Ölçmeden kapatmayın.

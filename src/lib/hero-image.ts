@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { getImageProps } from "next/image";
+import { preload } from "react-dom";
 
 /** Hero fotoğrafının alternatif metni; hem `<img>` hem de yer tutucu kullanır. */
 export const HERO_ALT = "Koyu bir stüdyo ışığında, geniş afro saçlı bir adamın portresi";
@@ -41,3 +42,31 @@ export function heroSources() {
   return { wide, tall };
 }
 
+/**
+ * Hero fotoğrafının ön yükleme duyurusu. `Hero` gövdenin içinde olduğu için
+ * oradaki `<link>` ancak `inlineCss`in `<head>`e bastığı ~76 KB'lık stil
+ * bloğundan sonra görünüyordu; ön tarama yazı tiplerini o blokta önce buluyor
+ * ve LCP fotoğrafı yüz kuyruğunun arkasına düşüyordu. `ReactDOM.preload()`
+ * kaydı `<head>`in en başına, `charset`/`viewport`tan hemen sonra taşır.
+ *
+ * Çağrı kökte değil, ana sayfanın kendisinde yapılır (veri beklenmeden önce):
+ * çıktıdaki sıra ikisinde de birebir aynı — React duyuruları kendi kovasında
+ * toplar — ama kökten çağrılınca hero fotoğrafı giriş/panel gibi onu hiç
+ * göstermeyen sayfalarda da indirilirdi.
+ *
+ * `media` ile iki kırpımdan yalnızca ekrana uyan indirilir; `imageSizes`/
+ * `imageSrcSet` çifti `<img>`in kendi `srcset`iyle birebir aynı olduğu için
+ * tarayıcı duyurulan dosyayı ikinci kez istemez (cihaz başına tek indirme).
+ * Tek kırpım varsa `media` yazılmaz — eşleşmeyen bir sorgu duyuruyu boşa
+ * çıkarırdı.
+ */
+export function preloadHero() {
+  const { wide, tall } = heroSources();
+  const both = wide !== null && tall !== null;
+  if (wide) {
+    preload(wide.src, { as: "image", fetchPriority: "high", imageSrcSet: wide.srcSet, imageSizes: "100vw", media: both ? "(min-width: 768px)" : undefined });
+  }
+  if (tall) {
+    preload(tall.src, { as: "image", fetchPriority: "high", imageSrcSet: tall.srcSet, imageSizes: "100vw", media: both ? "(max-width: 767px)" : undefined });
+  }
+}

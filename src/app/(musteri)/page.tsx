@@ -1,5 +1,6 @@
 import { getLandingData, DAY_LABELS } from "@/lib/queries/landing";
 import { getSessionUser } from "@/lib/auth-helpers";
+import { preloadHero } from "@/lib/hero-image";
 import { shopDayOfWeek } from "@/lib/time";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 import { SiteNav } from "@/components/landing/SiteNav";
@@ -16,6 +17,9 @@ import { SiteFooter } from "@/components/landing/SiteFooter";
 export const dynamic = "force-dynamic";
 
 export default async function LandingPage() {
+  // Veri beklenmeden önce: LCP fotoğrafının duyurusu `<head>`in en başına,
+  // satır içi stil bloğundan da önce girer (bkz. `preloadHero`).
+  preloadHero();
   const now = new Date();
   const [{ settings, status, services, barbers, gallery, testimonials, weeklyHours }, user] = await Promise.all([
     getLandingData(now),
