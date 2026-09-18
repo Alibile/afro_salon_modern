@@ -9,7 +9,7 @@
     },
     "close": "Close",
     "loading": "Loading…",
-    "minutes": "{count} min",
+    "minutes": "{count} minutes",
     "minutesShort": "{count} min",
     "theme": {
       "label": "Theme",
@@ -19,7 +19,7 @@
     "status": {
       "open": "Open today · {opensAt}–{closesAt}",
       "closedToday": "Closed today",
-      "closedNow": "Closed for today"
+      "closedNow": "Closed for the day"
     }
   },
   "meta": {

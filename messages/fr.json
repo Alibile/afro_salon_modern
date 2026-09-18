@@ -9,7 +9,7 @@
     },
     "close": "Fermer",
     "loading": "Chargement…",
-    "minutes": "{count} min",
+    "minutes": "{count} minutes",
     "minutesShort": "{count} min",
     "theme": {
       "label": "Thème",
@@ -19,7 +19,7 @@
     "status": {
       "open": "Ouvert aujourd'hui · {opensAt}–{closesAt}",
       "closedToday": "Fermé aujourd'hui",
-      "closedNow": "Fermé pour aujourd'hui"
+      "closedNow": "Fermé pour la journée"
     }
   },
   "meta": {
@@ -85,7 +85,7 @@
       "note": "Les dernières coupes réalisées au salon. Nous ne donnons pas de noms, seulement le travail.",
       "placeholderAlt": "Espace réservé à une photo de la galerie",
       "photosSoon": "Photos bientôt disponibles",
-      "all": "Tout",
+      "all": "Toutes",
       "filterLabel": "Filtrer par étiquette",
       "showMore": "Afficher plus ({remaining})",
       "count": "{count, plural, one {# photo} other {# photos}}",

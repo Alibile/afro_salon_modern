@@ -1,9 +1,11 @@
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { AfroPattern } from "@/components/brand/AfroPattern";
 import { Reveal } from "@/components/motion/Reveal";
 import { Parallax } from "@/components/motion/Parallax";
 import { CountUp } from "@/components/motion/CountUp";
 import { staggerDelay } from "@/lib/motion-utils";
+import { percentAffix } from "@/lib/intl";
+import type { AppLocale } from "@/i18n/routing";
 
 export type WhyUsItem = { title: string; text: string };
 
@@ -17,6 +19,7 @@ export function WhyUsSection({
   yearsExperience: number;
 }) {
   const t = useTranslations("landing.whyUs");
+  const percent = percentAffix(useLocale() as AppLocale);
   const filled = items.filter((i) => i.title.trim() !== "" || i.text.trim() !== "");
   if (filled.length === 0) return null;
   return (
@@ -46,7 +49,7 @@ export function WhyUsSection({
           <Reveal className="flex flex-col-reverse items-start gap-3">
             <dt className="text-lg text-secondary-foreground">{t("satisfaction")}</dt>
             <dd className="display-hero text-primary">
-              <CountUp value={satisfactionPercent} prefix="%" />
+              <CountUp value={satisfactionPercent} prefix={percent.prefix} suffix={percent.suffix} />
             </dd>
           </Reveal>
           <Reveal className="flex flex-col-reverse items-start gap-3 sm:border-l sm:border-border sm:pl-10" delay={staggerDelay(1)}>

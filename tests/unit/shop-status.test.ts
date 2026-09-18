@@ -51,6 +51,6 @@ describe("shopStatusText", () => {
     expect(shopStatusText(translator(en), open)).toBe("Open today · 09:00–20:00");
     expect(shopStatusText(translator(en), closed)).toBe("Closed today");
     expect(shopStatusText(translator(fr), open)).toBe("Ouvert aujourd'hui · 09:00–20:00");
-    expect(shopStatusText(translator(fr), closedNow)).toBe("Fermé pour aujourd'hui");
+    expect(shopStatusText(translator(fr), closedNow)).toBe("Fermé pour la journée");
   });
 });
