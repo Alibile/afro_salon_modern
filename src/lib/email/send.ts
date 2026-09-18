@@ -4,10 +4,21 @@ import { prisma } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
 import { formatKurus } from "@/lib/money";
 import { formatShopDate, formatShopTime } from "@/lib/time";
+import { routing, toAppLocale, type AppLocale } from "@/i18n/routing";
+import { emailTranslator } from "./i18n";
 import { AppointmentConfirmed } from "./templates/AppointmentConfirmed";
 import { AppointmentCancelled } from "./templates/AppointmentCancelled";
 import { NewAppointmentForBarber } from "./templates/NewAppointmentForBarber";
 import { ContactMessage } from "./templates/ContactMessage";
+
+/**
+ * E-postanın dili adresten gelemez: gövde bir sayfa isteğinin içinde değil,
+ * bir randevu kaydının ardından üretilir. Alıcının kayıtlı tercihi
+ * (`User.locale`) tek doğru kaynak; müşteri e-postaları müşterinin, berber
+ * bildirimi berberin diliyle gider. İletişim formu e-postası ise ziyaretçiye
+ * değil salona gider, o yüzden salonun dilinde (`tr`) kalır.
+ */
+const SHOP_LOCALE: AppLocale = routing.defaultLocale;
 
 function baseUrl() {
   return process.env.AUTH_URL?.replace(/\/$/, "") ?? "http://localhost:3000";
@@ -39,19 +50,22 @@ export async function sendAppointmentConfirmed(appointmentId: string) {
     const a = await loadAppointment(appointmentId);
     if (!a) return;
     const settings = await getSettings();
+    const locale = toAppLocale(a.customer.locale);
+    const timeText = formatShopTime(a.startsAt);
     const html = await render(
       AppointmentConfirmed({
+        locale,
         shopName: settings.shopName,
         customerName: a.customer.name,
         barberName: a.barber.user.name,
-        dateText: formatShopDate(a.startsAt),
-        timeText: formatShopTime(a.startsAt),
+        dateText: formatShopDate(a.startsAt, locale),
+        timeText,
         services: a.services.map((s) => s.nameSnapshot),
-        totalText: formatKurus(a.services.reduce((t, s) => t + s.priceSnapshot, 0)),
+        totalText: formatKurus(a.services.reduce((t, s) => t + s.priceSnapshot, 0), locale),
         manageUrl: `${baseUrl()}/randevularim`,
       }),
     );
-    await deliver(a.customer.email, `Randevun onaylandı · ${formatShopTime(a.startsAt)}`, html);
+    await deliver(a.customer.email, emailTranslator(locale, "confirmed")("subject", { time: timeText }), html);
   } catch (e) {
     console.error("[email:error]", e);
   }
@@ -62,17 +76,19 @@ export async function sendAppointmentCancelled(appointmentId: string, by: "CUSTO
     const a = await loadAppointment(appointmentId);
     if (!a) return;
     const settings = await getSettings();
+    const locale = toAppLocale(a.customer.locale);
     const html = await render(
       AppointmentCancelled({
+        locale,
         shopName: settings.shopName,
         customerName: a.customer.name,
-        dateText: formatShopDate(a.startsAt),
+        dateText: formatShopDate(a.startsAt, locale),
         timeText: formatShopTime(a.startsAt),
-        byText: by === "CUSTOMER" ? "Randevunu sen iptal ettin." : "Randevun salon tarafından iptal edildi, yeni randevu için tekrar deneyebilirsin.",
+        by,
         bookUrl: baseUrl(),
       }),
     );
-    await deliver(a.customer.email, "Randevun iptal edildi", html);
+    await deliver(a.customer.email, emailTranslator(locale, "cancelled")("subject"), html);
   } catch (e) {
     console.error("[email:error]", e);
   }
@@ -84,17 +100,20 @@ export async function sendNewAppointmentToBarber(appointmentId: string) {
     if (!settings.notifyBarberOnBooking) return;
     const a = await loadAppointment(appointmentId);
     if (!a) return;
+    const locale = toAppLocale(a.barber.user.locale);
+    const startText = formatShopTime(a.startsAt);
     const html = await render(
       NewAppointmentForBarber({
+        locale,
         barberName: a.barber.user.name,
         customerName: a.customer.name,
         customerPhone: a.customer.phone ?? "-",
-        timeText: `${formatShopTime(a.startsAt)} – ${formatShopTime(a.endsAt)}`,
+        timeText: `${startText} – ${formatShopTime(a.endsAt)}`,
         services: a.services.map((s) => s.nameSnapshot),
         panelUrl: `${baseUrl()}/panel`,
       }),
     );
-    await deliver(a.barber.user.email, `Yeni randevu · ${formatShopTime(a.startsAt)}`, html);
+    await deliver(a.barber.user.email, emailTranslator(locale, "barberNotice")("subject", { time: startText }), html);
   } catch (e) {
     console.error("[email:error]", e);
   }
@@ -114,6 +133,7 @@ export async function sendContactMessage(input: { name: string; phone: string; m
     }
     const html = await render(
       ContactMessage({
+        locale: SHOP_LOCALE,
         shopName: settings.shopName,
         name: input.name,
         phone: input.phone,
@@ -123,7 +143,7 @@ export async function sendContactMessage(input: { name: string; phone: string; m
     );
     // Ad alanındaki satır sonu/çoklu boşluk konu satırını bozabildiğinden tek boşluğa indirilir.
     const subjectName = input.name.replace(/\s+/g, " ").trim();
-    await deliver(to, `Siteden yeni mesaj · ${subjectName}`, html);
+    await deliver(to, emailTranslator(SHOP_LOCALE, "contact")("subject", { name: subjectName }), html);
   } catch (e) {
     console.error("[email:error]", e);
   }

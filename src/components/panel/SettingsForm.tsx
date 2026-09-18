@@ -1,5 +1,6 @@
 "use client";
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,7 @@ import type { SettingsInput } from "@/schemas/settings";
 import { useActionError } from "@/lib/use-action-error";
 
 export function SettingsForm({ initial }: { initial: SettingsInput }) {
+  const t = useTranslations("panel");
   const showError = useActionError();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -45,61 +47,61 @@ export function SettingsForm({ initial }: { initial: SettingsInput }) {
             yearsExperience: Number(fd.get("yearsExperience")),
           });
           if (!r.ok) { setError(showError(r)); return; }
-          setError(null); toast.success("Ayarlar kaydedildi");
+          setError(null); toast.success(t("settings.saved"));
         });
       }}
     >
       <fieldset className="grid gap-3 rounded-xl border bg-card p-4">
-        <legend className="px-1 text-lg font-medium">Dükkan</legend>
-        <div><Label htmlFor="shopName">Dükkan adı</Label><Input id="shopName" name="shopName" defaultValue={initial.shopName} required /></div>
-        <div><Label htmlFor="address">Adres</Label><Input id="address" name="address" defaultValue={initial.address} /></div>
-        <div><Label htmlFor="phone">Telefon</Label><Input id="phone" name="phone" defaultValue={initial.phone} /></div>
-        <div><Label htmlFor="cancellationWindowMinutes">Müşteri iptal sınırı (dk)</Label><Input id="cancellationWindowMinutes" name="cancellationWindowMinutes" type="number" min={0} max={1440} defaultValue={initial.cancellationWindowMinutes} /></div>
-        <div><Label htmlFor="minLeadMinutes">En erken randevu (şu andan itibaren, dk)</Label><Input id="minLeadMinutes" name="minLeadMinutes" type="number" min={0} max={240} defaultValue={initial.minLeadMinutes} /></div>
+        <legend className="px-1 text-lg font-medium">{t("settings.shopLegend")}</legend>
+        <div><Label htmlFor="shopName">{t("settings.shopName")}</Label><Input id="shopName" name="shopName" defaultValue={initial.shopName} required /></div>
+        <div><Label htmlFor="address">{t("settings.address")}</Label><Input id="address" name="address" defaultValue={initial.address} /></div>
+        <div><Label htmlFor="phone">{t("settings.phone")}</Label><Input id="phone" name="phone" defaultValue={initial.phone} /></div>
+        <div><Label htmlFor="cancellationWindowMinutes">{t("settings.cancellationWindow")}</Label><Input id="cancellationWindowMinutes" name="cancellationWindowMinutes" type="number" min={0} max={1440} defaultValue={initial.cancellationWindowMinutes} /></div>
+        <div><Label htmlFor="minLeadMinutes">{t("settings.minLead")}</Label><Input id="minLeadMinutes" name="minLeadMinutes" type="number" min={0} max={240} defaultValue={initial.minLeadMinutes} /></div>
         <div>
-          <Label htmlFor="slotStepMinutes">Slot adımı (dk)</Label>
+          <Label htmlFor="slotStepMinutes">{t("settings.slotStep")}</Label>
           <select id="slotStepMinutes" name="slotStepMinutes" defaultValue={initial.slotStepMinutes} className="mt-1 w-full rounded-md border bg-background px-3 py-2">
             {[5, 10, 15, 20, 30, 60].map((n) => <option key={n} value={n}>{n}</option>)}
           </select>
         </div>
-        <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="notifyBarberOnBooking" defaultChecked={initial.notifyBarberOnBooking} /> Yeni randevuda berbere e-posta gönder</label>
+        <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="notifyBarberOnBooking" defaultChecked={initial.notifyBarberOnBooking} /> {t("settings.notifyBarber")}</label>
       </fieldset>
 
       <fieldset className="grid gap-3 rounded-xl border bg-card p-4">
-        <legend className="px-1 text-lg font-medium">Site içeriği</legend>
-        <div><Label htmlFor="email">E-posta</Label><Input id="email" name="email" type="email" defaultValue={initial.email} /></div>
-        <div><Label htmlFor="instagram">Instagram</Label><Input id="instagram" name="instagram" placeholder="@kullaniciadi veya URL" defaultValue={initial.instagram} /></div>
+        <legend className="px-1 text-lg font-medium">{t("settings.contentLegend")}</legend>
+        <div><Label htmlFor="email">{t("settings.email")}</Label><Input id="email" name="email" type="email" defaultValue={initial.email} /></div>
+        <div><Label htmlFor="instagram">Instagram</Label><Input id="instagram" name="instagram" placeholder={t("settings.instagramPlaceholder")} defaultValue={initial.instagram} /></div>
         <div><Label htmlFor="facebook">Facebook</Label><Input id="facebook" name="facebook" placeholder="https://facebook.com/..." defaultValue={initial.facebook} /></div>
         <div><Label htmlFor="whatsapp">WhatsApp</Label><Input id="whatsapp" name="whatsapp" placeholder="905551112233" defaultValue={initial.whatsapp} /></div>
-        <div><Label htmlFor="mapsUrl">Harita adresi</Label><Input id="mapsUrl" name="mapsUrl" placeholder="https://maps.google.com/..." defaultValue={initial.mapsUrl} /></div>
-        <div><Label htmlFor="aboutTitle">Hakkımızda başlığı</Label><Input id="aboutTitle" name="aboutTitle" defaultValue={initial.aboutTitle} /></div>
-        <div><Label htmlFor="aboutText">Hakkımızda metni</Label><Textarea id="aboutText" name="aboutText" rows={4} defaultValue={initial.aboutText} /></div>
+        <div><Label htmlFor="mapsUrl">{t("settings.mapsUrl")}</Label><Input id="mapsUrl" name="mapsUrl" placeholder="https://maps.google.com/..." defaultValue={initial.mapsUrl} /></div>
+        <div><Label htmlFor="aboutTitle">{t("settings.aboutTitle")}</Label><Input id="aboutTitle" name="aboutTitle" defaultValue={initial.aboutTitle} /></div>
+        <div><Label htmlFor="aboutText">{t("settings.aboutText")}</Label><Textarea id="aboutText" name="aboutText" rows={4} defaultValue={initial.aboutText} /></div>
         <div className="grid gap-3 sm:grid-cols-2">
-          <div><Label htmlFor="satisfactionPercent">Memnuniyet yüzdesi</Label><Input id="satisfactionPercent" name="satisfactionPercent" type="number" min={0} max={100} defaultValue={initial.satisfactionPercent} /></div>
-          <div><Label htmlFor="yearsExperience">Deneyim (yıl)</Label><Input id="yearsExperience" name="yearsExperience" type="number" min={0} max={100} defaultValue={initial.yearsExperience} /></div>
+          <div><Label htmlFor="satisfactionPercent">{t("settings.satisfaction")}</Label><Input id="satisfactionPercent" name="satisfactionPercent" type="number" min={0} max={100} defaultValue={initial.satisfactionPercent} /></div>
+          <div><Label htmlFor="yearsExperience">{t("settings.years")}</Label><Input id="yearsExperience" name="yearsExperience" type="number" min={0} max={100} defaultValue={initial.yearsExperience} /></div>
         </div>
         <div className="grid gap-2">
-          <Label htmlFor="whyUs1Title">Neden biz — 1. başlık</Label>
+          <Label htmlFor="whyUs1Title">{t("settings.whyUsTitle", { index: 1 })}</Label>
           <Input id="whyUs1Title" name="whyUs1Title" defaultValue={initial.whyUs1Title} />
-          <Label htmlFor="whyUs1Text">Neden biz — 1. metin</Label>
+          <Label htmlFor="whyUs1Text">{t("settings.whyUsText", { index: 1 })}</Label>
           <Textarea id="whyUs1Text" name="whyUs1Text" rows={2} defaultValue={initial.whyUs1Text} />
         </div>
         <div className="grid gap-2">
-          <Label htmlFor="whyUs2Title">Neden biz — 2. başlık</Label>
+          <Label htmlFor="whyUs2Title">{t("settings.whyUsTitle", { index: 2 })}</Label>
           <Input id="whyUs2Title" name="whyUs2Title" defaultValue={initial.whyUs2Title} />
-          <Label htmlFor="whyUs2Text">Neden biz — 2. metin</Label>
+          <Label htmlFor="whyUs2Text">{t("settings.whyUsText", { index: 2 })}</Label>
           <Textarea id="whyUs2Text" name="whyUs2Text" rows={2} defaultValue={initial.whyUs2Text} />
         </div>
         <div className="grid gap-2">
-          <Label htmlFor="whyUs3Title">Neden biz — 3. başlık</Label>
+          <Label htmlFor="whyUs3Title">{t("settings.whyUsTitle", { index: 3 })}</Label>
           <Input id="whyUs3Title" name="whyUs3Title" defaultValue={initial.whyUs3Title} />
-          <Label htmlFor="whyUs3Text">Neden biz — 3. metin</Label>
+          <Label htmlFor="whyUs3Text">{t("settings.whyUsText", { index: 3 })}</Label>
           <Textarea id="whyUs3Text" name="whyUs3Text" rows={2} defaultValue={initial.whyUs3Text} />
         </div>
       </fieldset>
 
       {error && <p className="text-sm text-destructive">{error}</p>}
-      <Button type="submit" disabled={pending}>Kaydet</Button>
+      <Button type="submit" disabled={pending}>{t("common.save")}</Button>
     </form>
   );
 }

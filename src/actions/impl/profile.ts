@@ -1,5 +1,7 @@
 import bcrypt from "bcryptjs";
+import { hasLocale } from "next-intl";
 import { prisma } from "@/lib/db";
+import { routing } from "@/i18n/routing";
 import { ok, fail, type ActionResult } from "@/lib/action-result";
 import { firstIssueKey } from "@/lib/errors";
 import type { SessionUser } from "@/lib/auth-helpers";
@@ -48,5 +50,21 @@ export async function changeOwnPasswordAs(actorInput: SessionUser | null, input:
   if (!(await bcrypt.compare(currentPassword, user.passwordHash))) return fail("errors.wrongPassword");
 
   await prisma.user.update({ where: { id: actor.id }, data: { passwordHash: await bcrypt.hash(newPassword, 10) } });
+  return ok(undefined);
+}
+
+/**
+ * Kullanıcının kayıtlı dil tercihi. Panel bu tercihi yalnızca *yazar*; hangi
+ * dilde açılacağını adres belirler (`/en/panel`). Tercihin asıl işi adresin
+ * olmadığı yerde görünür: e-postalar ve sonraki oturum açılışı.
+ *
+ * Gelen değer `hasLocale` ile daraltılır — serbest bir dize doğrudan sütuna
+ * yazılsaydı `User.locale` uygulamanın bilmediği bir kod taşıyabilirdi.
+ */
+export async function updateOwnLocaleAs(actorInput: SessionUser | null, locale: string): Promise<ActionResult<void>> {
+  const actor = asStaffActor(actorInput);
+  if (!actor) return fail("errors.notAllowed");
+  if (!hasLocale(routing.locales, locale)) return fail("errors.invalidLocale");
+  await prisma.user.update({ where: { id: actor.id }, data: { locale } });
   return ok(undefined);
 }

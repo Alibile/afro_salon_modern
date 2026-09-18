@@ -1,5 +1,6 @@
 "use client";
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import { useActionError } from "@/lib/use-action-error";
 type Profile = { name: string; phone: string; bio?: string; photoKey?: string };
 
 export function ProfileForm({ profile, hasBarber }: { profile: Profile; hasBarber: boolean }) {
+  const t = useTranslations("panel");
   const showError = useActionError();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -31,24 +33,24 @@ export function ProfileForm({ profile, hasBarber }: { profile: Profile; hasBarbe
           const r = await updateOwnProfile(input);
           if (!r.ok) { setError(showError(r)); return; }
           setError(null);
-          toast.success("Profil güncellendi");
+          toast.success(t("profile.saved"));
           router.refresh();
         });
       }}
     >
-      <div><Label htmlFor="name">Ad Soyad</Label><Input id="name" name="name" defaultValue={profile.name} required /></div>
-      <div><Label htmlFor="phone">Telefon</Label><Input id="phone" name="phone" defaultValue={profile.phone} maxLength={20} /></div>
+      <div><Label htmlFor="name">{t("profile.name")}</Label><Input id="name" name="name" defaultValue={profile.name} required /></div>
+      <div><Label htmlFor="phone">{t("profile.phone")}</Label><Input id="phone" name="phone" defaultValue={profile.phone} maxLength={20} /></div>
       {hasBarber && (
         <>
-          <div className="sm:col-span-2"><Label htmlFor="bio">Kısa tanıtım</Label><Textarea id="bio" name="bio" defaultValue={profile.bio} maxLength={200} /></div>
+          <div className="sm:col-span-2"><Label htmlFor="bio">{t("profile.bio")}</Label><Textarea id="bio" name="bio" defaultValue={profile.bio} maxLength={200} /></div>
           <div className="sm:col-span-2">
-            <Label>Profil fotoğrafı (zorunlu)</Label>
+            <Label>{t("profile.photo")}</Label>
             <ImageUploader kind="barber" name="photoKey" defaultKey={profile.photoKey} />
           </div>
         </>
       )}
       {error && <p className="text-sm text-destructive sm:col-span-2">{error}</p>}
-      <Button type="submit" disabled={pending} className="sm:col-span-2">Kaydet</Button>
+      <Button type="submit" disabled={pending} className="sm:col-span-2">{t("common.save")}</Button>
     </form>
   );
 }

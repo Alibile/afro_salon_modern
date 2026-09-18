@@ -25,6 +25,7 @@ export const ERROR_CODES = [
   // Genel
   "invalidInput",
   "tooManyRequests",
+  "invalidLocale",
   // Randevu
   "barberNotFound",
   "selectedServiceNotFound",

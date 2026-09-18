@@ -1,4 +1,5 @@
 import { Inter } from "next/font/google";
+import { getTranslations } from "next-intl/server";
 import { requireStaff } from "@/lib/auth-helpers";
 import { PanelNav } from "@/components/panel/PanelNav";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
@@ -17,14 +18,17 @@ const inter = Inter({ subsets: ["latin", "latin-ext"], variable: "--font-panel-s
 
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
   const user = await requireStaff();
+  // Kenar çubuğunun başlığı ve çıkış düğmesi site üst çubuğuyla aynı iki
+  // sözcük; `nav` ad alanı ikisini tek yerde tutuyor.
+  const t = await getTranslations("nav");
   return (
     <div className={`${inter.variable} panel-typography min-h-dvh md:grid md:grid-cols-[220px_1fr]`}>
       <aside className="border-b md:border-b-0 md:border-r">
         <div className="flex items-center justify-between p-4">
-          <span className="font-display text-xl text-primary">Panel</span>
+          <span className="font-display text-xl text-primary">{t("panel")}</span>
           <div className="flex items-center gap-1">
             <ThemeToggle />
-            <form action={logoutAction}><Button variant="ghost" size="sm">Çıkış</Button></form>
+            <form action={logoutAction}><Button variant="ghost" size="sm">{t("logout")}</Button></form>
           </div>
         </div>
         <PanelNav isAdmin={user.role === "ADMIN"} />

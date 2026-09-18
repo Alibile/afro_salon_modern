@@ -1,5 +1,6 @@
 "use client";
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -8,12 +9,13 @@ import { addHaircutPhoto } from "@/actions/photos";
 import { useActionError } from "@/lib/use-action-error";
 
 export function PhotoUploadButton({ customerId, barbers }: { customerId: string; barbers: { id: string; name: string }[] | null }) {
+  const t = useTranslations("panel");
   const showError = useActionError();
   const [open, setOpen] = useState(false);
   const [barberId, setBarberId] = useState(barbers?.[0]?.id);
   const [pending, start] = useTransition();
   const router = useRouter();
-  if (!open) return <Button size="sm" onClick={() => setOpen(true)}>Fotoğraf ekle</Button>;
+  if (!open) return <Button size="sm" onClick={() => setOpen(true)}>{t("customers.addPhoto")}</Button>;
   return (
     <div className="space-y-2 rounded-lg border p-3">
       {barbers && (
@@ -24,11 +26,11 @@ export function PhotoUploadButton({ customerId, barbers }: { customerId: string;
       <ImageUploader kind="haircut" name="storageKey" onUploaded={(key) => start(async () => {
         const r = await addHaircutPhoto({ customerId, storageKey: key, barberId });
         if (!r.ok) { toast.error(showError(r)); return; }
-        toast.success(r.data.deletedKeys.length ? "Fotoğraf eklendi, en eski fotoğraf silindi" : "Fotoğraf eklendi");
+        toast.success(r.data.deletedKeys.length ? t("customers.photoAddedOldestRemoved") : t("customers.photoAdded"));
         setOpen(false);
         router.refresh();
       })} />
-      {pending && <p className="text-xs text-muted-foreground">Kaydediliyor…</p>}
+      {pending && <p className="text-xs text-muted-foreground">{t("common.saving")}</p>}
     </div>
   );
 }

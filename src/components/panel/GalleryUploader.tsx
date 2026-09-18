@@ -1,5 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { addGalleryPhotos } from "@/actions/gallery";
@@ -24,13 +25,16 @@ function readDimensions(file: File): Promise<{ width: number; height: number }> 
     };
     img.onerror = () => {
       URL.revokeObjectURL(url);
-      reject(new Error("Fotoğraf okunamadı"));
+      // Bu metin kullanıcıya hiç ulaşmaz: `uploadAll` hatayı yakalayıp satıra
+      // çevrilmiş `upload.unreadable` yazar. Yalnızca yığın izinde görünür.
+      reject(new Error("readDimensions failed"));
     };
     img.src = url;
   });
 }
 
 export function GalleryUploader() {
+  const t = useTranslations("panel");
   const showError = useActionError();
   const [files, setFiles] = useState<FileState[]>([]);
   const [busy, setBusy] = useState(false);
@@ -43,54 +47,54 @@ export function GalleryUploader() {
 
   async function uploadAll(selected: File[]) {
     setBusy(true);
-    setFiles(selected.map((f) => ({ name: f.name, status: "Sırada", failed: false })));
+    setFiles(selected.map((f) => ({ name: f.name, status: t("upload.queued"), failed: false })));
     const uploaded: { storageKey: string; width: number; height: number }[] = [];
 
     for (const [i, file] of selected.entries()) {
       if (!ACCEPTED.includes(file.type)) {
-        update(i, "Sadece JPEG, PNG veya WebP yüklenebilir", true);
+        update(i, t("upload.onlyImages"), true);
         continue;
       }
       if (file.size > MAX_UPLOAD_BYTES) {
-        update(i, "Dosya en fazla 8 MB olabilir", true);
+        update(i, t("upload.tooLarge"), true);
         continue;
       }
       try {
-        update(i, "Boyut okunuyor…");
+        update(i, t("upload.readingSize"));
         const { width, height } = await readDimensions(file);
-        update(i, "Yükleniyor…");
+        update(i, t("upload.uploading"));
         const res = await fetch("/api/upload/presign", {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ kind: "gallery", contentType: file.type, contentLength: file.size }),
         });
         if (!res.ok) {
-          update(i, (await res.json().catch(() => ({}))).error ?? "Yükleme başarısız", true);
+          update(i, t("upload.failed"), true);
           continue;
         }
         const { url, key } = await res.json();
         const put = await fetch(url, { method: "PUT", headers: { "content-type": file.type }, body: file });
         if (!put.ok) {
-          update(i, "Yükleme başarısız", true);
+          update(i, t("upload.failed"), true);
           continue;
         }
         uploaded.push({ storageKey: key, width, height });
-        update(i, "Yüklendi");
+        update(i, t("upload.done"));
       } catch {
-        update(i, "Fotoğraf okunamadı", true);
+        update(i, t("upload.unreadable"), true);
       }
     }
 
     if (uploaded.length > 0) {
       const r = await addGalleryPhotos(uploaded);
       if (r.ok) {
-        toast.success(`${uploaded.length} fotoğraf galeriye eklendi`);
+        toast.success(t("gallery.uploaded", { count: uploaded.length }));
         router.refresh();
       } else {
         toast.error(showError(r));
       }
     } else {
-      toast.error("Hiçbir fotoğraf yüklenemedi");
+      toast.error(t("gallery.uploadFailed"));
     }
     if (inputRef.current) inputRef.current.value = "";
     setBusy(false);
@@ -104,24 +108,21 @@ export function GalleryUploader() {
         multiple
         accept="image/jpeg,image/png,image/webp"
         disabled={busy}
-        aria-label="Galeriye fotoğraf yükle"
+        aria-label={t("gallery.inputLabel")}
         onChange={(e) => {
           const selected = Array.from(e.target.files ?? []);
           if (selected.length === 0) return;
           // Sınır depoya tek bayt gitmeden burada uygulanır: şema 24'ten fazlasını
           // zaten reddederdi, ama o noktada dosyalar çoktan yüklenmiş olurdu.
           if (selected.length > MAX_GALLERY_BATCH) {
-            toast.error(`En fazla ${MAX_GALLERY_BATCH} dosya seçebilirsiniz`);
+            toast.error(t("gallery.tooManyFiles", { max: MAX_GALLERY_BATCH }));
             e.target.value = "";
             return;
           }
           uploadAll(selected);
         }}
       />
-      <p className="text-xs text-muted-foreground">
-        Birden çok dosya seçebilirsin: tek seferde en fazla {MAX_GALLERY_BATCH} dosya. JPEG, PNG veya WebP; dosya
-        başına en fazla 8 MB. Yüklenen fotoğraflar listenin sonuna eklenir, etiketlerini aşağıdan verirsin.
-      </p>
+      <p className="text-xs text-muted-foreground">{t("gallery.uploadHint", { max: MAX_GALLERY_BATCH })}</p>
       {files.length > 0 && (
         <ul className="space-y-1 text-sm">
           {files.map((f, i) => (

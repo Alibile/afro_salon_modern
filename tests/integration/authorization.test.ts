@@ -24,7 +24,7 @@ import { addGalleryPhotos, updateGalleryPhoto, moveGalleryPhoto, deleteGalleryPh
 import { setAppointmentStatus } from "@/actions/staff-appointments";
 import { createTimeOff, deleteTimeOff } from "@/actions/timeoff";
 import { addHaircutPhoto, deleteHaircutPhoto } from "@/actions/photos";
-import { updateOwnProfile, changeOwnPassword } from "@/actions/profile";
+import { updateOwnProfile, changeOwnPassword, updateOwnLocale } from "@/actions/profile";
 import { sendContactMessage } from "@/actions/contact";
 import { resetRateLimit } from "@/lib/rate-limit";
 
@@ -89,6 +89,7 @@ const staffWrappers: [string, () => Promise<{ ok: boolean; error?: string }>][] 
   ["deleteHaircutPhoto", () => deleteHaircutPhoto("p1")],
   ["updateOwnProfile", () => updateOwnProfile({ name: "Yeni İsim", phone: "" })],
   ["changeOwnPassword", () => changeOwnPassword({ currentPassword: "eski", newPassword: "YeniSifre123" })],
+  ["updateOwnLocale", () => updateOwnLocale("en")],
 ];
 
 /** Müşteri oturumu gerektiren wrapper'lar. */

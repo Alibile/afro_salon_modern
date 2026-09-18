@@ -1,3 +1,4 @@
+import { hasLocale } from "next-intl";
 import { defineRouting } from "next-intl/routing";
 
 /**
@@ -18,3 +19,13 @@ export const routing = defineRouting({
 });
 
 export type AppLocale = (typeof routing.locales)[number];
+
+/**
+ * Serbest bir dizeyi (veritabanı sütunu, form alanı, çerez) uygulama dil
+ * birliğine indirger; tanınmayan değer varsayılana düşer. Tek yerde durur
+ * çünkü aynı indirgeme hem oturumda, hem e-postalarda, hem profil
+ * tercihinde gerekiyor.
+ */
+export function toAppLocale(value: string | null | undefined): AppLocale {
+  return hasLocale(routing.locales, value) ? value : routing.defaultLocale;
+}

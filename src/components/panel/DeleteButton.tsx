@@ -1,5 +1,6 @@
 "use client";
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -20,7 +21,7 @@ import { useActionError } from "@/lib/use-action-error";
 export function DeleteButton({
   title,
   description,
-  confirmLabel = "Sil",
+  confirmLabel,
   disabled,
   disabledReason,
   onConfirm,
@@ -29,6 +30,7 @@ export function DeleteButton({
 }: {
   title: string;
   description: string;
+  /** Verilmezse `panel.common.delete`; başlık ve açıklama zaten çağıran taraftan çevrili gelir. */
   confirmLabel?: string;
   disabled?: boolean;
   disabledReason?: string;
@@ -36,6 +38,7 @@ export function DeleteButton({
   successMessage: string;
   redirectTo?: string;
 }) {
+  const t = useTranslations("panel.common");
   const showError = useActionError();
   const [pending, start] = useTransition();
   const router = useRouter();
@@ -44,7 +47,7 @@ export function DeleteButton({
     return (
       <div className="flex flex-col items-end gap-1">
         <Button size="sm" variant="destructive" disabled title={disabledReason}>
-          Sil
+          {t("delete")}
         </Button>
         {disabledReason && <p className="text-xs text-muted-foreground">{disabledReason}</p>}
       </div>
@@ -55,7 +58,7 @@ export function DeleteButton({
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button size="sm" variant="destructive" disabled={pending}>
-          Sil
+          {t("delete")}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
@@ -64,7 +67,7 @@ export function DeleteButton({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Vazgeç</AlertDialogCancel>
+          <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
           <AlertDialogAction
             onClick={() =>
               start(async () => {
@@ -79,7 +82,7 @@ export function DeleteButton({
               })
             }
           >
-            {confirmLabel}
+            {confirmLabel ?? t("delete")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

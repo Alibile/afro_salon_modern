@@ -1,6 +1,7 @@
 "use client";
 import { useState, useTransition } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { publicUrl } from "@/lib/storage-public";
@@ -27,6 +28,7 @@ export type PanelGalleryPhoto = {
 };
 
 export function GalleryCard({ photo, index, total }: { photo: PanelGalleryPhoto; index: number; total: number }) {
+  const t = useTranslations("panel");
   const showError = useActionError();
   const [caption, setCaption] = useState(photo.caption);
   // Kayıtlı etiketler forma bölünür: listedekiler çipe, gerisi "Diğer" alanına.
@@ -55,25 +57,25 @@ export function GalleryCard({ photo, index, total }: { photo: PanelGalleryPhoto;
       <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-muted">
         <Image
           src={publicUrl(photo.storageKey)}
-          alt={photo.caption || "Galeri fotoğrafı"}
+          alt={photo.caption || t("gallery.photoAlt")}
           fill
           sizes="(min-width: 1024px) 25vw, (min-width: 640px) 45vw, 90vw"
           className="object-cover"
         />
         {!photo.isActive && (
           <Badge variant="secondary" className="absolute left-2 top-2">
-            Pasif
+            {t("common.inactive")}
           </Badge>
         )}
       </div>
 
       <div className="space-y-1">
-        <Label htmlFor={`caption-${photo.id}`}>Başlık</Label>
+        <Label htmlFor={`caption-${photo.id}`}>{t("gallery.caption")}</Label>
         <Input
           id={`caption-${photo.id}`}
           value={caption}
           maxLength={120}
-          placeholder="Örn. Keskin geçişli fade"
+          placeholder={t("gallery.captionPlaceholder")}
           onChange={(e) => setCaption(e.target.value)}
         />
       </div>
@@ -90,44 +92,44 @@ export function GalleryCard({ photo, index, total }: { photo: PanelGalleryPhoto;
         <Button
           size="sm"
           disabled={pending}
-          onClick={() => run(() => updateGalleryPhoto(photo.id, { caption, tags: tags() }), "Fotoğraf kaydedildi")}
+          onClick={() => run(() => updateGalleryPhoto(photo.id, { caption, tags: tags() }), t("gallery.saved"))}
         >
-          Kaydet
+          {t("common.save")}
         </Button>
         <Button
           size="sm"
           variant="secondary"
           disabled={pending}
-          onClick={() => run(() => updateGalleryPhoto(photo.id, { isActive: !photo.isActive }), photo.isActive ? "Fotoğraf pasife alındı" : "Fotoğraf yayına alındı")}
+          onClick={() => run(() => updateGalleryPhoto(photo.id, { isActive: !photo.isActive }), photo.isActive ? t("gallery.deactivated") : t("gallery.activated"))}
         >
-          {photo.isActive ? "Pasife al" : "Aktif et"}
+          {photo.isActive ? t("common.deactivate") : t("common.activate")}
         </Button>
         <div className="flex gap-1">
           <Button
             size="sm"
             variant="outline"
-            aria-label="Yukarı taşı"
+            aria-label={t("gallery.moveUp")}
             disabled={pending || index === 0}
-            onClick={() => run(() => moveGalleryPhoto(photo.id, "up"), "Sıra güncellendi")}
+            onClick={() => run(() => moveGalleryPhoto(photo.id, "up"), t("gallery.reordered"))}
           >
             ↑
           </Button>
           <Button
             size="sm"
             variant="outline"
-            aria-label="Aşağı taşı"
+            aria-label={t("gallery.moveDown")}
             disabled={pending || index === total - 1}
-            onClick={() => run(() => moveGalleryPhoto(photo.id, "down"), "Sıra güncellendi")}
+            onClick={() => run(() => moveGalleryPhoto(photo.id, "down"), t("gallery.reordered"))}
           >
             ↓
           </Button>
         </div>
         <div className="ml-auto">
           <DeleteButton
-            title="Fotoğraf silinsin mi?"
-            description="Fotoğraf galeriden ve depodan kalıcı olarak silinecek. Bu işlem geri alınamaz."
+            title={t("gallery.deleteTitle")}
+            description={t("gallery.deleteDescription")}
             onConfirm={() => deleteGalleryPhoto(photo.id)}
-            successMessage="Fotoğraf silindi"
+            successMessage={t("gallery.deleted")}
           />
         </div>
       </div>

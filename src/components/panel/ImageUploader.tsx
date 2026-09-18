@@ -1,28 +1,30 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { publicUrl } from "@/lib/storage-public";
 import { MAX_UPLOAD_BYTES } from "@/lib/upload-limits";
 import { Input } from "@/components/ui/input";
 
 export function ImageUploader({ kind, name, defaultKey, onUploaded }: { kind: "barber" | "haircut"; name: string; defaultKey?: string; onUploaded?: (key: string) => void }) {
+  const t = useTranslations("panel.upload");
   const [key, setKey] = useState(defaultKey ?? "");
   const [status, setStatus] = useState<string | null>(null);
 
   async function upload(file: File) {
-    if (file.size > MAX_UPLOAD_BYTES) { setStatus("Dosya en fazla 8 MB olabilir"); return; }
-    setStatus("Yükleniyor…");
+    if (file.size > MAX_UPLOAD_BYTES) { setStatus(t("tooLarge")); return; }
+    setStatus(t("uploading"));
     const res = await fetch("/api/upload/presign", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ kind, contentType: file.type, contentLength: file.size }),
     });
-    if (!res.ok) { setStatus((await res.json()).error ?? "Hata"); return; }
+    if (!res.ok) { setStatus(t("error")); return; }
     const { url, key: newKey } = await res.json();
     const put = await fetch(url, { method: "PUT", headers: { "content-type": file.type }, body: file });
-    if (!put.ok) { setStatus("Yükleme başarısız"); return; }
+    if (!put.ok) { setStatus(t("failed")); return; }
     setKey(newKey);
-    setStatus("Yüklendi");
+    setStatus(t("done"));
     onUploaded?.(newKey);
   }
 

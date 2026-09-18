@@ -105,3 +105,56 @@ test.describe.serial("İngilizce randevu akışı", () => {
     await expect(page.getByText("Scheduled")).toBeVisible();
   });
 });
+
+/**
+ * Panel de üç dilde. Türkçe panel testleri (`booking.spec.ts`) öneksiz yolda
+ * duruyor; burada İngilizce panel ve dil tercihi doğrulanıyor. Tercih
+ * `User.locale`'e yazıldığı için bu testler seed berberinin kayıtlı dilini
+ * değiştirir — panelin *gösterdiği* dil adresten geldiğinden Türkçe testler
+ * bundan etkilenmez.
+ */
+test.describe.serial("panel çevirileri ve dil tercihi", () => {
+  test("İngilizce panel İngilizce açılır", async ({ page }) => {
+    await page.goto("/en/giris");
+    await page.getByLabel("Email").fill("kwame@afrosalon.local");
+    await page.getByLabel("Password").fill("Sifre123!");
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await expect(page).toHaveURL("/en/panel");
+    await expect(page.getByRole("heading", { level: 1, name: /^Today · / })).toBeVisible();
+    const nav = page.getByRole("navigation").first();
+    await expect(nav.getByRole("link", { name: "Appointments" })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "Customers" })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "My profile" })).toBeVisible();
+  });
+
+  test("dil tercihi paneli Fransızcaya taşır", async ({ page }) => {
+    await page.goto("/en/giris");
+    await page.getByLabel("Email").fill("kwame@afrosalon.local");
+    await page.getByLabel("Password").fill("Sifre123!");
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await expect(page).toHaveURL("/en/panel");
+
+    await page.goto("/en/panel/profil");
+    await expect(page.getByRole("heading", { level: 1, name: "My profile" })).toBeVisible();
+    await page.getByLabel("Panel and email language").selectOption("fr");
+    await expect(page).toHaveURL("/fr/panel/profil");
+    await expect(page.locator("html")).toHaveAttribute("lang", "fr");
+    await expect(page.getByRole("heading", { level: 1, name: "Mon profil" })).toBeVisible();
+
+    // Tercih kaydedildi: yeniden yüklemek adresi değil, seçili değeri sınar.
+    await page.reload();
+    await expect(page.getByLabel("Langue du panneau et des e-mails")).toHaveValue("fr");
+  });
+
+  test("Türkçeye geri alınır", async ({ page }) => {
+    await page.goto("/fr/giris");
+    await page.getByLabel("E-mail").fill("kwame@afrosalon.local");
+    await page.getByLabel("Mot de passe").fill("Sifre123!");
+    await page.getByRole("button", { name: "Se connecter" }).click();
+    await expect(page).toHaveURL("/fr/panel");
+    await page.goto("/fr/panel/profil");
+    await page.getByLabel("Langue du panneau et des e-mails").selectOption("tr");
+    await expect(page).toHaveURL("/panel/profil");
+    await expect(page.getByRole("heading", { level: 1, name: "Profilim" })).toBeVisible();
+  });
+});

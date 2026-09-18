@@ -1,5 +1,6 @@
 "use client";
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import { useActionError } from "@/lib/use-action-error";
 type Initial = { id: string; name: string; durationMinutes: number; priceKurus: number; sortOrder: number };
 
 export function ServiceForm({ initial, onDone }: { initial?: Initial; onDone?: () => void }) {
+  const t = useTranslations("panel");
   const showError = useActionError();
   const [pending, start] = useTransition();
   const router = useRouter();
@@ -32,19 +34,19 @@ export function ServiceForm({ initial, onDone }: { initial?: Initial; onDone?: (
           });
           if (!r.ok) { setError(showError(r)); return; }
           setError(null);
-          toast.success(initial ? "Hizmet güncellendi" : "Hizmet eklendi");
+          toast.success(initial ? t("services.updated") : t("services.added"));
           router.refresh();
           onDone?.();
           if (!initial) form.reset();
         });
       }}
     >
-      <div><Label htmlFor="name">Ad</Label><Input id="name" name="name" defaultValue={initial?.name} required /></div>
-      <div><Label htmlFor="durationMinutes">Süre (dk)</Label><Input id="durationMinutes" name="durationMinutes" type="number" step={5} min={5} defaultValue={initial?.durationMinutes ?? 30} required /></div>
-      <div><Label htmlFor="priceLira">Fiyat (₺)</Label><Input id="priceLira" name="priceLira" type="number" step="0.01" min={0} defaultValue={initial ? initial.priceKurus / 100 : ""} required /></div>
-      <div><Label htmlFor="sortOrder">Sıra</Label><Input id="sortOrder" name="sortOrder" type="number" min={0} defaultValue={initial?.sortOrder ?? 0} /></div>
+      <div><Label htmlFor="name">{t("services.name")}</Label><Input id="name" name="name" defaultValue={initial?.name} required /></div>
+      <div><Label htmlFor="durationMinutes">{t("services.duration")}</Label><Input id="durationMinutes" name="durationMinutes" type="number" step={5} min={5} defaultValue={initial?.durationMinutes ?? 30} required /></div>
+      <div><Label htmlFor="priceLira">{t("services.price")}</Label><Input id="priceLira" name="priceLira" type="number" step="0.01" min={0} defaultValue={initial ? initial.priceKurus / 100 : ""} required /></div>
+      <div><Label htmlFor="sortOrder">{t("services.sortOrder")}</Label><Input id="sortOrder" name="sortOrder" type="number" min={0} defaultValue={initial?.sortOrder ?? 0} /></div>
       {error && <p className="text-sm text-destructive sm:col-span-4">{error}</p>}
-      <Button type="submit" disabled={pending} className="sm:col-span-4">{initial ? "Kaydet" : "Ekle"}</Button>
+      <Button type="submit" disabled={pending} className="sm:col-span-4">{initial ? t("common.save") : t("common.add")}</Button>
     </form>
   );
 }

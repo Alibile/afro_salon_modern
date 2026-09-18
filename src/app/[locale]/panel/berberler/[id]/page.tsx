@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { requireAdmin } from "@/lib/auth-helpers";
 import { getBarberDetail } from "@/lib/queries/barbers";
 import { BarberForm } from "@/components/panel/BarberForm";
@@ -15,32 +16,27 @@ export default async function BerberDetayPage(props: { params: Promise<{ id: str
   if (!barber) notFound();
   const hasHistory = barber.appointmentCount > 0 || barber.photoCount > 0;
   const isSelf = actor.barberId === barber.id;
+  const t = await getTranslations("panel.barbers");
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-3xl">{barber.name}</h1>
         <DeleteButton
-          title="Berber silinsin mi?"
-          description={`"${barber.name}" kalıcı olarak silinecek; kullanıcı hesabı ve çalışma saatleri de silinecek. Bu işlem geri alınamaz.`}
+          title={t("deleteTitle")}
+          description={t("deleteDescription", { name: barber.name })}
           disabled={hasHistory || isSelf}
-          disabledReason={
-            isSelf
-              ? "Kendi hesabınızı silemezsiniz"
-              : hasHistory
-                ? "Bu berberin randevu veya fotoğraf geçmişi var, silinemez; pasife alın"
-                : undefined
-          }
+          disabledReason={isSelf ? t("deleteSelf") : hasHistory ? t("deleteBlocked") : undefined}
           onConfirm={() => deleteBarber(barber.id)}
-          successMessage="Berber silindi"
+          successMessage={t("deleted")}
           redirectTo="/panel/berberler"
         />
       </div>
       <section className="rounded-xl border bg-card p-4">
-        <h2 className="mb-3 text-xl">Bilgiler</h2>
+        <h2 className="mb-3 text-xl">{t("infoTitle")}</h2>
         <BarberForm mode="edit" barber={barber} />
       </section>
       <section className="rounded-xl border bg-card p-4">
-        <h2 className="mb-3 text-xl">Çalışma saatleri</h2>
+        <h2 className="mb-3 text-xl">{t("hoursTitle")}</h2>
         <WorkingHoursForm barberId={barber.id} hours={barber.hours} />
       </section>
     </div>

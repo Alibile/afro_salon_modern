@@ -4,14 +4,9 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { loginSchema } from "@/schemas/auth";
 import { hasLocale } from "next-intl";
-import { routing, type AppLocale } from "@/i18n/routing";
+import { routing, toAppLocale } from "@/i18n/routing";
 
-/** DB `String` sütununu uygulama dil birliğine indirger; tanınmayan değer varsayılana düşer. */
-function toLocale(value: string): AppLocale {
-  return hasLocale(routing.locales, value) ? value : routing.defaultLocale;
-}
-
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers, auth, signIn, signOut, unstable_update: updateSession } = NextAuth({
   session: { strategy: "jwt" },
   pages: { signIn: "/giris" },
   providers: [
@@ -36,7 +31,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // kullanıcının kayıtlı tercihini "tr"ye çevirmemeli: yok sayılır.
         const raw = rawInput?.locale;
         const requested = hasLocale(routing.locales, raw) ? raw : undefined;
-        const locale = requested ?? toLocale(user.locale);
+        const locale = requested ?? toAppLocale(user.locale);
         if (requested && locale !== user.locale) {
           await prisma.user.update({ where: { id: user.id }, data: { locale } });
         }
@@ -53,12 +48,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    jwt({ token, user }) {
+    /**
+     * Jeton oturum açarken doldurulur ve normalde bir daha okunmaz. Tek
+     * istisna `trigger === "update"`: kullanıcı panelden dilini (ya da adını)
+     * değiştirdiğinde `updateSession()` bu dalı çalıştırır ve jeton
+     * veritabanından tazelenir — böylece tercih için yeniden giriş gerekmez.
+     * İstemciden gelen `session` verisine güvenilmez, kaynak hep DB'dir.
+     */
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id as string;
         token.role = user.role;
         token.barberId = user.barberId;
         token.locale = user.locale;
+      } else if (trigger === "update" && token.id) {
+        const fresh = await prisma.user.findUnique({
+          where: { id: token.id },
+          select: { name: true, locale: true },
+        });
+        if (fresh) {
+          token.name = fresh.name;
+          token.locale = toAppLocale(fresh.locale);
+        }
       }
       return token;
     },

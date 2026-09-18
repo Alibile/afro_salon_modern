@@ -1,5 +1,6 @@
 "use client";
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +15,7 @@ function truncate(text: string, max: number) {
 }
 
 export function TestimonialRow({ testimonial }: { testimonial: T }) {
+  const t = useTranslations("panel");
   const [editing, setEditing] = useState(false);
   const [pending, start] = useTransition();
   const router = useRouter();
@@ -25,29 +27,29 @@ export function TestimonialRow({ testimonial }: { testimonial: T }) {
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <p className="font-medium">
-              {testimonial.name} {!testimonial.isActive && <Badge variant="secondary">Pasif</Badge>}
+              {testimonial.name} {!testimonial.isActive && <Badge variant="secondary">{t("common.inactive")}</Badge>}
             </p>
-            <p className="text-sm text-amber-500" aria-label={`${testimonial.rating} / 5 yıldız`}>
+            <p className="text-sm text-amber-500" aria-label={t("testimonials.stars", { rating: testimonial.rating })}>
               {"★".repeat(testimonial.rating)}
               {"☆".repeat(5 - testimonial.rating)}
             </p>
             <p className="text-sm text-muted-foreground">{truncate(testimonial.text, 120)}</p>
           </div>
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" onClick={() => setEditing(true)}>Düzenle</Button>
+            <Button size="sm" variant="outline" onClick={() => setEditing(true)}>{t("common.edit")}</Button>
             <Button
               size="sm"
               variant="secondary"
               disabled={pending}
               onClick={() => start(async () => { await toggleTestimonial(testimonial.id, !testimonial.isActive); router.refresh(); })}
             >
-              {testimonial.isActive ? "Pasife al" : "Aktif et"}
+              {testimonial.isActive ? t("common.deactivate") : t("common.activate")}
             </Button>
             <DeleteButton
-              title="Yorum silinsin mi?"
-              description={`"${testimonial.name}" yorumu kalıcı olarak silinecek. Bu işlem geri alınamaz.`}
+              title={t("testimonials.deleteTitle")}
+              description={t("testimonials.deleteDescription", { name: testimonial.name })}
               onConfirm={() => deleteTestimonial(testimonial.id)}
-              successMessage="Yorum silindi"
+              successMessage={t("testimonials.deleted")}
             />
           </div>
         </div>

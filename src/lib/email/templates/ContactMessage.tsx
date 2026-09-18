@@ -1,6 +1,10 @@
 import { Html, Body, Container, Heading, Text, Hr } from "@react-email/components";
+import { emailTranslator } from "../i18n";
+import type { AppLocale } from "@/i18n/routing";
 
 export type ContactMessageProps = {
+  /** Bu tek e-posta salona gider, ziyaretçiye değil: dili salonun dilidir. */
+  locale: AppLocale;
   shopName: string;
   name: string;
   phone: string;
@@ -9,15 +13,16 @@ export type ContactMessageProps = {
 };
 
 export function ContactMessage(p: ContactMessageProps) {
+  const t = emailTranslator(p.locale, "contact");
   return (
-    <Html lang="tr">
+    <Html lang={p.locale}>
       <Body style={{ fontFamily: "Arial, sans-serif", backgroundColor: "#f6efe4", color: "#3b2a1e" }}>
         <Container style={{ padding: 24 }}>
-          <Heading as="h1">Siteden yeni mesaj</Heading>
+          <Heading as="h1">{t("heading")}</Heading>
           <Text><strong>{p.name}</strong>{p.phone ? ` · ${p.phone}` : ""}</Text>
           {p.services.length > 0 && (
             <>
-              <Text style={{ marginBottom: 4 }}>İlgilendiği hizmetler:</Text>
+              <Text style={{ marginBottom: 4 }}>{t("interestedIn")}</Text>
               <ul style={{ margin: "0 0 16px", paddingLeft: 20 }}>
                 {p.services.map((s) => (
                   <li key={s}>{s}</li>
@@ -27,7 +32,7 @@ export function ContactMessage(p: ContactMessageProps) {
           )}
           <Text style={{ whiteSpace: "pre-wrap" }}>{p.message}</Text>
           <Hr />
-          <Text style={{ fontSize: 12 }}>{p.shopName} · iletişim formu</Text>
+          <Text style={{ fontSize: 12 }}>{t("footer", { shopName: p.shopName })}</Text>
         </Container>
       </Body>
     </Html>

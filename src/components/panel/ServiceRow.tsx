@@ -1,5 +1,6 @@
 "use client";
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +12,9 @@ import { DeleteButton } from "./DeleteButton";
 type S = { id: string; name: string; durationMinutes: number; priceKurus: number; sortOrder: number; isActive: boolean; usageCount: number };
 
 export function ServiceRow({ service }: { service: S }) {
+  const t = useTranslations("panel");
+  // Süre birimi müşteri yüzüyle ortak; ikinci çevirmen yalnızca onun için.
+  const tc = useTranslations("common");
   const [editing, setEditing] = useState(false);
   const [pending, start] = useTransition();
   const router = useRouter();
@@ -21,24 +25,24 @@ export function ServiceRow({ service }: { service: S }) {
       ) : (
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <p className="font-medium">{service.name} {!service.isActive && <Badge variant="secondary">Pasif</Badge>}</p>
+            <p className="font-medium">{service.name} {!service.isActive && <Badge variant="secondary">{t("common.inactive")}</Badge>}</p>
             <p className="text-sm text-muted-foreground">
-              {service.durationMinutes} dk · <InlinePrice service={service} /> · sıra {service.sortOrder}
+              {tc("minutesShort", { count: service.durationMinutes })} · <InlinePrice service={service} /> · {t("services.order", { order: service.sortOrder })}
             </p>
           </div>
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" onClick={() => setEditing(true)}>Düzenle</Button>
+            <Button size="sm" variant="outline" onClick={() => setEditing(true)}>{t("common.edit")}</Button>
             <Button size="sm" variant="secondary" disabled={pending}
               onClick={() => start(async () => { await toggleService(service.id, !service.isActive); router.refresh(); })}>
-              {service.isActive ? "Pasife al" : "Aktif et"}
+              {service.isActive ? t("common.deactivate") : t("common.activate")}
             </Button>
             <DeleteButton
-              title="Hizmet silinsin mi?"
-              description={`"${service.name}" kalıcı olarak silinecek. Bu işlem geri alınamaz.`}
+              title={t("services.deleteTitle")}
+              description={t("services.deleteDescription", { name: service.name })}
               disabled={service.usageCount > 0}
-              disabledReason={service.usageCount > 0 ? "Bu hizmet geçmiş randevularda kullanılmış, silinemez; pasife alın" : undefined}
+              disabledReason={service.usageCount > 0 ? t("services.deleteBlocked") : undefined}
               onConfirm={() => deleteService(service.id)}
-              successMessage="Hizmet silindi"
+              successMessage={t("services.deleted")}
             />
           </div>
         </div>

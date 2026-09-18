@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 import { GALLERY_TAGS, orderTags } from "@/lib/gallery-tags";
 import { MAX_TAGS, TAG_MIN_LENGTH, TAG_MAX_LENGTH, normalizeTags } from "@/lib/gallery-utils";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,7 @@ export function GalleryTagPicker({
   onSelectedChange: (tags: string[]) => void;
   onCustomChange: (value: string) => void;
 }) {
+  const t = useTranslations("panel.gallery");
   const total = selected.length + normalizeTags(custom).length;
   const full = total >= MAX_TAGS;
 
@@ -35,7 +37,7 @@ export function GalleryTagPicker({
 
   return (
     <div className="space-y-2">
-      <Label id={`tags-label-${id}`}>Etiketler</Label>
+      <Label id={`tags-label-${id}`}>{t("tags")}</Label>
       <div className="flex flex-wrap gap-1.5" role="group" aria-labelledby={`tags-label-${id}`}>
         {GALLERY_TAGS.map((tag) => {
           const on = selected.includes(tag);
@@ -62,18 +64,17 @@ export function GalleryTagPicker({
       </div>
       <div className="space-y-1">
         <Label htmlFor={`tags-other-${id}`} className="text-xs font-normal text-muted-foreground">
-          Diğer etiketler
+          {t("otherTags")}
         </Label>
         <Input
           id={`tags-other-${id}`}
           value={custom}
-          placeholder="Virgülle ayır: Dalga, Desen"
+          placeholder={t("otherTagsPlaceholder")}
           onChange={(e) => onCustomChange(e.target.value)}
         />
       </div>
       <p className="text-xs text-muted-foreground">
-        Seçili: {total}. En az bir etiket zorunlu; en fazla {MAX_TAGS} etiket, her biri {TAG_MIN_LENGTH}–
-        {TAG_MAX_LENGTH} karakter.
+        {t("tagsHint", { count: total, max: MAX_TAGS, min: TAG_MIN_LENGTH, maxLength: TAG_MAX_LENGTH })}
       </p>
     </div>
   );

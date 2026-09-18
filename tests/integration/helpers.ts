@@ -14,25 +14,27 @@ function uniq(prefix: string) {
   return `${prefix}${counter}-${Date.now()}`;
 }
 
-export async function createCustomer(overrides: { name?: string; email?: string } = {}) {
+export async function createCustomer(overrides: { name?: string; email?: string; locale?: string } = {}) {
   return prisma.user.create({
     data: {
       name: overrides.name ?? "Müşteri Test",
       email: overrides.email ?? `${uniq("musteri")}@test.local`,
       passwordHash: "x",
       role: Role.CUSTOMER,
+      ...(overrides.locale ? { locale: overrides.locale } : {}),
     },
   });
 }
 
 /** Berber + kullanıcı + Pzt-Cmt 09:00-19:00, Pazar kapalı */
-export async function createBarber(overrides: { name?: string; hours?: boolean } = {}) {
+export async function createBarber(overrides: { name?: string; hours?: boolean; locale?: string } = {}) {
   const user = await prisma.user.create({
     data: {
       name: overrides.name ?? "Berber Test",
       email: `${uniq("berber")}@test.local`,
       passwordHash: "x",
       role: Role.BARBER,
+      ...(overrides.locale ? { locale: overrides.locale } : {}),
     },
   });
   const barber = await prisma.barber.create({

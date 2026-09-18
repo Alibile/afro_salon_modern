@@ -1,5 +1,6 @@
 "use client";
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import { useActionError } from "@/lib/use-action-error";
 type Barber = { id: string; name: string; email: string; bio: string; photoKey: string; isActive: boolean };
 
 export function BarberForm(props: { mode: "create" } | { mode: "edit"; barber: Barber }) {
+  const t = useTranslations("panel");
   const showError = useActionError();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -31,35 +33,35 @@ export function BarberForm(props: { mode: "create" } | { mode: "edit"; barber: B
             : await createBarber({ name: String(fd.get("name")), email: String(fd.get("email")), password: String(fd.get("password")), bio: String(fd.get("bio")), photoKey: String(fd.get("photoKey")) });
           if (!r.ok) { setError(showError(r)); return; }
           setError(null);
-          toast.success(barber ? "Berber güncellendi" : "Berber eklendi");
+          toast.success(barber ? t("barbers.updated") : t("barbers.added"));
           if (barber) router.refresh(); else router.push(`/panel/berberler/${(r.data as { barberId: string }).barberId}`);
         });
       }}
     >
-      <div><Label htmlFor="name">Ad Soyad</Label><Input id="name" name="name" defaultValue={barber?.name} required /></div>
-      {!barber && <div><Label htmlFor="email">E-posta</Label><Input id="email" name="email" type="email" required /></div>}
-      {!barber && <div><Label htmlFor="password">Geçici şifre</Label><Input id="password" name="password" type="text" minLength={8} required /></div>}
-      <div className="sm:col-span-2"><Label htmlFor="bio">Kısa tanıtım</Label><Textarea id="bio" name="bio" defaultValue={barber?.bio} maxLength={200} /></div>
+      <div><Label htmlFor="name">{t("barbers.name")}</Label><Input id="name" name="name" defaultValue={barber?.name} required /></div>
+      {!barber && <div><Label htmlFor="email">{t("barbers.email")}</Label><Input id="email" name="email" type="email" required /></div>}
+      {!barber && <div><Label htmlFor="password">{t("barbers.tempPassword")}</Label><Input id="password" name="password" type="text" minLength={8} required /></div>}
+      <div className="sm:col-span-2"><Label htmlFor="bio">{t("barbers.bio")}</Label><Textarea id="bio" name="bio" defaultValue={barber?.bio} maxLength={200} /></div>
       <div className="sm:col-span-2">
-        <Label>Profil fotoğrafı (zorunlu)</Label>
+        <Label>{t("barbers.photo")}</Label>
         <ImageUploader kind="barber" name="photoKey" defaultKey={barber?.photoKey} />
       </div>
       {barber && (
-        <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="isActive" defaultChecked={barber.isActive} /> Aktif (müşteriler seçebilir)</label>
+        <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="isActive" defaultChecked={barber.isActive} /> {t("barbers.active")}</label>
       )}
       {error && <p className="text-sm text-destructive sm:col-span-2">{error}</p>}
-      <Button type="submit" disabled={pending} className="sm:col-span-2">{barber ? "Kaydet" : "Berber ekle"}</Button>
+      <Button type="submit" disabled={pending} className="sm:col-span-2">{barber ? t("common.save") : t("barbers.submit")}</Button>
       {barber && (
         <Button type="button" variant="outline" className="sm:col-span-2"
           onClick={() => {
-            const pw = window.prompt("Yeni şifre (en az 8 karakter):");
+            const pw = window.prompt(t("barbers.newPasswordPrompt"));
             if (!pw) return;
             start(async () => {
               const r = await resetBarberPassword(barber.id, pw);
-              if (r.ok) toast.success("Şifre güncellendi"); else toast.error(showError(r));
+              if (r.ok) toast.success(t("common.passwordUpdated")); else toast.error(showError(r));
             });
           }}>
-          Şifreyi sıfırla
+          {t("barbers.resetPassword")}
         </Button>
       )}
     </form>

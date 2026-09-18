@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { requireStaff } from "@/lib/auth-helpers";
 import { listUpcomingTimeOff } from "@/lib/queries/timeoff";
 import { listBarbersForAdmin } from "@/lib/queries/barbers";
@@ -8,15 +9,16 @@ export const dynamic = "force-dynamic";
 
 export default async function IzinlerPage() {
   const user = await requireStaff();
+  const t = await getTranslations("panel.timeOff");
   const [items, barbers] = await Promise.all([
     listUpcomingTimeOff(user),
     user.role === "ADMIN" ? listBarbersForAdmin() : Promise.resolve([]),
   ]);
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl">İzinler</h1>
+      <h1 className="text-3xl">{t("title")}</h1>
       <section className="rounded-xl border bg-card p-4">
-        <h2 className="mb-3 text-xl">Yeni izin</h2>
+        <h2 className="mb-3 text-xl">{t("newTitle")}</h2>
         <TimeOffForm barbers={user.role === "ADMIN" ? barbers.filter((b) => b.isActive).map((b) => ({ id: b.id, name: b.name })) : null} ownBarberId={user.barberId} />
       </section>
       <TimeOffList items={items} />
