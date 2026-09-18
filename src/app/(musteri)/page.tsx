@@ -25,8 +25,8 @@ export default async function LandingPage() {
   return (
     // Hareket yalnızca ana sayfa ağacında: panel ve randevu akışı hareketsiz kalır.
     <MotionProvider>
-      <SiteNav shopName={settings.shopName} user={user} social={social} />
-      <Hero status={status} address={settings.address} phone={settings.phone} />
+      <SiteNav shopName={settings.shopName} user={user} />
+      <Hero status={status} />
       <AboutSection title={settings.aboutTitle} text={settings.aboutText} />
       <ServicesSection
         services={services.map((s) => ({ id: s.id, name: s.name, durationMinutes: s.durationMinutes, priceKurus: s.priceKurus }))}

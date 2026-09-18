@@ -75,3 +75,22 @@ test.describe("landing galeri", () => {
     await expect(dialog).toBeHidden();
   });
 });
+
+// Sosyal ikonlar Tur 4'te navbar'dan çıkarıldı; yerleri footer (ve iletişim
+// bölümü). Bu test ikisini birden bekler: çubukta yok, altbilgide var.
+test.describe("landing navbar", () => {
+  const SOCIAL = 'a[aria-label="Instagram"], a[aria-label="Facebook"], a[aria-label="WhatsApp"]';
+
+  test("navbar sosyal medya bağlantısı içermez, altbilgi içerir", async ({ page }) => {
+    await page.goto("/");
+    const header = page.locator("header");
+    await expect(header.locator(SOCIAL)).toHaveCount(0);
+
+    // Mobil menü açıkken de yok (ikonlar oradan da kaldırıldı).
+    await header.getByRole("button", { name: "Menüyü aç" }).click();
+    await expect(page.locator("#mobil-menu")).toBeVisible();
+    await expect(header.locator(SOCIAL)).toHaveCount(0);
+
+    await expect(page.locator("footer").locator(SOCIAL).first()).toBeVisible();
+  });
+});

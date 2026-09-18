@@ -7,7 +7,8 @@ boyutlandırılmış olsa da orijinal eser aşağıdaki fotoğrafçılara aittir
 
 | Dosya | Fotoğrafçı | Kaynak URL | Lisans |
 |---|---|---|---|
-| `hero.jpg` | Th2city Santana | https://www.pexels.com/photo/barber-cutting-man-s-hair-1836983/ | Pexels License |
+| `hero.jpg` | Gift Habeshaw | https://www.pexels.com/photo/man-in-black-crew-neck-shirt-wearing-blue-sunglasses-3951774/ | Pexels License |
+| `hero-mobile.jpg` (aynı fotoğrafın 4:5 kırpımı) | Gift Habeshaw | https://www.pexels.com/photo/man-in-black-crew-neck-shirt-wearing-blue-sunglasses-3951774/ | Pexels License |
 | `about.jpg` | Pavel Danilyuk | https://www.pexels.com/photo/the-interior-of-a-barber-shop-7518728/ | Pexels License |
 | `gallery-1.jpg` | Brian Silva | https://www.pexels.com/photo/barber-perfecting-a-fade-haircut-close-up-39559270/ | Pexels License |
 | `gallery-2.jpg` | Folu Adedinni | https://www.pexels.com/photo/20514563/ | Pexels License |
@@ -33,6 +34,11 @@ boyutlandırılmış olsa da orijinal eser aşağıdaki fotoğrafçılara aittir
 | `gallery-28.jpg` | Ruslan Rozanov | https://www.pexels.com/photo/back-view-of-man-head-11373111/ | Pexels License |
 | `team-1.jpg` (Yusuf Adeyemi) | cottonbro studio | https://www.pexels.com/photo/a-bearded-man-with-dreadlocks-8273622/ | Pexels License |
 | `team-2.jpg` (Kwame Mensah) | Brian Silva | https://www.pexels.com/photo/close-up-of-modern-men-s-haircut-in-barber-shop-39559266/ | Pexels License |
+
+Tur 4'te `hero.jpg` değişti: berber kesim yapan eski kare (Th2city Santana,
+https://www.pexels.com/photo/barber-cutting-man-s-hair-1836983/) yerini koyu
+zeminde geniş afrolu bir portreye bıraktı — tam ekran hero fotoğrafın üstünde
+metin taşıyor, eski kare hem afro hissi vermiyor hem de üstüne yazı kaldırmıyordu.
 
 Tur 4'te çıkarılan fotoğraflar (dosyaları silindi, seed onları pasife alır):
 `gallery-3.jpg`, `gallery-4.jpg`, `gallery-5.jpg`, `gallery-6.jpg`,

@@ -26,6 +26,14 @@
   --input: oklch(0.88 0.03 75);
   --ring: oklch(0.62 0.15 40);
   --radius: 0.9rem;
+  /*
+   * Hero fotoğrafının üstündeki iki renk temaya bağlı değildir: metin her iki
+   * temada da aynı koyu kareyi görür, bu yüzden `.dark` bloğunda yeniden
+   * tanımlanmazlar. Kum, fotoğrafın üstündeki tek açık renk; mürekkep hem
+   * gradyanın hem de bölümün zemin rengi.
+   */
+  --hero-sand: oklch(0.97 0.02 80);
+  --hero-ink: oklch(0.2 0.02 50);
 }
 
 .dark {
@@ -70,6 +78,8 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-hero-sand: var(--hero-sand);
+  --color-hero-ink: var(--hero-ink);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -136,6 +146,52 @@
     line-height: 0.95;
     letter-spacing: -0.005em;
     text-wrap: balance;
+  }
+  /*
+   * Sinematik hero'nun manşeti: `display-hero`'dan daha sıkı bir satır aralığı
+   * ve daha büyük bir ölçek. Tavan 8rem'de durur: "GEOMETRİSİ VAR." bu puntoda
+   * 72rem'lik kabın içinde tek satır kalır, bir basamak yukarısında taşardı.
+   */
+  .display-cinema {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(2.5rem, 9vw, 8rem);
+    font-variation-settings: "opsz" 144;
+    line-height: 0.92;
+    letter-spacing: -0.01em;
+  }
+  /*
+   * Fotoğrafın üstündeki karartma iki katmandır: soldan sağa inen perde metin
+   * sütununu, yukarıdan aşağı inen perde alt yarıyı koyultur. İkisi de aynı
+   * mürekkebi kullandığı için sonuç sıralamadan bağımsızdır; ölçülen en düşük
+   * kontrast (kum metin / en açık piksel) 1440'ta 6.3:1, 390'da 5.4:1.
+   */
+  .hero-scrim {
+    background-image:
+      linear-gradient(
+        to right,
+        oklch(0.2 0.02 50 / 0.62) 0%,
+        oklch(0.2 0.02 50 / 0.26) 42%,
+        oklch(0.2 0.02 50 / 0) 70%
+      ),
+      linear-gradient(
+        to bottom,
+        oklch(0.2 0.02 50 / 0.1) 0%,
+        oklch(0.2 0.02 50 / 0.22) 28%,
+        oklch(0.2 0.02 50 / 0.7) 55%,
+        oklch(0.2 0.02 50 / 0.94) 100%
+      );
+  }
+  /*
+   * Açılışta fotoğraf sekiz saniyede 1.06'dan 1'e iner. Yalnızca `transform`
+   * yazılır ve katman hero'nun kendi kutusunda; `Parallax` bu görsele hiç
+   * dokunmaz, böylece tek bir dönüşüm zinciri kalır. Hareket azaltılmışsa
+   * yukarıdaki medya sorgusu süreyi sıfırlar ve `both` dolgusu görseli
+   * doğrudan son ölçeğinde (1) bırakır.
+   */
+  .hero-zoom {
+    animation: hero-zoom 8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    will-change: transform;
   }
   .display-lg {
     font-family: var(--font-display);
@@ -223,4 +279,9 @@
 @keyframes rise {
   from { opacity: 0; transform: translateY(18px); }
   to { opacity: 1; transform: none; }
+}
+
+@keyframes hero-zoom {
+  from { transform: scale(1.06); }
+  to { transform: none; }
 }

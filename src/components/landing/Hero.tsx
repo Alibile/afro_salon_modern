@@ -1,8 +1,7 @@
 import Link from "next/link";
+import { getImageProps } from "next/image";
 import { Button } from "@/components/ui/button";
 import { AfroPattern } from "@/components/brand/AfroPattern";
-import { telHref } from "@/components/brand/SocialLinks";
-import { ImageSlot } from "@/components/brand/ImageSlot";
 import { Parallax } from "@/components/motion/Parallax";
 import { staggerDelay } from "@/lib/motion-utils";
 import type { ShopStatus } from "@/lib/shop-status";
@@ -15,35 +14,73 @@ import { cn } from "@/lib/utils";
  */
 const HEADLINE_LINES = ["KIVRIMIN KENDİ", "GEOMETRİSİ VAR."];
 
+const PHOTO_ALT = "Koyu bir stüdyo ışığında, geniş afro saçlı bir adamın portresi";
+
 /**
- * Açılış sırası: manşet satırları 60 ms arayla, ardından alt metin, gövde ve
- * düğmeler. Sıra `.rise` (CSS) ile kurulur — sayfanın ilk ekranı Motion'ın
- * hidrasyonunu beklemez. Kaydırmaya bağlı derinlik (desen + fotoğraf) Motion'ın
- * işidir; o sırada içerik zaten görünürdür.
+ * Açılış sırası: manşet satırları 60 ms arayla, ardından alt metin ve düğmeler.
+ * Sıra `.rise` (CSS) ile kurulur — sayfanın ilk ekranı Motion'ın hidrasyonunu
+ * beklemez.
  */
 function riseDelay(index: number) {
   return { animationDelay: `${staggerDelay(index).toFixed(2)}s` };
 }
 
-export function Hero({ status, address, phone }: { status: ShopStatus; address: string; phone: string }) {
+/**
+ * Tam ekran sinematik hero: tek bir fotoğraf, üstünde metin.
+ *
+ * Fotoğraf iki kırpımda hazırdır — masaüstü için 3:2 (`hero.jpg`), telefon için
+ * 4:5 (`hero-mobile.jpg`). Seçim `<picture>` içindeki `media` ile yapılır,
+ * `hidden`/`block` ikilisiyle değil: gizlenmiş bir `<img>` de indirilir, o yolda
+ * her cihaz iki dosyayı birden çekerdi. `getImageProps`, Next'in görsel
+ * iyileştirmesini (`/_next/image`, AVIF/WebP, `srcset`) `<picture>` içinde de
+ * korur. Görsel gövdenin ilk öğesidir ve `fetchPriority="high"` ile istenir:
+ * LCP bu fotoğraftır.
+ */
+export function Hero({ status }: { status: ShopStatus }) {
   const open = status.isOpenToday && status.text.startsWith("Bugün açık");
-  const afterHeadline = HEADLINE_LINES.length;
+  // Next 16'da `priority` bıraktı; iki kırpımdan hangisinin LCP olacağı ekran
+  // genişliğine bağlı olduğu için belgelerin sanat yönetimi için önerdiği yol
+  // izlenir: `preload` yok, `loading="eager"` + `fetchPriority="high"` var —
+  // yalnızca `media` ile seçilen dosya indirilir ve o dosya en yüksek öncelikle
+  // istenir. Kalite varsayılan (75) bırakılır; `images.qualities` allowlist'i
+  // Next 16'da yalnızca bu değeri içerir.
+  const shared = { alt: PHOTO_ALT, sizes: "100vw", loading: "eager", fetchPriority: "high" } as const;
+  const { props: wide } = getImageProps({ ...shared, src: "/landing/hero.jpg", width: 2000, height: 1333 });
+  const { props: tall } = getImageProps({ ...shared, src: "/landing/hero-mobile.jpg", width: 1200, height: 1500 });
+
   return (
-    <section className="relative overflow-hidden border-b border-border">
-      <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 hidden w-[36%] overflow-hidden bg-primary/8 text-primary md:block">
-        {/* Desen en hızlı katman: sayfa kayarken arka plan derinlik kazanır. */}
-        <Parallax className="absolute inset-x-0 -top-16 -bottom-16" range={44} speed={1} ariaHidden>
-          <AfroPattern variant="tarak" size={96} opacity={0.12} />
+    <section
+      // Negatif üst boşluk çubuğun yüksekliği kadardır (`h-20`): hero sayfanın
+      // en üstünden başlar ve yapışkan çubuk onun üstünde durur.
+      className="relative isolate -mt-20 flex min-h-[92svh] flex-col justify-end overflow-hidden border-b border-border bg-hero-ink text-hero-sand"
+    >
+      <div className="hero-zoom absolute inset-0 -z-20">
+        <picture>
+          <source media="(min-width: 768px)" srcSet={wide.srcSet} sizes="100vw" />
+          {/* `alt` zaten `tall` içinde; linter yayılmış prop'u göremediği için ayrıca yazılır. */}
+          <img {...tall} alt={PHOTO_ALT} className="size-full object-cover object-[50%_42%]" />
+        </picture>
+      </div>
+
+      <div aria-hidden className="hero-scrim absolute inset-0 -z-10" />
+
+      {/* Desen yalnızca alt yarıda ve yumuşak maskeyle: fotoğrafın yüzü serbest kalır. */}
+      <div
+        aria-hidden
+        className="absolute inset-x-0 bottom-0 -z-10 h-1/2 overflow-hidden text-hero-sand [mask-image:linear-gradient(to_bottom,transparent,black_85%)]"
+      >
+        <Parallax className="absolute inset-x-0 -top-10 -bottom-10" range={28} speed={0.8} ariaHidden>
+          <AfroPattern variant="tarak" size={104} opacity={0.05} />
         </Parallax>
       </div>
 
-      <div className="relative mx-auto max-w-6xl px-5 pb-16 pt-8 md:pb-20 md:pt-14">
-        <p className="rise flex items-center gap-2.5 text-muted-foreground">
+      <div className="relative mx-auto w-full max-w-6xl px-5 pt-32 pb-16 md:pb-20">
+        <p className="rise flex items-center gap-2.5">
           <span className={cn("size-2 shrink-0 rounded-full", open ? "bg-success" : "bg-primary")} />
           <span className="label pt-px">{status.text}</span>
         </p>
 
-        <h1 className="display-hero mt-8 md:mt-10">
+        <h1 className="display-cinema mt-6 md:mt-8">
           {HEADLINE_LINES.map((line, i) => (
             <span key={line} className="rise block" style={riseDelay(i + 1)}>
               {line}
@@ -51,50 +88,26 @@ export function Hero({ status, address, phone }: { status: ShopStatus; address: 
           ))}
         </h1>
 
-        <div className="mt-10 grid grid-cols-1 gap-12 md:grid-cols-12 md:gap-10">
-          <div className="flex flex-col md:col-span-7 md:pr-10">
-            <p className="rise editorial-note max-w-[36ch] text-xl text-primary md:text-2xl" style={riseDelay(afterHeadline + 1)}>
-              Erkeklere özel afro kesim, fade, örgü ve twist — hepsi bugünün içinde.
-            </p>
-            <p className="rise measure mt-5 leading-relaxed text-muted-foreground" style={riseDelay(afterHeadline + 2)}>
-              Yarına söz vermiyoruz. Bugünün boş saatlerini burada görür, berberini seçer, iki dakikada yerini ayırırsın.
-            </p>
-            <div className="rise mt-9 flex flex-wrap items-center gap-x-7 gap-y-4" style={riseDelay(afterHeadline + 3)}>
-              <Button asChild size="lg" className="h-12 rounded-none px-7 text-base">
-                <Link href="/randevu">Bugün randevu al</Link>
-              </Button>
-              <a href="#hizmetler" className="border-b border-foreground/30 pb-1 text-base transition-colors hover:border-foreground">
-                Hizmetler ve fiyatlar
-              </a>
-            </div>
-            <div className="rise mt-12 border-t border-border pt-5 text-sm text-muted-foreground md:mt-auto" style={riseDelay(afterHeadline + 4)}>
-              <p>{address}</p>
-              <a href={telHref(phone)} className="mt-1 inline-block underline underline-offset-4 hover:text-foreground">
-                {phone}
-              </a>
-            </div>
-          </div>
+        <p className="rise mt-6 max-w-[44ch] text-base text-hero-sand/80 md:max-w-none md:text-lg" style={riseDelay(HEADLINE_LINES.length + 1)}>
+          Erkeklere özel afro kesim, fade, örgü ve twist — hepsi bugünün içinde.
+        </p>
 
-          <div className="md:col-span-5">
-            <figure className="rise" style={riseDelay(afterHeadline + 2)}>
-              <div className="relative aspect-[4/5] w-full overflow-hidden border border-border">
-                {/* Fotoğraf desenin yarı hızında: iki katman birlikte kaymaz, aralarında derinlik açılır. */}
-                <Parallax className="absolute inset-x-0 -top-10 -bottom-10" range={44} speed={0.45}>
-                  <ImageSlot
-                    name="hero.jpg"
-                    alt="Salonda tamamlanmış bir afro kesim"
-                    sizes="(min-width: 768px) 40vw, 100vw"
-                    variant="kente"
-                    priority
-                  />
-                </Parallax>
-              </div>
-              <figcaption className="editorial-note mt-3 text-sm text-muted-foreground">
-                Her saç kendi düzenini kurar; biz o düzeni açığa çıkarırız.
-              </figcaption>
-            </figure>
-          </div>
+        <div className="rise mt-8 flex flex-wrap items-center gap-4" style={riseDelay(HEADLINE_LINES.length + 2)}>
+          <Button asChild size="lg" className="h-12 rounded-none px-7 text-base">
+            <Link href="/randevu">Bugün randevu al</Link>
+          </Button>
+          <a
+            href="#hizmetler"
+            className="inline-flex h-12 items-center border border-hero-sand/45 px-6 text-base transition-colors hover:border-hero-sand hover:bg-hero-sand/10"
+          >
+            Hizmetler ve fiyatlar
+          </a>
         </div>
+      </div>
+
+      <div aria-hidden className="pointer-events-none absolute right-6 bottom-16 hidden flex-col items-center gap-3 md:flex">
+        <span className="label [writing-mode:vertical-rl] text-hero-sand/70">Kaydır</span>
+        <span className="h-16 w-px bg-hero-sand/40" />
       </div>
     </section>
   );

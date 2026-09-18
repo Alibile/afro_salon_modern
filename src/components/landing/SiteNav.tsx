@@ -6,7 +6,6 @@ import { Menu, X } from "lucide-react";
 import { useMotionValueEvent, useScroll } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
-import { SocialLinks, type SocialSettings } from "@/components/brand/SocialLinks";
 import { SECTION_LINKS } from "./sections";
 import { cn } from "@/lib/utils";
 import type { SessionUser } from "@/lib/auth-helpers";
@@ -28,7 +27,7 @@ const NAV_LINK = "border-b border-transparent pb-0.5 text-sm transition-colors h
 const COLLAPSE_AT = 100;
 const EXPAND_AT = 60;
 
-export function SiteNav({ shopName, user, social }: { shopName: string; user: SessionUser | null; social: SocialSettings }) {
+export function SiteNav({ shopName, user }: { shopName: string; user: SessionUser | null }) {
   const [open, setOpen] = useState(false);
   const [shrunk, setShrunk] = useState(false);
   const account = accountLink(user);
@@ -65,12 +64,19 @@ export function SiteNav({ shopName, user, social }: { shopName: string; user: Se
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
+  // Çubuk hero fotoğrafının üstünde başlar: zemin yok, metin kum rengi. Toplanma
+  // eşiği geçilince (ya da mobil menü açılınca — açık panel kum zeminlidir,
+  // çubuğun şeffaf kalması paneli havada bırakırdı) her zamanki kum zemine döner.
+  const solid = shrunk || open;
   return (
     <header
       data-shrunk={shrunk ? "true" : "false"}
+      data-solid={solid ? "true" : "false"}
       className={cn(
-        "sticky top-0 z-30 w-full border-b backdrop-blur transition-colors duration-300",
-        shrunk ? "border-border bg-background/95 shadow-[0_1px_0_0_var(--border)]" : "border-transparent bg-background/80",
+        "sticky top-0 z-30 w-full border-b transition-colors duration-300",
+        solid
+          ? "border-border bg-background/95 text-foreground shadow-[0_1px_0_0_var(--border)] backdrop-blur"
+          : "border-transparent bg-transparent text-hero-sand",
       )}
     >
       <div
@@ -85,7 +91,8 @@ export function SiteNav({ shopName, user, social }: { shopName: string; user: Se
             // Fraunces 600 kelime markasını kalınlaştırıp lockup'ı genişletiyordu; 500
             // editoryal ağırlığı korur (gövde `font-variation-settings` kuralı kalkınca
             // yardımcı sınıf ilk kez gerçekten uygulanıyor).
-            "min-w-0 truncate font-display font-medium tracking-[0.02em] text-primary transition-all duration-300 hover:text-foreground",
+            "min-w-0 truncate font-display font-medium tracking-[0.02em] transition-all duration-300",
+            solid ? "text-primary hover:text-foreground" : "text-hero-sand hover:text-accent",
             shrunk ? "text-base sm:text-xl" : "text-base sm:text-2xl",
           )}
         >
@@ -94,16 +101,15 @@ export function SiteNav({ shopName, user, social }: { shopName: string; user: Se
 
         <nav aria-label="Ana menü" className="mx-auto hidden items-center gap-5 lg:flex xl:gap-7">
           {SECTION_LINKS.map((l) => (
-            <Link key={l.href} href={l.href} className={NAV_LINK}>
+            <Link key={l.href} href={l.href} className={cn(NAV_LINK, !solid && "hover:border-accent hover:text-accent")}>
               {l.label}
             </Link>
           ))}
         </nav>
 
         <div className="ml-auto flex items-center gap-1 lg:ml-0">
-          <SocialLinks settings={social} className="hidden xl:flex" linkClassName="size-8 text-muted-foreground" />
           <ThemeToggle />
-          <Link href={account.href} className={`${NAV_LINK} mx-2 hidden lg:inline-block`}>
+          <Link href={account.href} className={cn(NAV_LINK, "mx-2 hidden lg:inline-block", !solid && "hover:border-accent hover:text-accent")}>
             {account.label}
           </Link>
           <Button asChild className={cn("shrink-0 rounded-none px-3 text-sm transition-[height] duration-300 sm:px-4", shrunk ? "h-9" : "h-10")}>
@@ -115,7 +121,10 @@ export function SiteNav({ shopName, user, social }: { shopName: string; user: Se
             aria-expanded={open}
             aria-controls="mobil-menu"
             onClick={() => setOpen((v) => !v)}
-            className="inline-flex size-10 items-center justify-center text-foreground transition-colors hover:text-primary lg:hidden"
+            className={cn(
+              "inline-flex size-10 items-center justify-center transition-colors lg:hidden",
+              solid ? "text-foreground hover:text-primary" : "text-hero-sand hover:text-accent",
+            )}
           >
             {open ? <X className="size-6" /> : <Menu className="size-6" />}
           </button>
@@ -142,7 +151,6 @@ export function SiteNav({ shopName, user, social }: { shopName: string; user: Se
             >
               {account.label}
             </Link>
-            <SocialLinks settings={social} className="mt-4 gap-3" linkClassName="size-10 text-muted-foreground" iconClassName="size-6" />
           </nav>
         </div>
       )}
