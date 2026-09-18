@@ -79,7 +79,9 @@ export function SiteNav({ shopName, user }: { shopName: string; user: SessionUse
       data-shrunk={shrunk ? "true" : "false"}
       data-solid={solid ? "true" : "false"}
       className={cn(
-        "sticky top-0 z-30 w-full border-b transition-colors duration-300",
+        // `site-nav-landing`: yalnızca CSS'in tutunacağı kanca (bkz. globals.css,
+        // `@media (scripting: none)`) — görünüşe hiçbir şey katmaz.
+        "site-nav-landing sticky top-0 z-30 w-full border-b transition-colors duration-300",
         solid
           ? "border-border bg-background/95 text-foreground shadow-[0_1px_0_0_var(--border)] backdrop-blur"
           : "border-transparent bg-gradient-to-b from-hero-ink/45 to-transparent text-hero-sand",

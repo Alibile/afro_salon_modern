@@ -139,6 +139,28 @@
   .rise { animation-delay: -0.01ms !important; }
 }
 
+/*
+ * JavaScript hiç çalışmazsa çubuk "toplanmış" hâline (kum zemin, koyu metin)
+ * geçemez: kaydırma değeri okunamaz. Şeffaf hâlin karartması hero'nun koyu
+ * fotoğrafı üstünde yeter (ölçülen 6.6:1 / 9.1:1), ama sayfa hero'nun altına
+ * inince yapışkan çubuk kum zeminli bölümlerin üstünde kalır ve kum metin
+ * 1.97:1'e düşer — yarı saydam koyu bir perde açık zeminde bunu düzeltemez.
+ * O yüzden bu modda çubuk yapışkan olmaktan çıkar: hero ile birlikte yukarı
+ * kayar, yalnızca okunur olduğu yerde görünür. Sorgu yalnızca betik tamamen
+ * kapalıyken eşleşir; hidrasyonu bekleyen sayfa (`scripting: enabled`) etkilenmez.
+ *
+ * `static` değil `relative`: hero kendi üstüne `-mt-20` ile biniyor ve çubuk onun
+ * üstünde yalnızca `z-index` sayesinde duruyor — konumlandırılmamış bir öğede
+ * `z-index` etkisizdir, `static` yapılsa çubuk sayfanın en üstünde fotoğrafın
+ * altında kalıp büsbütün kaybolurdu. `relative` akışta kalır (yapışmaz) ama
+ * konumlandırılmış sayılır.
+ */
+@media (scripting: none) {
+  .site-nav-landing {
+    position: relative;
+  }
+}
+
 @layer components {
   /* Editoryal ölçek: manşetler dar satır aralığıyla, gövde bol boşlukla. */
   .display-hero {
