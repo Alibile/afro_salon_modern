@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Afro Salon Modern">
   <!--
-    Sekme ikonu: terracotta zemin dairesi (--primary) üstünde krem yaylar ve
-    merkez noktası (--hero-sand). Geometri `src/components/brand/BrandMark.tsx`
+    Sekme ikonu: terracotta zemin dairesi (primary rengi) üstünde krem yaylar ve
+    merkez noktası (hero-sand rengi). Geometri `src/components/brand/BrandMark.tsx`
     ile birebir aynıdır, yalnızca daireye ortalanmak için 4 birim yukarı
     taşınır; renkler burada sabit yazılır çünkü favicon CSS değişkenlerini
-    okuyamaz.
+    okuyamaz. XML yorumu içinde çift tire yasaktır (tarayıcı SVG'yi reddeder).
   -->
   <circle cx="32" cy="32" r="30" fill="#cf6139"/>
   <g transform="translate(0 -4)" fill="none" stroke="#fcf4e6" stroke-linecap="round">
