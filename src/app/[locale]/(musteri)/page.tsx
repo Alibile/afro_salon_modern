@@ -47,16 +47,18 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
   ]);
   const social = { instagram: settings.instagram, facebook: settings.facebook, whatsapp: settings.whatsapp };
 
-  // SSS cevaplarındaki değişkenler: iptal penceresi ayarlardan, fiyat ilk
-  // hizmetten (salon tek paketle çalışıyor), açılış–kapanış haftanın ilk açık
-  // gününden. Üçünden biri yoksa bölüm hiç basılmaz — yarım cevap yazmaktansa
-  // (henüz hizmeti ya da çalışma saati girilmemiş bir salonda) susmak yeğdir.
+  // SSS cevaplarındaki değişkenler: iptal penceresi ayarlardan, fiyat ve süre
+  // ilk hizmetten (salon tek paketle çalışıyor), açılış–kapanış haftanın ilk
+  // açık gününden. İkisinden biri yoksa bölüm hiç basılmaz — yarım cevap
+  // yazmaktansa (henüz hizmeti ya da çalışma saati girilmemiş bir salonda)
+  // susmak yeğdir; "45 dakika sürer" gibi bir cümle veriden kopuk kalırdı.
   const openDay = weeklyHours.find((d) => d.opensAt && d.closesAt);
   const faqValues: FaqValues | null =
     openDay && services.length > 0
       ? {
           minutes: settings.cancellationWindowMinutes,
           price: formatKurus(services[0].priceKurus, toAppLocale(locale)),
+          duration: services[0].durationMinutes,
           open: openDay.opensAt!,
           close: openDay.closesAt!,
         }

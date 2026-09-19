@@ -95,11 +95,12 @@ describe("countOpenSlotsToday", () => {
   // 2026-09-17 10:00 İstanbul, perşembe; yardımcı berber Pzt–Cmt 09:00–19:00 açık.
   const MORNING = new Date("2026-09-17T07:00:00Z");
 
-  it("tek berber, 45 dakikalık paket: hazırlık payından kapanışa kadar sayar", async () => {
+  it("tek berber, 45 dakikalık paket: kalan günün kapasitesini sayar", async () => {
     await createBarber();
     await createService({ durationMinutes: 45 });
-    // 10:00 + 15 dk hazırlık → ilk aday 10:15; son aday 18:15 (18:15 + 45 = 19:00).
-    expect(await countOpenSlotsToday(MORNING)).toBe(33);
+    // Vardiya 09:00–19:00; 10:00 + 15 dk hazırlık payından sonra geriye
+    // 8 saat 45 dakika kalır, ona da 45 dakikalık 11 randevu sığar.
+    expect(await countOpenSlotsToday(MORNING)).toBe(11);
   });
 
   it("ikinci berber sayıyı ikiye katlar, pasif berber hiç sayılmaz", async () => {

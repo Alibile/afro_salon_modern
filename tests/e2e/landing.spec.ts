@@ -15,7 +15,7 @@ test.describe("paket bölümü", () => {
     await expect(services.getByRole("heading", { name: "Yıkama + Kesim + Sakal" })).toBeVisible();
     await expect(services.getByText("700,00 ₺", { exact: true })).toBeVisible();
     await expect(services.getByText("45 dakika", { exact: true })).toBeVisible();
-    await expect(services.getByText("Yıkama ve saç derisi masajı")).toBeVisible();
+    await expect(services.getByText("Saç yıkama", { exact: true })).toBeVisible();
     await expect(services.getByText("Kesim ve şekillendirme")).toBeVisible();
     await expect(services.getByText("Sakal tıraşı ve düzeltme")).toBeVisible();
     await expect(services.getByRole("link", { name: "Bugün randevu al" })).toHaveAttribute("href", "/randevu");
@@ -82,7 +82,7 @@ test.describe("hero sayacı", () => {
     await page.goto("/");
     // E2E veritabanında berberler gün boyu açık: ya sayı ya "doluyuz" satırı.
     await expect(page.locator("h1").locator("xpath=preceding-sibling::p[1]")).toContainText(
-      /\d+ uygun saat kaldı|Bugün doluyuz/,
+      /\d+ boş randevu|Bugün doluyuz/,
     );
   });
 });

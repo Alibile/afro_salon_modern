@@ -19,11 +19,12 @@ export const FAQ_KEYS = [
 ] as const;
 
 /**
- * Cevaplardaki değişkenler tek yerden gelir: iptal penceresi ve fiyat
- * ayarlardan/veritabanından, açılış–kapanış bugünün çalışma saatlerinden.
- * Metinlere sayı gömülmez, çeviriler eskimez.
+ * Cevaplardaki değişkenler tek yerden gelir: iptal penceresi ayarlardan, fiyat
+ * ve süre paketin kendisinden, açılış–kapanış bugünün çalışma saatlerinden.
+ * Metinlere sayı gömülmez, çeviriler eskimez — paket 45 dakikadan 60'a çıkarsa
+ * cevap da onunla birlikte değişir.
  */
-export type FaqValues = { minutes: number; price: string; open: string; close: string };
+export type FaqValues = { minutes: number; price: string; duration: number; open: string; close: string };
 
 /**
  * SSS. `<details>/<summary>` ile kurulur: JavaScript hiç çalışmasa da açılır

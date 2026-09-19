@@ -69,7 +69,7 @@
       "book": "Book today",
       "services": "Services and prices",
       "scroll": "Scroll",
-      "slotsToday": "{count, plural, one {# slot left} other {# slots left}}",
+      "slotsToday": "{count, plural, one {# open appointment} other {# open appointments}}",
       "slotsFull": "Fully booked today — try again tomorrow"
     },
     "howItWorks": {
@@ -98,7 +98,7 @@
       "sectionNote": "One package, one price: wash, cut and beard, all in the same chair.",
       "includesTitle": "Included in the price",
       "includes": {
-        "wash": "Wash and scalp massage",
+        "wash": "Hair wash",
         "cut": "Cut and styling",
         "beard": "Beard trim and shaping"
       },
@@ -147,9 +147,9 @@
       "q2": "Can I cancel?",
       "a2": "Yes. You can cancel from \"My bookings\" up to {minutes} minutes before your appointment; after that, give the shop a call.",
       "q3": "How do I pay?",
-      "a3": "In the shop: cash or card. Nothing is charged online.",
+      "a3": "You pay at the salon; nothing is charged online.",
       "q4": "How long does it take?",
-      "a4": "Wash, cut and beard together take 45 minutes; one price: {price}.",
+      "a4": "Wash, cut and beard together take {duration} minutes; one price: {price}.",
       "q5": "Do you only cut men's hair?",
       "a5": "Yes, we are a men's barbershop. The team works with afro hair texture: fades, braids, twists and beards.",
       "q6": "Can I walk in?",

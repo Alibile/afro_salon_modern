@@ -69,7 +69,7 @@
       "book": "Réserver aujourd'hui",
       "services": "Prestations et tarifs",
       "scroll": "Défiler",
-      "slotsToday": "{count, plural, one {# créneau libre} other {# créneaux libres}}",
+      "slotsToday": "{count, plural, one {# rendez-vous libre} other {# rendez-vous libres}}",
       "slotsFull": "Complet aujourd'hui — revenez demain"
     },
     "howItWorks": {
@@ -98,7 +98,7 @@
       "sectionNote": "Un forfait, un tarif : shampoing, coupe et barbe dans le même fauteuil.",
       "includesTitle": "Compris dans le tarif",
       "includes": {
-        "wash": "Shampoing et massage du cuir chevelu",
+        "wash": "Shampoing",
         "cut": "Coupe et coiffage",
         "beard": "Taille et mise en forme de la barbe"
       },
@@ -147,9 +147,9 @@
       "q2": "Puis-je annuler ?",
       "a2": "Oui. Depuis « Mes rendez-vous », jusqu'à {minutes} minutes avant l'heure prévue ; passé ce délai, appelez le salon.",
       "q3": "Comment régler ?",
-      "a3": "Au salon : espèces ou carte. Rien n'est prélevé en ligne.",
+      "a3": "Le règlement se fait au salon ; aucun paiement en ligne.",
       "q4": "Combien de temps cela prend-il ?",
-      "a4": "Shampoing, coupe et barbe prennent 45 minutes ; un seul tarif : {price}.",
+      "a4": "Shampoing, coupe et barbe prennent {duration} minutes ; un seul tarif : {price}.",
       "q5": "Coiffez-vous uniquement les hommes ?",
       "a5": "Oui, nous sommes un barbier pour hommes. L'équipe travaille le cheveu afro : dégradés, tresses, twists et barbe.",
       "q6": "Puis-je venir sans rendez-vous ?",

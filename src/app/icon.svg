@@ -1,9 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Afro Salon Modern">
   <!--
-    Sekme ikonu: terracotta zemin dairesi (--primary) üstünde krem yaylar
-    (--hero-sand). Geometri `src/components/brand/BrandMark.tsx` ile birebir
-    aynıdır, yalnızca daireye ortalanmak için 4 birim yukarı taşınır; renkler
-    burada sabit yazılır çünkü favicon CSS değişkenlerini okuyamaz.
+    Sekme ikonu: terracotta zemin dairesi (--primary) üstünde krem yaylar ve
+    merkez noktası (--hero-sand). Geometri `src/components/brand/BrandMark.tsx`
+    ile birebir aynıdır, yalnızca daireye ortalanmak için 4 birim yukarı
+    taşınır; renkler burada sabit yazılır çünkü favicon CSS değişkenlerini
+    okuyamaz.
   -->
   <circle cx="32" cy="32" r="30" fill="#cf6139"/>
   <g transform="translate(0 -4)" fill="none" stroke="#fcf4e6" stroke-linecap="round">
@@ -11,6 +12,6 @@
     <path d="M19 40A13 13 0 0 1 45 40" stroke-width="4"/>
     <path d="M12 40A20 20 0 0 1 52 40" stroke-width="2.5"/>
     <path d="M5 40A27 27 0 0 1 59 40" stroke-width="1.25"/>
-    <path d="M14 46H50" stroke-width="1.25"/>
+    <circle cx="32" cy="40" r="2.75" fill="#fcf4e6" stroke="none"/>
   </g>
 </svg>

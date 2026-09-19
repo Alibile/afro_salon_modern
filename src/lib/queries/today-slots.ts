@@ -14,38 +14,69 @@ export type SlotCountInput = {
   dayStart: Date;
   barbers: BarberDay[];
   durationMinutes: number;
-  slotStepMinutes: number;
   minLeadMinutes: number;
   now: Date;
 };
 
 /**
- * Bugün için kaç saat boş kaldığı. Randevu sihirbazının berber başına yaptığı
- * hesabın (`computeSlots`) toplamıdır: iki berberin aynı saati boşsa ziyaretçi
- * için iki ayrı seçenektir, bu yüzden tekilleştirilmez.
+ * Çalışma aralıklarından doluluğu düşer; geriye o berberin gerçekten boş
+ * pencereleri kalır. Randevu sihirbazı buna ihtiyaç duymaz (o, sabit bir
+ * ızgaranın üstünde dolu adayları eler), sayaç duyar: kapasite dolu bloğun
+ * **bittiği yerden** yeniden sayılmalı, ızgaranın kaldığı yerden değil.
+ */
+export function freeWindows(working: WorkingInterval[], busy: WorkingInterval[]): WorkingInterval[] {
+  const blocks = [...busy].sort((a, b) => a.startMinutes - b.startMinutes);
+  const windows: WorkingInterval[] = [];
+  for (const w of working) {
+    let start = w.startMinutes;
+    for (const b of blocks) {
+      if (b.endMinutes <= start || b.startMinutes >= w.endMinutes) continue;
+      if (b.startMinutes > start) windows.push({ startMinutes: start, endMinutes: b.startMinutes });
+      start = Math.max(start, b.endMinutes);
+      if (start >= w.endMinutes) break;
+    }
+    if (start < w.endMinutes) windows.push({ startMinutes: start, endMinutes: w.endMinutes });
+  }
+  return windows;
+}
+
+/**
+ * Bugün **kaç randevu daha alınabileceği**. Ziyaretçiye söylenen sayı budur:
+ * birbiriyle çakışmayan, gerçekten satılabilir randevu adedi.
+ *
+ * İlk hâl 15 dakikalık başlangıç saatlerini sayıyordu ("83 uygun saat") —
+ * teknik olarak doğru ama insana anlamsız bir sayı: aynı saatin 45 dakikalık
+ * paketi üç kez sayılıyordu. Şimdi her boş pencere kendi içinde paket süresine
+ * bölünüyor (`computeSlots`, adım = süre), yani pencere başına
+ * `floor(boş süre / süre)` kadar randevu.
  *
  * Saf fonksiyon: veritabanına bakmaz, birim testlerle ölçülebilir.
  */
 export function countOpenSlots(input: SlotCountInput): number {
-  const { dayStart, barbers, durationMinutes, slotStepMinutes, minLeadMinutes, now } = input;
-  return barbers.reduce(
-    (total, barber) =>
+  const { dayStart, barbers, durationMinutes, minLeadMinutes, now } = input;
+  // Sıfır/negatif süre `computeSlots` döngüsünü ilerletmezdi; veri bozuksa sayaç susar.
+  if (!Number.isFinite(durationMinutes) || durationMinutes <= 0) return 0;
+  const toMinutes = (instant: Date) => (instant.getTime() - dayStart.getTime()) / 60_000;
+  return barbers.reduce((total, barber) => {
+    const busy = barber.busy.map((b) => ({ startMinutes: toMinutes(b.start), endMinutes: toMinutes(b.end) }));
+    return (
       total +
       computeSlots({
         dayStart,
-        workingIntervals: barber.workingIntervals,
-        busy: barber.busy,
+        workingIntervals: freeWindows(barber.workingIntervals, busy),
+        // Doluluk yukarıda pencerelerden düşüldü; burada ikinci kez elenmez.
+        busy: [],
         durationMinutes,
-        slotStepMinutes,
+        slotStepMinutes: durationMinutes,
         minLeadMinutes,
         now,
-      }).length,
-    0,
-  );
+      }).length
+    );
+  }, 0);
 }
 
 /**
- * Ana sayfanın hero satırındaki "bugün {n} uygun saat" sayısı.
+ * Ana sayfanın hero satırındaki "bugün {n} boş randevu" sayısı.
  *
  * Süre en kısa aktif hizmetinkidir: salon tek paketle çalışıyor (45 dk), ama
  * ileride daha kısa bir hizmet eklenirse sayı ona göre yükselmeli — ziyaretçi
@@ -100,7 +131,6 @@ export async function countOpenSlotsToday(now: Date = new Date()): Promise<numbe
     dayStart,
     barbers: [...byBarber.values()],
     durationMinutes,
-    slotStepMinutes,
     minLeadMinutes,
     now,
   });

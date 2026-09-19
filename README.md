@@ -276,12 +276,14 @@ silinmeye çalışılmaz (`landing/` ve `seed/` önekleri korunur).
 `hero-mobile.jpg` (mobil), üstünde koyu kahve→şeffaf gradyan ve manşet
 (Fraunces, açık kum rengi). "Bugün randevu al" ve "Hizmetler" bağlantıları.
 
-Hero'nun durum satırı, dükkan **o an açıkken** bugün kalan uygun saat sayısını
-da yazar ("Bugün açık · 11:00–22:30 · 12 uygun saat kaldı"). Sayı
+Hero'nun durum satırı, dükkan **o an açıkken** bugün alınabilecek randevu
+sayısını da yazar ("Bugün açık · 11:00–22:30 · 12 boş randevu"). Sayı
 `countOpenSlotsToday` ile üretilir (`src/lib/queries/today-slots.ts`): aktif
-berberlerin bugünkü çalışma satırları, randevuları ve izinleri randevu
-sihirbazıyla aynı `computeSlots` hesabından geçer; süre en kısa aktif hizmetin
-süresidir. Hiç yer kalmamışsa "Bugün doluyuz" satırı görünür.
+berberlerin bugünkü çalışma satırlarından randevular ve izinler düşülür, kalan
+her boş pencere paket süresine bölünür (`computeSlots`, adım = süre), yani
+sayılan şey başlangıç saatleri değil **birbiriyle çakışmayan randevu adedi**.
+Süre en kısa aktif hizmetinkidir; hizmet yoksa slot adımına düşer. Hiç yer
+kalmamışsa "Bugün doluyuz" satırı görünür.
 
 **Navbar:** Sayfanın başında şeffaf (hero üzerinde açık metin), kaydırıldığında
 kum zeminli bilinen stil alır. Solda marka logosu (işaret + yazı markası) ana
@@ -311,8 +313,8 @@ iframe'i gelir. Adres boşsa kutu hiç basılmaz. "Haritada aç" bağlantısı y
 kalır.
 
 **Logo ve ikonlar:** İşaretin geometrisi `src/components/brand/BrandMark.tsx`
-içinde tek yerde durur (dört eş merkezli üst yay + taban çizgisi, 64'lük kutu,
-`currentColor`); `BrandLogo` bunu üst çubukta (`compact`) ve altbilgide
+içinde tek yerde durur (dört eş merkezli üst yay + ortak merkezdeki dolu nokta:
+kıvrımdan bir taç, altında bir baş; 64'lük kutu, `currentColor`); `BrandLogo` bunu üst çubukta (`compact`) ve altbilgide
 (`stacked`) yazı markasıyla birleştirir. Türetilen dosyalar: `src/app/icon.svg`
 (terracotta zemin daire + krem yaylar), `src/app/apple-icon.tsx` (180×180,
 `ImageResponse`) ve `src/app/[locale]/opengraph-image.tsx` (1200×630, kart metni
@@ -339,9 +341,9 @@ edildi. `hreflang`/`canonical` etiketleri ve `sitemap.xml` ölçülebilir bir y�
 getirmiyor (birkaç yüz bayt `<link>`).
 
 Tur 6'nın eklediği bölümler (paket, nasıl çalışır, SSS, harita, uygun saat
-sayacı) puanı düşürmedi: Türkçe başlıklı `/` ölçümü **86** (3 koşu — 81 / 86 /
-86; ilk koşu sunucunun hero fotoğrafını ilk kez optimize ettiği koşudur,
-LCP 5.1 sn, sonraki ikisinde 4.1 sn), `/en` doğrudan **85**. Harita tıklanana
+sayacı) puanı düşürmedi: Türkçe başlıklı `/` ölçümü **85** (3 koşu — 81 / 85 /
+85; ilk koşu sunucunun hero fotoğrafını ilk kez optimize ettiği koşudur,
+LCP 5.1 sn, sonraki ikisinde 4.3 sn), `/en` doğrudan **85**. Harita tıklanana
 kadar yüklenmediği için `google.com`a hiç istek gitmiyor; paylaşım görseli ayrı
 bir rotadır, sayfayla birlikte indirilmez; sayaç sorgusu ana sayfanın var olan
 veri demetine paralel giriyor (`Promise.all`) ve TBT 0 ms, CLS 0 kalıyor.

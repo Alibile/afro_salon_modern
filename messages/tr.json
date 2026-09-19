@@ -69,7 +69,7 @@
       "book": "Bugün randevu al",
       "services": "Hizmetler ve fiyatlar",
       "scroll": "Kaydır",
-      "slotsToday": "{count, plural, other {# uygun saat kaldı}}",
+      "slotsToday": "{count, plural, other {# boş randevu}}",
       "slotsFull": "Bugün doluyuz — yarın tekrar bak"
     },
     "howItWorks": {
@@ -98,7 +98,7 @@
       "sectionNote": "Tek paket, tek fiyat: yıkama, kesim ve sakal aynı koltukta biter.",
       "includesTitle": "Fiyata dahil",
       "includes": {
-        "wash": "Yıkama ve saç derisi masajı",
+        "wash": "Saç yıkama",
         "cut": "Kesim ve şekillendirme",
         "beard": "Sakal tıraşı ve düzeltme"
       },
@@ -147,9 +147,9 @@
       "q2": "Randevumu iptal edebilir miyim?",
       "a2": "Evet. Randevuna en geç {minutes} dakika kala \"Randevularım\" sayfasından iptal edebilirsin; sonrası için salonu ara.",
       "q3": "Ödemeyi nasıl yapıyorum?",
-      "a3": "Ödeme salonda: nakit ya da kart. Siteden ön ödeme alınmaz.",
+      "a3": "Ödeme salonda yapılır; siteden ön ödeme alınmaz.",
       "q4": "Ne kadar sürüyor?",
-      "a4": "Yıkama, kesim ve sakal birlikte 45 dakika sürer; fiyat tek: {price}.",
+      "a4": "Yıkama, kesim ve sakal birlikte {duration} dakika sürer; fiyat tek: {price}.",
       "q5": "Sadece erkeklere mi hizmet veriyorsunuz?",
       "a5": "Evet, erkek berberiyiz. Ekibin işi afro saç dokusu: fade, örgü, twist ve sakal.",
       "q6": "Randevusuz gelebilir miyim?",
