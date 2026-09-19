@@ -2,15 +2,19 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 
 vi.mock("@/lib/email/send", () => ({ sendContactMessage: vi.fn(async () => {}) }));
 vi.mock("next/headers", () => ({ headers: vi.fn(async () => new Headers()) }));
+vi.mock("next-intl/server", () => ({ getLocale: vi.fn(async () => "tr") }));
 
 import { sendContactMessage as deliverContactMessage } from "@/lib/email/send";
 import { headers } from "next/headers";
+import { getLocale } from "next-intl/server";
+import { createService } from "./helpers";
 import { sendContactMessageAs } from "@/actions/impl/contact";
 import { sendContactMessage } from "@/actions/contact";
 import { resetRateLimit } from "@/lib/rate-limit";
 
 const mailer = vi.mocked(deliverContactMessage);
 const mockedHeaders = vi.mocked(headers);
+const mockedLocale = vi.mocked(getLocale);
 
 const input = {
   name: "Ayşe Yılmaz",
@@ -25,6 +29,8 @@ beforeEach(() => {
   mailer.mockClear();
   mockedHeaders.mockReset();
   mockedHeaders.mockResolvedValue(new Headers());
+  mockedLocale.mockReset();
+  mockedLocale.mockResolvedValue("tr");
 });
 
 describe("sendContactMessageAs", () => {
@@ -33,8 +39,30 @@ describe("sendContactMessageAs", () => {
     expect(r).toEqual({ ok: true, data: undefined });
     expect(mailer).toHaveBeenCalledTimes(1);
     expect(mailer).toHaveBeenCalledWith(
-      expect.objectContaining({ name: "Ayşe Yılmaz", phone: "+90 555 000 00 00", message: input.message, services: ["Örgü / Twist"] }),
+      expect.objectContaining({ name: "Ayşe Yılmaz", phone: "+90 555 000 00 00", message: input.message, services: ["Örgü / Twist"], visitorLocale: "tr" }),
     );
+  });
+
+  /**
+   * E-posta salona gider ve Türkçedir; ziyaretçi hizmeti kendi dilinde
+   * seçmiş olsa da salon kendi listesindeki adı okumalı. Ziyaretçinin dili
+   * ayrı bir alan olarak taşınır.
+   */
+  it("hizmet adlarını salonun diline çevirir ve ziyaretçinin dilini taşır", async () => {
+    await createService({ name: { tr: "Saç Kesimi", en: "Haircut", fr: "Coupe de cheveux" } });
+    const r = await sendContactMessageAs({ ...input, services: ["Coupe de cheveux"] }, "4.4.4.4", "fr");
+    expect(r.ok).toBe(true);
+    expect(mailer).toHaveBeenCalledWith(expect.objectContaining({ services: ["Saç Kesimi"], visitorLocale: "fr" }));
+  });
+
+  it("listede olmayan hizmet adını olduğu gibi bırakır", async () => {
+    await sendContactMessageAs({ ...input, services: ["Service inconnu"] }, "4.4.4.5", "fr");
+    expect(mailer).toHaveBeenCalledWith(expect.objectContaining({ services: ["Service inconnu"] }));
+  });
+
+  it("tanınmayan dil kodu salonun diline düşer", async () => {
+    await sendContactMessageAs(input, "4.4.4.6", "de");
+    expect(mailer).toHaveBeenCalledWith(expect.objectContaining({ visitorLocale: "tr" }));
   });
 
   it("geçersiz girdide şema mesajını döner ve e-posta göndermez", async () => {
@@ -93,6 +121,14 @@ describe("sendContactMessage wrapper", () => {
   it("oturum gerektirmez; anonim çağrı kabul edilir", async () => {
     const r = await sendContactMessage(input);
     expect(r).toEqual({ ok: true, data: undefined });
+  });
+
+  // Dil gövdeden değil istekten okunur: wrapper `getLocale()` çağırır.
+  it("ziyaretçinin dilini istekten alır", async () => {
+    mockedLocale.mockResolvedValue("fr");
+    await sendContactMessage(input);
+    expect(mailer).toHaveBeenCalledWith(expect.objectContaining({ visitorLocale: "fr" }));
+    expect(mockedLocale).toHaveBeenCalled();
   });
 
   it("IP'yi x-forwarded-for zincirinin SON hop'undan alır", async () => {

@@ -155,7 +155,7 @@
       "textured-fringe": "Textured Fringe",
       "afro": "Afro",
       "braids": "Braids",
-      "twist": "Twists",
+      "twist": "Twist",
       "beard": "Beard"
     }
   },
@@ -237,6 +237,7 @@
     "invalidInput": "Invalid details",
     "tooManyRequests": "Too many attempts, please try again shortly",
     "invalidLocale": "Invalid language",
+    "invalidRequest": "Invalid request",
     "barberNotFound": "Barber not found",
     "selectedServiceNotFound": "The selected service was not found",
     "slotUnavailable": "This time is no longer available, please pick another one",
@@ -249,7 +250,7 @@
     "serviceInUse": "This service was used in past appointments and cannot be deleted; deactivate it instead",
     "serviceHasRelations": "This service has linked records and cannot be deleted; deactivate it instead",
     "cannotDeleteOwnAccount": "You cannot delete your own account",
-    "barberHasHistory": "This barber has appointment or photo history and cannot be deleted; deactivate instead",
+    "barberHasHistory": "This barber has appointment or photo history and cannot be deleted; deactivate them instead",
     "userHasHistory": "This user has appointment or photo history as a client and cannot be deleted; deactivate instead",
     "barberHasRelations": "This barber has linked records and cannot be deleted; deactivate instead",
     "photoNotFound": "Photo not found",
@@ -270,7 +271,7 @@
     "invalidTimeRange": "Invalid time range",
     "invalidTime": "Time must be HH:mm",
     "endBeforeStart": "End time must be after the start time",
-    "testimonialNotFound": "Review not found",
+    "testimonialNotFound": "Testimonial not found.",
     "testimonialTooShort": "Review must be at least 10 characters",
     "ratingRange": "Rating must be between 1 and 5",
     "nameMin2": "Name must be at least 2 characters",
@@ -415,7 +416,7 @@
       "deleted": "Service deleted",
       "deleteTitle": "Delete this service?",
       "deleteDescription": "“{name}” will be deleted permanently. This cannot be undone.",
-      "deleteBlocked": "This service is used by past appointments and cannot be deleted; deactivate it instead",
+      "deleteBlocked": "This service was used in past appointments and cannot be deleted; deactivate it instead",
       "editPrice": "Edit price",
       "invalidPrice": "Invalid price",
       "priceUpdated": "Price updated"
@@ -550,6 +551,7 @@
       "subject": "New message from the site · {name}",
       "heading": "New message from the site",
       "interestedIn": "Services they asked about:",
+      "visitorLanguage": "Visitor's language: {language}",
       "footer": "{shopName} · contact form"
     }
   }

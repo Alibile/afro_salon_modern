@@ -1,3 +1,4 @@
+import { hasLocale } from "next-intl";
 import { prisma } from "@/lib/db";
 import { ok, fail, type ActionResult } from "@/lib/action-result";
 import { firstIssueKey } from "@/lib/errors";
@@ -6,19 +7,32 @@ import { getTodayAvailability } from "@/lib/queries/booking";
 import { createAppointmentSchema, type CreateAppointmentInput } from "@/schemas/booking";
 import { getSettings } from "@/lib/settings";
 import { pick } from "@/lib/i18n-content";
+import { routing } from "@/i18n/routing";
 import type { SessionUser } from "@/lib/auth-helpers";
 
 /**
  * Randevuyu oturumdaki müşteri adına ve verilen sunucu saatine göre oluşturur.
- * Hizmet adı satıra **o anki diliyle** kopyalanır (`nameSnapshot`): randevu
- * e-postası ve "randevularım" listesi müşterinin randevuyu aldığı dilde kalır,
- * hizmet sonradan panelden yeniden adlandırılsa bile.
+ * Hizmet adı satıra **randevunun alındığı dille** kopyalanır (`nameSnapshot`):
+ * randevu e-postası ve "randevularım" listesi müşterinin randevuyu aldığı
+ * dilde kalır, hizmet sonradan panelden yeniden adlandırılsa bile.
+ *
+ * Müşteri yüzünde dili **istek** belirler, kayıtlı tercih değil: müşterinin
+ * panel gibi bir dil ayarı yoktur, tek sinyali hangi dildeki sayfadan randevu
+ * aldığıdır. Bu yüzden `requestLocale` verilmişse hem anlık görüntüde
+ * kullanılır hem de müşterinin `User.locale` sütununa yazılır — onay e-postası
+ * (alıcının kayıtlı tercihiyle gider) böylece aynı dilde olur. Personel bundan
+ * etkilenmez: panelden yaptığı açık tercih ve e-posta dili yerinde kalır.
+ *
+ * Gelen değer serbest bir dize olabileceği için `hasLocale` ile daraltılır;
+ * tanınmayan değer aktörün kayıtlı diline düşer.
  */
 export async function createAppointmentFor(
   actor: SessionUser,
   now: Date,
   input: CreateAppointmentInput,
+  requestLocale?: string,
 ): Promise<ActionResult<{ id: string }>> {
+  const locale = hasLocale(routing.locales, requestLocale) ? requestLocale : actor.locale;
   const parsed = createAppointmentSchema.safeParse(input);
   if (!parsed.success) return fail(firstIssueKey(parsed.error));
   const { barberId, serviceIds, startsAt: startsAtIso } = parsed.data;
@@ -44,11 +58,14 @@ export async function createAppointmentFor(
         data: services.map((s) => ({
           appointmentId: created.id,
           serviceId: s.id,
-          nameSnapshot: pick(s.nameI18n, actor.locale),
+          nameSnapshot: pick(s.nameI18n, locale),
           durationSnapshot: s.durationMinutes,
           priceSnapshot: s.priceKurus,
         })),
       });
+      if (actor.role === "CUSTOMER" && actor.locale !== locale) {
+        await tx.user.update({ where: { id: actor.id }, data: { locale } });
+      }
       return created;
     });
     return ok({ id: appt.id });

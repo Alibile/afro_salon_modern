@@ -86,16 +86,24 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 }
 
 /**
- * Uygulamanın tek kök yerleşimi bu dosyadır: `[locale]` segmenti kökün üstünde
- * durduğu için `<html lang>` doğrudan seçilen dile bağlanır. `generateStaticParams`
- * üç dili de bildirir; segment bilinmeyen yollar için de eşleştiğinden
- * (`/de`, `/robots.txt`) gelen değer `hasLocale` ile doğrulanır ve geçersizse 404
- * verilir.
+ * `[locale]` segmentinin geçerli değerleri. Bu uygulamada **ön üretim yapmaz**:
+ * ağacın altındaki sayfalar oturuma, ayarlara ve o günün saatine baktığı için
+ * hepsi `force-dynamic`/dinamik render'a düşer — `next build` çıktısında da
+ * tüm rotalar dinamik görünür. Liste yine de yazılıdır çünkü tek işi budur:
+ * Next'e segmentin bilinen değerlerini bildirmek (yazım/doğrulama tarafı) ve
+ * ileride herhangi bir alt sayfa statikleşirse üç dilin de üretilmesini
+ * sağlamak.
  */
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
+/**
+ * Uygulamanın tek kök yerleşimi bu dosyadır: `[locale]` segmenti kökün üstünde
+ * durduğu için `<html lang>` doğrudan seçilen dile bağlanır. Segment bilinmeyen
+ * yollarla da eşleştiğinden (`/de`) gelen değer `hasLocale` ile doğrulanır ve
+ * geçersizse 404 verilir.
+ */
 export default async function RootLayout({
   children,
   params,

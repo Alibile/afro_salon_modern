@@ -170,6 +170,27 @@ test.describe.serial("panel çevirileri ve dil tercihi", () => {
     await expect(page.getByLabel("Langue de l'espace pro et des e-mails")).toHaveValue("fr");
   });
 
+  /**
+   * Kutuda görünen değer **kayıtlı tercihtir**, adresin dili değil. Fransızca
+   * sayfadan giriş yapan kullanıcının tercihi `fr`dir (bkz. `src/lib/auth.ts`);
+   * aynı kullanıcı İngilizce adresteki profili açtığında kutu yine "fr"
+   * göstermeli. Adresin dilini gösterseydi Fransızca kayıtlı bir berber Türkçe
+   * adreste "Türkçe" görür ve Türkçeyi hiç seçemezdi — seçim zaten seçili
+   * sanılan değere eşit sayılıp yutulurdu.
+   */
+  test("kayıtlı tercih adresin dilinden farklı olsa da kutuda o görünür", async ({ page }) => {
+    await page.goto("/fr/giris");
+    await page.getByLabel("E-mail").fill("kwame@afrosalon.local");
+    await page.getByLabel("Mot de passe").fill("Sifre123!");
+    await page.getByRole("button", { name: "Se connecter" }).click();
+    await expect(page).toHaveURL("/fr/panel");
+
+    // Adres İngilizce, kayıtlı tercih Fransızca: ikisi ayrı şeyler.
+    await page.goto("/en/panel/profil");
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    await expect(page.getByLabel("Dashboard and email language")).toHaveValue("fr");
+  });
+
   test("Türkçeye geri alınır", async ({ page }) => {
     await page.goto("/fr/giris");
     await page.getByLabel("E-mail").fill("kwame@afrosalon.local");

@@ -85,10 +85,19 @@ describe("NewAppointmentForBarber", () => {
 describe("ContactMessage", () => {
   it.each(LOCALES)("%s başlığını taşır", async (locale) => {
     const html = await render(
-      <ContactMessage locale={locale} shopName="Afro Salon" name="Ayşe" phone="+90 555" message="Merhaba" services={["Fade"]} />,
+      <ContactMessage locale={locale} visitorLocale="tr" shopName="Afro Salon" name="Ayşe" phone="+90 555" message="Merhaba" services={["Fade"]} />,
     );
     expect(html).toContain(HEADINGS.contact[locale]);
     expect(html).toContain("Afro Salon");
+  });
+
+  // E-posta salona gider: ziyaretçinin dili salonun dilinde yazılır
+  // ("Français" değil "Fransızca"), salon mesaja o dilde dönebilsin diye.
+  it("ziyaretçinin dilini salonun dilinde yazar", async () => {
+    const html = await render(
+      <ContactMessage locale="tr" visitorLocale="fr" shopName="Afro Salon" name="Ayşe" phone="+90 555" message="Bonjour" services={["Fade"]} />,
+    );
+    expect(html).toContain("Ziyaretçinin dili: Fransızca");
   });
 });
 

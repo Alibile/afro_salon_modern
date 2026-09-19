@@ -1,6 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
+import { getLocale } from "next-intl/server";
 import type { ActionResult } from "@/lib/action-result";
 import { clientIp } from "@/lib/client-ip";
 import { sendContactMessageAs } from "@/actions/impl/contact";
@@ -12,5 +13,7 @@ import type { ContactInput } from "@/schemas/contact";
  * başlığa güvenildiği {@link clientIp} içinde anlatılır.
  */
 export async function sendContactMessage(input: ContactInput): Promise<ActionResult<void>> {
-  return sendContactMessageAs(input, clientIp(await headers()));
+  // Ziyaretçinin dili gövdeden değil istekten okunur (next-intl sunucu API'si).
+  const [requestHeaders, requestLocale] = await Promise.all([headers(), getLocale()]);
+  return sendContactMessageAs(input, clientIp(requestHeaders), requestLocale);
 }

@@ -1,10 +1,15 @@
 import { Html, Body, Container, Heading, Text, Hr } from "@react-email/components";
-import { emailTranslator } from "../i18n";
+import { emailTranslator, languageName } from "../i18n";
 import type { AppLocale } from "@/i18n/routing";
 
 export type ContactMessageProps = {
   /** Bu tek e-posta salona gider, ziyaretçiye değil: dili salonun dilidir. */
   locale: AppLocale;
+  /**
+   * Ziyaretçinin formu doldurduğu dil. Gövdede tek satır olarak yazılır:
+   * salon mesaja hangi dilde döneceğini bilsin diye.
+   */
+  visitorLocale: AppLocale;
   shopName: string;
   name: string;
   phone: string;
@@ -31,6 +36,7 @@ export function ContactMessage(p: ContactMessageProps) {
             </>
           )}
           <Text style={{ whiteSpace: "pre-wrap" }}>{p.message}</Text>
+          <Text style={{ fontSize: 13 }}>{t("visitorLanguage", { language: languageName(p.visitorLocale, p.locale) })}</Text>
           <Hr />
           <Text style={{ fontSize: 12 }}>{t("footer", { shopName: p.shopName })}</Text>
         </Container>

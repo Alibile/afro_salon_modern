@@ -237,6 +237,7 @@
     "invalidInput": "Geçersiz bilgi",
     "tooManyRequests": "Çok fazla deneme, lütfen biraz sonra tekrar deneyin",
     "invalidLocale": "Geçersiz dil",
+    "invalidRequest": "Geçersiz istek",
     "barberNotFound": "Berber bulunamadı",
     "selectedServiceNotFound": "Seçilen hizmet bulunamadı",
     "slotUnavailable": "Bu saat artık uygun değil, lütfen başka bir saat seçin",
@@ -414,7 +415,7 @@
       "updated": "Hizmet güncellendi",
       "deleted": "Hizmet silindi",
       "deleteTitle": "Hizmet silinsin mi?",
-      "deleteDescription": "\"{name}\" kalıcı olarak silinecek. Bu işlem geri alınamaz.",
+      "deleteDescription": "“{name}” kalıcı olarak silinecek. Bu işlem geri alınamaz.",
       "deleteBlocked": "Bu hizmet geçmiş randevularda kullanılmış, silinemez; pasife alın",
       "editPrice": "Fiyatı düzenle",
       "invalidPrice": "Geçersiz fiyat",
@@ -436,7 +437,7 @@
       "updated": "Berber güncellendi",
       "deleted": "Berber silindi",
       "deleteTitle": "Berber silinsin mi?",
-      "deleteDescription": "\"{name}\" kalıcı olarak silinecek; kullanıcı hesabı ve çalışma saatleri de silinecek. Bu işlem geri alınamaz.",
+      "deleteDescription": "“{name}” kalıcı olarak silinecek; kullanıcı hesabı ve çalışma saatleri de silinecek. Bu işlem geri alınamaz.",
       "deleteBlocked": "Bu berberin randevu veya fotoğraf geçmişi var, silinemez; pasife alın",
       "deleteSelf": "Kendi hesabınızı silemezsiniz",
       "resetPassword": "Şifreyi sıfırla",
@@ -456,7 +457,7 @@
       "updated": "Yorum güncellendi",
       "deleted": "Yorum silindi",
       "deleteTitle": "Yorum silinsin mi?",
-      "deleteDescription": "\"{name}\" yorumu kalıcı olarak silinecek. Bu işlem geri alınamaz."
+      "deleteDescription": "“{name}” yorumu kalıcı olarak silinecek. Bu işlem geri alınamaz."
     },
     "gallery": {
       "title": "Galeri",
@@ -550,6 +551,7 @@
       "subject": "Siteden yeni mesaj · {name}",
       "heading": "Siteden yeni mesaj",
       "interestedIn": "İlgilendiği hizmetler:",
+      "visitorLanguage": "Ziyaretçinin dili: {language}",
       "footer": "{shopName} · iletişim formu"
     }
   }

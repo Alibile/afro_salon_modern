@@ -82,6 +82,24 @@ test.describe("noindex", () => {
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex");
   });
 
+  /**
+   * `noindex` tek başına yetmez: kök yerleşimin `alternates` bloğu miras
+   * kalsaydı `/giris` kendini ana sayfanın kanonik kopyası ilan eder ve üç
+   * dile hreflang verirdi — dizine girmeyen bir sayfanın duyurmayacağı iki
+   * şey. Herkese açık sayfalarda ikisi de yerinde durmalı.
+   */
+  test("giriş sayfası canonical ve hreflang duyurmaz", async ({ page }) => {
+    await page.goto("/giris");
+    await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
+    await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(0);
+  });
+
+  test("ana sayfa canonical ve hreflang duyurmayı sürdürür", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
+    await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(4);
+  });
+
   // Asıl risk ters yönde: etiket herkese açık sayfalara sızarsa site aramadan düşer.
   test("herkese açık sayfalarda noindex yoktur", async ({ page }) => {
     // Öneksiz yollar önce: `NEXT_LOCALE` çerezi bir kez EN/FR'ye yazıldıktan

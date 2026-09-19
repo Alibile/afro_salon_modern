@@ -30,3 +30,14 @@ export function emailTranslator<N extends EmailNamespace>(locale: AppLocale, nam
     namespace: `email.${namespace}` as const,
   });
 }
+
+/**
+ * Bir dilin başka bir dildeki adı: `languageName("fr", "tr")` → "Fransızca".
+ * İletişim e-postası ziyaretçiye değil salona gider ve salonun dilinde yazılır;
+ * ziyaretçinin hangi dilde yazdığı da o dilde okunmalı. `common.endonyms`
+ * (dilin kendi adı) burada yanlış olurdu: salon "Français" değil "Fransızca"
+ * okumak ister.
+ */
+export function languageName(locale: AppLocale, inLocale: AppLocale): string {
+  return MESSAGES[inLocale].common.languages[locale];
+}

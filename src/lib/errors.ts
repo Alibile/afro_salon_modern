@@ -26,6 +26,7 @@ export const ERROR_CODES = [
   "invalidInput",
   "tooManyRequests",
   "invalidLocale",
+  "invalidRequest",
   // Randevu
   "barberNotFound",
   "selectedServiceNotFound",

@@ -17,9 +17,21 @@ describe("stripLocale", () => {
     expect(stripLocale("/randevu")).toEqual({ locale: "tr", path: "/randevu" });
   });
 
-  // Türkçe öneksizdir: "/tr/..." diye bir adres yoktur, o yüzden soyulmaz.
+  /**
+   * Kanonik olmayan önekler olduğu gibi kalır; bugünkü davranış budur ve
+   * `src/proxy.ts` buna dayanır. `/tr/panel` diye bir adres yoktur (Türkçe
+   * öneksizdir) ve `/EN/panel` kanonik değildir: ikisi de soyulmaz, yani proxy
+   * onları `/panel` sanıp korumalı sayfa muamelesi yapmaz. Güvenli olmalarının
+   * tek sebebi next-intl'in bu adresleri kanonik karşılığına **yönlendirmesi**
+   * (rewrite değil): istek proxy'ye bir kez daha, doğru soyulmuş yoluyla gelir.
+   */
   it("varsayılan dilin adını önek saymaz", () => {
     expect(stripLocale("/tr/panel")).toEqual({ locale: "tr", path: "/tr/panel" });
+  });
+
+  it("büyük harfli öneki kanonik saymaz", () => {
+    expect(stripLocale("/EN/panel")).toEqual({ locale: "tr", path: "/EN/panel" });
+    expect(stripLocale("/FR")).toEqual({ locale: "tr", path: "/FR" });
   });
 
   // Dil kodlarıyla başlayan gerçek yollar kazara soyulmamalı.

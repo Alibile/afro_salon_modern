@@ -13,6 +13,9 @@ vi.mock("@/lib/email/send", () => ({
   sendContactMessage: vi.fn(async () => {}),
 }));
 vi.mock("next/headers", () => ({ headers: vi.fn(async () => new Headers()) }));
+// İstek dili de sunucudan gelir (next-intl), gövdeden değil: wrapper'lar
+// `getLocale()` çağırır, testte istek bağlamı olmadığı için sahte veriliyor.
+vi.mock("next-intl/server", () => ({ getLocale: vi.fn(async () => "tr") }));
 
 import { getSessionUser } from "@/lib/auth-helpers";
 import { createAppointment, cancelAppointmentByCustomer } from "@/actions/appointments";

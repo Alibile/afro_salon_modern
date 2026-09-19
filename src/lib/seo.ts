@@ -46,5 +46,13 @@ export function pageAlternates(path: string, locale: AppLocale) {
  * konduğunda yalnızca o sayfaya. `robots.txt` taramayı engeller, bu etiket ise
  * bağlantıyla gelip yine de taranan bir sayfanın dizine girmesini engeller —
  * ikisi birbirinin yerine geçmez.
+ *
+ * `alternates` de sıfırlanır. Next metadata'yı alan alan birleştirir ve
+ * `alternates` anahtarını **bütün olarak** ezer (bkz.
+ * `node_modules/next/dist/lib/metadata/resolve-metadata.js`, `mergeMetadata`
+ * içindeki `case "alternates"`): burada `canonical: null` yazmak hem kök
+ * yerleşimden inen `canonical`ı hem de `languages` (hreflang) listesini
+ * düşürür. Yazılmasaydı `/giris` kendini ana sayfanın kanonik kopyası ilan
+ * eder, üstelik dizine girmediği hâlde üç dile hreflang verirdi.
  */
-export const noIndex: Metadata = { robots: { index: false } };
+export const noIndex: Metadata = { robots: { index: false }, alternates: { canonical: null } };

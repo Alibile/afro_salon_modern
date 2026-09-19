@@ -20,14 +20,21 @@ import { useActionError } from "@/lib/use-action-error";
  *
  * Yazma başarısız olursa adres değişmez: kullanıcı kaydedilmemiş bir tercihi
  * kaydedilmiş sanmaz.
+ *
+ * Kutuda görünen değer **kayıtlı tercihtir** (`saved`, sayfadan `User.locale`
+ * ile gelir), adresin dili değil. İkisi ayrılabilir: Fransızca kayıtlı bir
+ * berber `/panel/profil` (Türkçe adres) açtığında kutu "Français" göstermeli.
+ * Adresin dili yalnızca **gezinme hedefi** için okunur: seçilen dil zaten
+ * adreste duruyorsa yönlendirme yapılmaz.
  */
-export function LanguageForm() {
+export function LanguageForm({ saved }: { saved: AppLocale }) {
   const t = useTranslations("panel.profile");
   // Seçenekler her dilde dilin **kendi** adını taşır ("Türkçe", "English",
   // "Français"): Fransızca paneldeki bir kullanıcı da aradığı dili tanır.
   const tc = useTranslations("common.endonyms");
   const showError = useActionError();
-  const current = useLocale() as AppLocale;
+  /** Adresin dili: yalnızca gezinme hedefini belirler, seçili değeri değil. */
+  const urlLocale = useLocale() as AppLocale;
   const [pending, start] = useTransition();
   const router = useRouter();
   const pathname = usePathname();
@@ -38,12 +45,12 @@ export function LanguageForm() {
       <select
         id="locale"
         name="locale"
-        defaultValue={current}
+        defaultValue={saved}
         disabled={pending}
         className="w-full rounded-md border bg-background px-3 py-2"
         onChange={(e) => {
           const next = e.target.value as AppLocale;
-          if (next === current) return;
+          if (next === saved) return;
           start(async () => {
             const r = await updateOwnLocale(next);
             if (!r.ok) {
@@ -51,7 +58,7 @@ export function LanguageForm() {
               return;
             }
             toast.success(t("languageSaved"));
-            router.replace(pathname, { locale: next });
+            if (next !== urlLocale) router.replace(pathname, { locale: next });
           });
         }}
       >

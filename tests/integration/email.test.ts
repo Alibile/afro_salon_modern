@@ -60,6 +60,26 @@ describe("sendAppointmentConfirmed", () => {
     expect(sent[0].subject).toContain("Votre rendez-vous est confirmé");
   });
 
+  /**
+   * Çevrilmiş bir gövdenin içindeki bağlantı çevrilmemiş bir adrese çıkarsa
+   * ziyaretçi Fransızca e-postadan Türkçe sayfaya düşer. Bağlantı alıcının
+   * diline önekli gider; Türkçe öneksiz kalır.
+   */
+  it("bağlantı alıcının diline önekli gider", async () => {
+    const { barber } = await createBarber();
+    const fr = await createCustomer({ locale: "fr" });
+    await sendAppointmentConfirmed((await appointment(fr.id, barber.id)).id);
+    expect(sent[0].html).toContain("http://localhost:3100/fr/randevularim");
+
+    sent.length = 0;
+    // İkinci randevu başka bir berbere: aynı berberde aynı saat çakışma kuralına takılır.
+    const other = await createBarber();
+    const tr = await createCustomer();
+    await sendAppointmentConfirmed((await appointment(tr.id, other.barber.id)).id);
+    expect(sent[0].html).toContain("http://localhost:3100/randevularim");
+    expect(sent[0].html).not.toContain("/tr/randevularim");
+  });
+
   it("tercih verilmemişse Türkçe kalır", async () => {
     const { barber } = await createBarber();
     const c = await createCustomer();
@@ -84,6 +104,8 @@ describe("sendAppointmentCancelled", () => {
     await sendAppointmentCancelled((await appointment(c.id, barber.id)).id, "STAFF");
     expect(sent[0].subject).toBe("Your appointment was cancelled");
     expect(sent[0].html).toContain("The salon cancelled your appointment");
+    // "Yeni randevu al" düğmesi İngilizce ana sayfaya çıkar.
+    expect(sent[0].html).toContain("http://localhost:3100/en");
   });
 });
 
@@ -95,15 +117,24 @@ describe("sendNewAppointmentToBarber", () => {
     expect(sent).toHaveLength(1);
     expect(sent[0].to).toBe(user.email);
     expect(sent[0].subject).toContain("Nouveau rendez-vous");
+    // Panel bağlantısı da berberin dilinde.
+    expect(sent[0].html).toContain("http://localhost:3100/fr/panel");
   });
 });
 
 describe("sendContactMessage", () => {
   it("salona her zaman Türkçe gider", async () => {
     await prisma.settings.update({ where: { id: 1 }, data: { email: "salon@test.local" } });
-    await sendContactMessage({ name: "Ayşe Yılmaz", phone: "+90 555", message: "Merhaba", services: ["Fade"] });
+    await sendContactMessage({ name: "Ayşe Yılmaz", phone: "+90 555", message: "Merhaba", services: ["Fade"], visitorLocale: "tr" });
     expect(sent[0].to).toBe("salon@test.local");
     expect(sent[0].subject).toBe("Siteden yeni mesaj · Ayşe Yılmaz");
     expect(sent[0].html).toContain("İlgilendiği hizmetler:");
+  });
+
+  it("ziyaretçinin dilini tek satırda salonun dilinde yazar", async () => {
+    await prisma.settings.update({ where: { id: 1 }, data: { email: "salon@test.local" } });
+    await sendContactMessage({ name: "Amélie", phone: "", message: "Bonjour", services: [], visitorLocale: "fr" });
+    expect(sent[0].subject).toBe("Siteden yeni mesaj · Amélie");
+    expect(sent[0].html).toContain("Ziyaretçinin dili: Fransızca");
   });
 });

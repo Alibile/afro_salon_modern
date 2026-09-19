@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { requireStaff } from "@/lib/auth-helpers";
+import { toAppLocale } from "@/i18n/routing";
 import { prisma } from "@/lib/db";
 import { ProfileForm } from "@/components/panel/ProfileForm";
 import { PasswordForm } from "@/components/panel/PasswordForm";
@@ -32,7 +33,11 @@ export default async function ProfilPage() {
       </section>
       <section className="rounded-xl border bg-card p-4">
         <h2 className="mb-3 text-xl">{t("languageTitle")}</h2>
-        <LanguageForm />
+        {/*
+         * Kutuda kayıtlı tercih görünür, adresin dili değil: `/panel/profil`
+         * (Türkçe adres) açan Fransızca kayıtlı berber "Français" görmeli.
+         */}
+        <LanguageForm saved={toAppLocale(user.locale)} />
       </section>
       <section className="rounded-xl border bg-card p-4">
         <h2 className="mb-3 text-xl">{t("passwordTitle")}</h2>

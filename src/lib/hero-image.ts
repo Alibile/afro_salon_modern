@@ -28,8 +28,13 @@ function landingFileExists(name: string) {
  * da kullanır, hiçbiri yoksa desenli yer tutucuya düşer (kırık görsel çıkmaz).
  * Kontrol `ImageSlot` ile aynı desendir; hero kendi işaretlemesini kurduğu için
  * o bileşen yerine bu yardımcıyı kullanır.
+ *
+ * `alt` zorunludur ve varsayılanı yoktur: varsayılan boş dize, çeviriyi
+ * geçirmeyi unutan çağrıyı sessizce alt metinsiz bir LCP görseline çevirirdi.
+ * Metin gerçekten gereksizse (ön yükleme duyurusu `<img>` üretmez) çağıran
+ * bunu açıkça `""` yazarak söyler.
  */
-export function heroSources(alt: string = "") {
+export function heroSources(alt: string) {
   const wide = landingFileExists("hero.jpg")
     ? getImageProps({ ...SHARED, alt, src: "/landing/hero.jpg", width: 2000, height: 1333 }).props
     : null;
@@ -58,7 +63,8 @@ export function heroSources(alt: string = "") {
  * çıkarırdı.
  */
 export function preloadHero() {
-  const { wide, tall } = heroSources();
+  // Duyuru `<img>` üretmez, yalnızca `src`/`srcSet` okunur: alt metni yok.
+  const { wide, tall } = heroSources("");
   const both = wide !== null && tall !== null;
   if (wide) {
     preload(wide.src, { as: "image", fetchPriority: "high", imageSrcSet: wide.srcSet, imageSizes: "100vw", media: both ? "(min-width: 768px)" : undefined });

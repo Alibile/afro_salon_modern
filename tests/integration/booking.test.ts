@@ -125,6 +125,79 @@ describe("createAppointment", () => {
     expect(appt.services[0].nameSnapshot).toBe("Saç Kesimi");
   });
 
+  /**
+   * Müşteri yüzünde dili **istek** belirler: müşterinin panel gibi bir dil
+   * ayarı yoktur, tek sinyali randevuyu hangi dildeki sayfadan aldığıdır.
+   */
+  it("anlık görüntüyü isteğin diliyle yazar, aktörün kayıtlı diliyle değil", async () => {
+    const { barber } = await createBarber();
+    const customer = await createCustomer({ locale: "tr" });
+    const s1 = await createService({ name: { tr: "Saç Kesimi", en: "Haircut", fr: "Coupe de cheveux" }, durationMinutes: 30 });
+
+    const r = await createAppointmentFor(asActor(customer), NOW, {
+      barberId: barber.id,
+      serviceIds: [s1.id],
+      startsAt: "2026-09-17T08:00:00.000Z",
+    }, "fr");
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    const appt = await prisma.appointment.findUniqueOrThrow({ where: { id: r.data.id }, include: { services: true } });
+    expect(appt.services[0].nameSnapshot).toBe("Coupe de cheveux");
+  });
+
+  it("müşterinin User.locale'ini isteğin diline günceller", async () => {
+    const { barber } = await createBarber();
+    const customer = await createCustomer({ locale: "tr" });
+    const s1 = await createService();
+
+    const r = await createAppointmentFor(asActor(customer), NOW, {
+      barberId: barber.id,
+      serviceIds: [s1.id],
+      startsAt: "2026-09-17T08:00:00.000Z",
+    }, "fr");
+    expect(r.ok).toBe(true);
+    // Onay e-postası alıcının kayıtlı tercihiyle gider; tercih güncellenmezse
+    // Fransızca sayfadan alınan randevu Türkçe e-posta üretirdi.
+    expect((await prisma.user.findUniqueOrThrow({ where: { id: customer.id } })).locale).toBe("fr");
+  });
+
+  // Personelin dili panelden yaptığı açık tercihtir: randevu sayfasının dili
+  // onu değiştirmez.
+  it("personelin kayıtlı dilini değiştirmez", async () => {
+    const { barber } = await createBarber();
+    const staff = await createBarber({ locale: "tr" });
+    const s1 = await createService({ name: { tr: "Saç Kesimi", en: "Haircut" }, durationMinutes: 30 });
+
+    const r = await createAppointmentFor(asActor(staff.user, { barberId: staff.barber.id }), NOW, {
+      barberId: barber.id,
+      serviceIds: [s1.id],
+      startsAt: "2026-09-17T08:00:00.000Z",
+    }, "en");
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    // Anlık görüntü yine isteğin dilinde: bu satır randevunun kendisine aittir.
+    const appt = await prisma.appointment.findUniqueOrThrow({ where: { id: r.data.id }, include: { services: true } });
+    expect(appt.services[0].nameSnapshot).toBe("Haircut");
+    expect((await prisma.user.findUniqueOrThrow({ where: { id: staff.user.id } })).locale).toBe("tr");
+  });
+
+  it("tanınmayan dil kodu aktörün kayıtlı diline düşer", async () => {
+    const { barber } = await createBarber();
+    const customer = await createCustomer({ locale: "en" });
+    const s1 = await createService({ name: { tr: "Saç Kesimi", en: "Haircut" }, durationMinutes: 30 });
+
+    const r = await createAppointmentFor(asActor(customer), NOW, {
+      barberId: barber.id,
+      serviceIds: [s1.id],
+      startsAt: "2026-09-17T08:00:00.000Z",
+    }, "de");
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    const appt = await prisma.appointment.findUniqueOrThrow({ where: { id: r.data.id }, include: { services: true } });
+    expect(appt.services[0].nameSnapshot).toBe("Haircut");
+    expect((await prisma.user.findUniqueOrThrow({ where: { id: customer.id } })).locale).toBe("en");
+  });
+
   it("rejects slot in the past / before lead time", async () => {
     const { barber } = await createBarber();
     const customer = await createCustomer();

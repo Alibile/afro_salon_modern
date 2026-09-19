@@ -19,6 +19,18 @@ import { stripLocale, withLocale } from "@/lib/locale-path";
  *
  * `api`, `_next` ve uzantılı dosyalar matcher dışında kalır; `/api/*` ağacı
  * `[locale]` altına taşınmadı ve taşınmamalı.
+ *
+ * **Kanonik olmayan önekler ve neden güvenliler.** `stripLocale` yalnızca
+ * kanonik önekleri (`/en`, `/fr`) tanır. `/EN/panel` (büyük harf) ya da
+ * `/tr/panel` (varsayılan dil öneksizdir, yani böyle bir adres yoktur) soyulmaz
+ * ve buradaki yetki kuralına `/EN/panel` / `/tr/panel` olarak görünür — yani
+ * `/panel` sanılmaz, korumaya takılmaz. Bu, yalnızca next-intl bu adresleri
+ * **yönlendirdiği** (redirect) için güvenlidir: ziyaretçi kanonik adrese
+ * (`/en/panel`, `/panel`) taşınır ve proxy isteği bir kez daha, bu kez doğru
+ * soyulmuş yoluyla görür. next-intl bu önekleri sessizce *yeniden yazsaydı*
+ * (rewrite) korumalı sayfa yetki kontrolü hiç çalışmadan render edilirdi.
+ * Yani buradaki sıra — önce yetki, sonra dil — ancak dil katmanının kanonik
+ * olmayan önekte yönlendirme yapması koşuluyla doğrudur.
  */
 const intlMiddleware = createMiddleware(routing);
 

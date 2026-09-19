@@ -31,12 +31,12 @@
     "title": "Afro Salon Modern",
     "description": "Coupes afro, tresses et coiffage pour hommes. Rendez-vous le jour même.",
     "home": {
-      "title": "Afro Salon Modern — Coiffeur afro, rendez-vous le jour même",
+      "title": "Afro Salon Modern — Barbier afro, rendez-vous le jour même",
       "description": "Coupes afro, tresses, twists et taille de barbe. Découvrez l'équipe, parcourez la galerie et prenez votre créneau du jour en quelques gestes."
     },
     "booking": {
       "title": "Prendre rendez-vous — Afro Salon Modern",
-      "description": "Choisissez votre prestation et votre coiffeur, voyez les créneaux encore libres aujourd'hui et confirmez en quelques secondes."
+      "description": "Choisissez votre prestation et votre barbier, voyez les créneaux encore libres aujourd'hui et confirmez en quelques secondes."
     }
   },
   "nav": {
@@ -155,7 +155,7 @@
       "textured-fringe": "Frange texturée",
       "afro": "Afro",
       "braids": "Tresses",
-      "twist": "Twists",
+      "twist": "Twist",
       "beard": "Barbe"
     }
   },
@@ -197,7 +197,7 @@
     "asideNote": "Votre compte réunit votre rendez-vous, l'historique de vos coupes et vos photos.",
     "forbidden": "Vous n'avez pas accès à cette page",
     "fields": {
-      "name": "Nom et prénom",
+      "name": "Nom complet",
       "email": "E-mail",
       "password": "Mot de passe",
       "phone": "Téléphone (facultatif)"
@@ -237,6 +237,7 @@
     "invalidInput": "Informations invalides",
     "tooManyRequests": "Trop de tentatives, réessayez dans un instant",
     "invalidLocale": "Langue invalide",
+    "invalidRequest": "Requête invalide",
     "barberNotFound": "Barbier introuvable",
     "selectedServiceNotFound": "La prestation sélectionnée est introuvable",
     "slotUnavailable": "Cette heure n'est plus disponible, choisissez-en une autre",
@@ -246,7 +247,7 @@
     "appointmentStatusChanged": "Le statut de ce rendez-vous a déjà été modifié",
     "cancelWindow": "Il reste moins de {minutes} minutes avant le rendez-vous : l'annulation en ligne n'est plus possible, appelez le salon",
     "serviceNotFound": "Prestation introuvable",
-    "serviceInUse": "Cette prestation a servi à des rendez-vous passés et ne peut pas être supprimée ; désactivez-la",
+    "serviceInUse": "Cette prestation figure dans des rendez-vous passés et ne peut pas être supprimée ; désactivez-la",
     "serviceHasRelations": "Cette prestation a des enregistrements liés et ne peut pas être supprimée ; désactivez-la",
     "cannotDeleteOwnAccount": "Vous ne pouvez pas supprimer votre propre compte",
     "barberHasHistory": "Ce barbier a un historique de rendez-vous ou de photos et ne peut pas être supprimé ; désactivez-le",
@@ -264,7 +265,7 @@
     "invalidDirection": "Direction invalide",
     "captionTooLong": "La légende ne peut pas dépasser 120 caractères",
     "tagRequired": "Saisissez au moins une étiquette",
-    "invalidTags": "Les étiquettes font 2 à 20 caractères, 6 au maximum",
+    "invalidTags": "Les étiquettes doivent faire 2 à 20 caractères, 6 au maximum.",
     "timeOffNotFound": "Congé introuvable",
     "invalidDate": "La date doit être au format AAAA-MM-JJ",
     "invalidTimeRange": "Plage horaire invalide",
@@ -275,8 +276,8 @@
     "ratingRange": "La note doit être comprise entre 1 et 5",
     "nameMin2": "Le nom doit faire au moins 2 caractères",
     "nameMax60": "Le nom ne peut pas dépasser 60 caractères",
-    "fullNameMin2": "Le nom et prénom doivent faire au moins 2 caractères",
-    "fullNameMin3": "Le nom et prénom doivent faire au moins 3 caractères",
+    "fullNameMin2": "Le nom complet doit faire au moins 2 caractères.",
+    "fullNameMin3": "Le nom complet doit faire au moins 3 caractères.",
     "enterValidEmail": "Saisissez une adresse e-mail valide",
     "invalidEmail": "Adresse e-mail invalide",
     "passwordMin8": "Le mot de passe doit faire au moins 8 caractères",
@@ -306,7 +307,7 @@
       "customers": "Clients",
       "profile": "Mon profil",
       "services": "Prestations",
-      "barbers": "Coiffeurs",
+      "barbers": "Barbiers",
       "testimonials": "Avis",
       "gallery": "Galerie",
       "settings": "Réglages"
@@ -335,7 +336,7 @@
     },
     "today": {
       "heading": "Aujourd'hui · {date}",
-      "noBarbers": "Aucun coiffeur actif.",
+      "noBarbers": "Aucun barbier actif.",
       "noAppointments": "Aucun rendez-vous aujourd'hui",
       "complete": "Terminé",
       "noShow": "Absent",
@@ -343,12 +344,12 @@
     },
     "appointments": {
       "title": "Rendez-vous",
-      "allBarbers": "Tous les coiffeurs",
+      "allBarbers": "Tous les barbiers",
       "allStatuses": "Tous les statuts",
       "filter": "Filtrer",
       "date": "Date",
       "time": "Heure",
-      "barber": "Coiffeur",
+      "barber": "Barbier",
       "customer": "Client",
       "service": "Prestation",
       "total": "Montant",
@@ -358,7 +359,7 @@
     "timeOff": {
       "title": "Congés",
       "newTitle": "Nouveau congé",
-      "barber": "Coiffeur",
+      "barber": "Barbier",
       "date": "Date",
       "allDay": "Toute la journée",
       "start": "Début",
@@ -421,8 +422,8 @@
       "priceUpdated": "Prix mis à jour"
     },
     "barbers": {
-      "title": "Coiffeurs",
-      "newTitle": "Nouveau coiffeur",
+      "title": "Barbiers",
+      "newTitle": "Nouveau barbier",
       "infoTitle": "Informations",
       "hoursTitle": "Horaires de travail",
       "name": "Nom complet",
@@ -431,13 +432,13 @@
       "bio": "Présentation courte",
       "photo": "Photo de profil (obligatoire)",
       "active": "Actif (les clients peuvent le choisir)",
-      "submit": "Ajouter le coiffeur",
-      "added": "Coiffeur ajouté",
-      "updated": "Coiffeur mis à jour",
-      "deleted": "Coiffeur supprimé",
-      "deleteTitle": "Supprimer ce coiffeur ?",
+      "submit": "Ajouter le barbier",
+      "added": "Barbier ajouté",
+      "updated": "Barbier mis à jour",
+      "deleted": "Barbier supprimé",
+      "deleteTitle": "Supprimer ce barbier ?",
       "deleteDescription": "« {name} » sera supprimé définitivement ; son compte utilisateur et ses horaires aussi. Cette action est irréversible.",
-      "deleteBlocked": "Ce coiffeur a un historique de rendez-vous ou de photos et ne peut pas être supprimé ; désactivez-le",
+      "deleteBlocked": "Ce barbier a un historique de rendez-vous ou de photos et ne peut pas être supprimé ; désactivez-le",
       "deleteSelf": "Vous ne pouvez pas supprimer votre propre compte",
       "resetPassword": "Réinitialiser le mot de passe",
       "newPasswordPrompt": "Nouveau mot de passe (8 caractères minimum) :",
@@ -494,7 +495,7 @@
       "cancellationWindow": "Limite d'annulation client (min)",
       "minLead": "Rendez-vous le plus tôt (à partir de maintenant, min)",
       "slotStep": "Pas des créneaux (min)",
-      "notifyBarber": "Envoyer un e-mail au coiffeur à chaque nouveau rendez-vous",
+      "notifyBarber": "Envoyer un e-mail au barbier à chaque nouveau rendez-vous",
       "contentLegend": "Contenu du site",
       "email": "E-mail",
       "instagramPlaceholder": "@identifiant ou URL",
@@ -524,7 +525,7 @@
       "subject": "Votre rendez-vous est confirmé · {time}",
       "heading": "Votre rendez-vous est confirmé",
       "greeting": "Bonjour {name},",
-      "when": "Le <b>{date}</b> à <b>{time}</b>, votre coiffeur est <b>{barber}</b>.",
+      "when": "Le <b>{date}</b> à <b>{time}</b>, votre barbier est <b>{barber}</b>.",
       "services": "Prestations : {list}",
       "total": "Total : {total}",
       "cta": "Voir mes rendez-vous"
@@ -550,6 +551,7 @@
       "subject": "Nouveau message depuis le site · {name}",
       "heading": "Nouveau message depuis le site",
       "interestedIn": "Prestations qui l'intéressent :",
+      "visitorLanguage": "Langue du visiteur : {language}",
       "footer": "{shopName} · formulaire de contact"
     }
   }

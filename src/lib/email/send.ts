@@ -5,6 +5,8 @@ import { getSettings } from "@/lib/settings";
 import { formatKurus } from "@/lib/money";
 import { formatShopDate, formatShopTime } from "@/lib/time";
 import { routing, toAppLocale, type AppLocale } from "@/i18n/routing";
+import { withLocale } from "@/lib/locale-path";
+import { siteUrl } from "@/lib/site-url";
 import { emailTranslator } from "./i18n";
 import { AppointmentConfirmed } from "./templates/AppointmentConfirmed";
 import { AppointmentCancelled } from "./templates/AppointmentCancelled";
@@ -20,8 +22,26 @@ import { ContactMessage } from "./templates/ContactMessage";
  */
 const SHOP_LOCALE: AppLocale = routing.defaultLocale;
 
+/**
+ * E-postadaki bağlantıların mutlak kökü. Auth.js zaten `AUTH_URL` istiyor, o
+ * varsa ilk sıradadır; yoksa sitenin kök adresi için tek kaynak
+ * {@link siteUrl}'dir (`NEXT_PUBLIC_SITE_URL`, `sitemap.xml` ve `canonical`
+ * de oradan beslenir). Buraya ikinci bir yedek adres yazmak üçüncü bir gerçek
+ * üretirdi.
+ */
 function baseUrl() {
-  return process.env.AUTH_URL?.replace(/\/$/, "") ?? "http://localhost:3000";
+  const configured = process.env.AUTH_URL?.trim().replace(/\/+$/, "");
+  return configured ? configured : siteUrl();
+}
+
+/**
+ * E-posta gövdesindeki her bağlantı alıcının diline önekli gider: Fransızca
+ * bir onay e-postası `/fr/randevularim`e çıkar, ziyaretçiyi Türkçe sayfaya
+ * düşürmez. Türkçe öneksiz olduğu için (`localePrefix: "as-needed"`) TR
+ * adresleri değişmez.
+ */
+function localeUrl(locale: AppLocale, path: string) {
+  return `${baseUrl()}${withLocale(locale, path)}`;
 }
 
 async function deliver(to: string, subject: string, html: string) {
@@ -62,7 +82,7 @@ export async function sendAppointmentConfirmed(appointmentId: string) {
         timeText,
         services: a.services.map((s) => s.nameSnapshot),
         totalText: formatKurus(a.services.reduce((t, s) => t + s.priceSnapshot, 0), locale),
-        manageUrl: `${baseUrl()}/randevularim`,
+        manageUrl: localeUrl(locale, "/randevularim"),
       }),
     );
     await deliver(a.customer.email, emailTranslator(locale, "confirmed")("subject", { time: timeText }), html);
@@ -85,7 +105,7 @@ export async function sendAppointmentCancelled(appointmentId: string, by: "CUSTO
         dateText: formatShopDate(a.startsAt, locale),
         timeText: formatShopTime(a.startsAt),
         by,
-        bookUrl: baseUrl(),
+        bookUrl: localeUrl(locale, "/"),
       }),
     );
     await deliver(a.customer.email, emailTranslator(locale, "cancelled")("subject"), html);
@@ -110,7 +130,7 @@ export async function sendNewAppointmentToBarber(appointmentId: string) {
         customerPhone: a.customer.phone ?? "-",
         timeText: `${startText} – ${formatShopTime(a.endsAt)}`,
         services: a.services.map((s) => s.nameSnapshot),
-        panelUrl: `${baseUrl()}/panel`,
+        panelUrl: localeUrl(locale, "/panel"),
       }),
     );
     await deliver(a.barber.user.email, emailTranslator(locale, "barberNotice")("subject", { time: startText }), html);
@@ -122,8 +142,12 @@ export async function sendNewAppointmentToBarber(appointmentId: string) {
 /**
  * İletişim formundan gelen mesajı salona iletir. Alıcı `settings.email`,
  * boşsa `EMAIL_FROM` adresidir; ikisi de yoksa mesaj yalnızca loglanır.
+ *
+ * Gövde salonun dilindedir (`tr`) — hizmet adları da Türkçe gelir (bkz.
+ * `actions/impl/contact.ts`). `visitorLocale` yalnızca "ziyaretçi hangi dilde
+ * yazdı" satırı için taşınır; salon mesaja o dilde dönebilsin diye.
  */
-export async function sendContactMessage(input: { name: string; phone: string; message: string; services: string[] }) {
+export async function sendContactMessage(input: { name: string; phone: string; message: string; services: string[]; visitorLocale: AppLocale }) {
   try {
     const settings = await getSettings();
     const to = settings.email.trim() || process.env.EMAIL_FROM?.trim();
@@ -139,6 +163,7 @@ export async function sendContactMessage(input: { name: string; phone: string; m
         phone: input.phone,
         message: input.message,
         services: input.services,
+        visitorLocale: input.visitorLocale,
       }),
     );
     // Ad alanındaki satır sonu/çoklu boşluk konu satırını bozabildiğinden tek boşluğa indirilir.

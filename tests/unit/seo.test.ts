@@ -62,7 +62,14 @@ describe("PUBLIC_PATHS", () => {
 });
 
 describe("noIndex", () => {
-  it("yalnızca dizine girmeyi kapatır", () => {
-    expect(noIndex).toEqual({ robots: { index: false } });
+  it("dizine girmeyi kapatır ve kanonik/hreflang duyurusunu siler", () => {
+    expect(noIndex).toEqual({ robots: { index: false }, alternates: { canonical: null } });
+  });
+
+  // `alternates` anahtarı yazılı olmalı: Next onu bütün olarak ezer, yoksa
+  // kök yerleşimin `pageAlternates("/")` bloğu noindex sayfalara da inerdi.
+  it("alternates anahtarını açıkça taşır", () => {
+    expect(Object.keys(noIndex)).toContain("alternates");
+    expect(noIndex.alternates?.languages).toBeUndefined();
   });
 });
