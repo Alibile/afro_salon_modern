@@ -51,7 +51,7 @@ test.describe("SSS", () => {
     await expect(answer).toBeHidden();
     await first.getByText("Randevu nasıl alınır?").click();
     await expect(answer).toBeVisible();
-    await expect(answer).toContainText("bugünden başlayarak yedi gün açık, Pazar hariç");
+    await expect(answer).toContainText("Bugünden itibaren bir hafta içinden gün seçebilirsin; Pazar kapalıyız.");
   });
 
   test("altı soru var ve İngilizcesi de açılır", async ({ page }) => {

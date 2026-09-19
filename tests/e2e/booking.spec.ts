@@ -41,7 +41,9 @@ test.describe.serial("randevu akışı", () => {
     // güne randevu aldığını bilsin.
     const today = dayChips(page).and(page.locator(`[data-date="${shopDay(0)}"]`));
     const slots = timeSlots(page);
-    const closed = page.getByText(/kapalıyız|uygun saat kalmadı/);
+    // Kapalılık mesajı adımın **içinde** aranır: aynı kalıp sayfa başlığındaki
+    // dükkan durumu satırında da geçiyor (strict mode iki eşleşmeye düşerdi).
+    const closed = bookingStep(page).getByText(/kapalıyız|uygun saat kalmadı/);
     await expect(today.or(closed)).toBeVisible();
     test.skip(await closed.isVisible(), "Dükkan şu an kapalı, slot testi atlandı");
     await today.click();
@@ -135,6 +137,9 @@ test.describe.serial("ileri gün randevusu", () => {
 
     const forward = dayChips(page).and(page.locator(`[data-date]:not([data-date="${shopDay(0)}"])`)).first();
     await expect(forward).toBeVisible();
+    // Kapalı ya da dolu bir çip tıklanamaz: e2e veritabanında ileri günler hep
+    // açık, bu bekleme o varsayımı testin kendi içinde doğrular.
+    await expect(forward).toBeEnabled();
     const dateKey = await forward.getAttribute("data-date");
     await forward.click();
 

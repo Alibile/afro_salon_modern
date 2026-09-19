@@ -20,6 +20,27 @@ export function overlaps(a: Interval, b: Interval): boolean {
   return a.start < b.end && b.start < a.end;
 }
 
+/**
+ * Gün baştan sona izinli mi? Berberin o günkü **bütün** çalışma aralıkları bir
+ * izinle örtülüyse gün "dolu" değil **kapalı**dır: berber salonda yok, saat
+ * açılması da beklenmez. Ayrım ziyaretçi yüzünde görünür — çip "Dolu" yerine
+ * "Kapalı" der, sihirbaz "bu gün kapalıyız" cümlesini basar.
+ *
+ * Saf fonksiyon: hem tek günü hesaplayan `getAvailability` hem de bütün
+ * pencereyi özetleyen `getDaySummaries` aynı kuralı buradan okur, yoksa iki yer
+ * aynı gün için farklı şey söylerdi.
+ */
+export function isFullyOff(dayStart: Date, workingIntervals: WorkingInterval[], off: Interval[]): boolean {
+  if (workingIntervals.length === 0) return false;
+  return workingIntervals.every((w) =>
+    off.some(
+      (o) =>
+        o.start.getTime() <= addMinutes(dayStart, w.startMinutes).getTime() &&
+        o.end.getTime() >= addMinutes(dayStart, w.endMinutes).getTime(),
+    ),
+  );
+}
+
 export function computeSlots(input: AvailabilityInput): Date[] {
   const { dayStart, workingIntervals, busy, durationMinutes, slotStepMinutes, minLeadMinutes, now } = input;
   const earliest = addMinutes(now, minLeadMinutes);

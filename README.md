@@ -61,8 +61,10 @@ her zaman altı gün seçilebilir. Pencerenin tek tanımı
 dilimindedir (`Europe/Istanbul`).
 
 Sihirbazın üçüncü adımı gün çipleri (Bugün · Yarın · kısa tarih) ile saat
-ızgarasını birlikte gösterir; seçili gün adres çubuğunda `?gun=YYYY-MM-DD`
-olarak durur. Çipler `GET /api/availability?barberId&duration&summary=1` ile
+ızgarasını birlikte gösterir. Seçili gün gezinirken adrese yazılmaz; yalnızca
+giriş yapmak için sayfadan çıkılırken dönüş adresine `?gun=YYYY-MM-DD` olarak
+eklenir (`/giris?next=…`), böylece ziyaretçi giriş sonrası aynı günle geri
+gelir. Çipler `GET /api/availability?barberId&duration&summary=1` ile
 gelen özetten beslenir: berberin çalışmadığı ya da tam gün izinli olduğu gün
 "Kapalı", yeri kalmamış gün "Dolu" görünür ve seçilemez. Tek günün saatleri
 `GET /api/availability?barberId&duration&date=YYYY-MM-DD` ile gelir

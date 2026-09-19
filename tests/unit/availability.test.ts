@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeSlots, overlaps, type AvailabilityInput } from "@/lib/availability";
+import { computeSlots, isFullyOff, overlaps, type AvailabilityInput } from "@/lib/availability";
 
 // dayStart: 2026-09-17 00:00 Istanbul = 2026-09-16T21:00Z
 const DAY_START = new Date("2026-09-16T21:00:00Z");
@@ -27,6 +27,43 @@ describe("overlaps", () => {
   it("detects overlap, treats touching as non-overlap", () => {
     expect(overlaps({ start: at("09:00"), end: at("10:00") }, { start: at("09:30"), end: at("10:30") })).toBe(true);
     expect(overlaps({ start: at("09:00"), end: at("10:00") }, { start: at("10:00"), end: at("11:00") })).toBe(false);
+  });
+});
+
+describe("isFullyOff", () => {
+  const morningAndAfternoon = [
+    { startMinutes: 9 * 60, endMinutes: 12 * 60 },
+    { startMinutes: 13 * 60, endMinutes: 18 * 60 },
+  ];
+
+  it("tek izin bütün çalışma aralıklarını örtüyorsa gün kapalıdır", () => {
+    const off = [{ start: at("00:00"), end: at("23:59") }];
+    expect(isFullyOff(DAY_START, morningAndAfternoon, off)).toBe(true);
+  });
+
+  it("izin aralığın kenarına tam oturursa da kapalıdır", () => {
+    const off = [{ start: at("09:00"), end: at("18:00") }];
+    expect(isFullyOff(DAY_START, morningAndAfternoon, off)).toBe(true);
+  });
+
+  it("aralıkların yalnızca biri örtülüyse gün kapalı değildir", () => {
+    const off = [{ start: at("09:00"), end: at("12:00") }];
+    expect(isFullyOff(DAY_START, morningAndAfternoon, off)).toBe(false);
+  });
+
+  it("bir dakikası bile açık kalan gün kapalı değildir", () => {
+    const off = [{ start: at("09:00"), end: at("17:59") }];
+    expect(isFullyOff(DAY_START, morningAndAfternoon, off)).toBe(false);
+  });
+
+  // Çalışma saati olmayan gün başka bir sebeple kapalıdır (berber o gün
+  // çalışmıyor); bu yüklem yalnızca izni konuşur ve "hayır" der.
+  it("çalışma aralığı olmayan günde false döner", () => {
+    expect(isFullyOff(DAY_START, [], [{ start: at("00:00"), end: at("23:59") }])).toBe(false);
+  });
+
+  it("izin yoksa false döner", () => {
+    expect(isFullyOff(DAY_START, morningAndAfternoon, [])).toBe(false);
   });
 });
 

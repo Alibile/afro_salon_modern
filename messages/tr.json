@@ -78,7 +78,7 @@
       "step1Title": "Berberini seç",
       "step1Text": "Ekibi tanı, kime oturmak istiyorsan onu işaretle.",
       "step2Title": "Gününü ve saatini seç",
-      "step2Text": "Bugünden başlayarak yedi gün açığız, Pazar hariç. Takvimde yalnızca gerçekten boş olan saatler görünür.",
+      "step2Text": "Bugünden itibaren bir hafta içinde bir gün seç; Pazar kapalıyız. Takvimde yalnızca gerçekten boş olan saatler görünür.",
       "step3Title": "Gel, otur",
       "step3Text": "Saatin ayrıldı; kapıda sıra beklemene gerek yok.",
       "cancelNote": "Planın değişirse randevuna en geç {minutes} dakika kala iptal edebilirsin."
@@ -103,7 +103,7 @@
         "beard": "Sakal tıraşı ve düzeltme"
       },
       "book": "Hemen randevu al",
-      "note": "Tek fiyat, sürpriz yok. Bugün ya da hafta içinde, Pazar hariç."
+      "note": "Tek fiyat, sürpriz yok. Bugün ya da hafta içinde; Pazar kapalıyız."
     },
     "whyUs": {
       "title": "NEDEN BİZ",
@@ -143,7 +143,7 @@
       "title": "SIKÇA SORULANLAR",
       "note": "Kısa cevaplar; gerisini koltukta konuşuruz.",
       "q1": "Randevu nasıl alınır?",
-      "a1": "Siteden, birkaç dokunuşla. Takvim bugünden başlayarak yedi gün açık, Pazar hariç: berberini ve gününü seçersin, o gün boş olan saatler karşına gelir.",
+      "a1": "Siteden, birkaç dokunuşla. Bugünden itibaren bir hafta içinden gün seçebilirsin; Pazar kapalıyız. Berberini ve gününü seç, o gün boş olan saatler karşına gelsin.",
       "q2": "Randevumu iptal edebilir miyim?",
       "a2": "Evet. Randevuna en geç {minutes} dakika kala \"Randevularım\" sayfasından iptal edebilirsin; sonrası için salonu ara.",
       "q3": "Ödemeyi nasıl yapıyorum?",

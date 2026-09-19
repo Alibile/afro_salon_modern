@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { formatShopDayShort, formatShopTime, shopDateTime, shopDayDelta } from "@/lib/time";
@@ -16,11 +16,13 @@ function dayInstant(dateKey: string): Date {
 
 /**
  * Pencerenin ilk **seçilebilir** günü: bugünün yeri varsa bugün, yoksa yer olan
- * ilk gün. Hiçbir günde yer yoksa ilk gün seçilir ki ziyaretçi boş bir ızgara
- * yerine "bu gün dolu" cümlesini görsün.
+ * ilk gün. Hiçbir günde yer kalmamışsa hiç olmazsa **açık** bir güne düşülür
+ * ("dolu" der, "kapalıyız" demez); o da yoksa ilk gün seçilir ki ziyaretçi boş
+ * bir ızgara yerine bir cümle görsün.
  */
 function defaultDay(days: DaySummary[]): string | null {
-  return (days.find((d) => d.open && d.slotCount > 0) ?? days[0])?.dateKey ?? null;
+  const open = days.filter((d) => d.open);
+  return (open.find((d) => d.slotCount > 0) ?? open[0] ?? days[0])?.dateKey ?? null;
 }
 
 /**
@@ -40,7 +42,9 @@ function DayChips({
 }) {
   const t = useTranslations("booking");
   const locale = useLocale() as AppLocale;
-  const now = useMemo(() => new Date(), []);
+  // Her render'da yeniden okunur: sihirbaz açıkken gece yarısı geçerse
+  // "Bugün" çipi donup yanlış günü etiketlemesin.
+  const now = new Date();
 
   return (
     <div
@@ -66,7 +70,9 @@ function DayChips({
             type="button"
             data-date={day.dateKey}
             disabled={disabled}
-            aria-pressed={isSelected}
+            // Seçilemeyen bir çipin "basılı" duyurulması çelişkili olurdu:
+            // devre dışıyken durum bildirilmez.
+            aria-pressed={disabled ? undefined : isSelected}
             onClick={() => onSelect(day.dateKey)}
             className={cn(
               "flex h-9 shrink-0 snap-start items-center whitespace-nowrap border px-3.5 text-sm transition-colors",

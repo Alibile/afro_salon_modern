@@ -66,6 +66,33 @@ describe("getAvailability", () => {
     expect(r.slots.at(-1)!.toISOString()).toBe("2026-09-18T15:30:00.000Z");
   });
 
+  /**
+   * Tam gün izinli gün "dolu" değil **kapalı**dır; gün çipleriyle aynı yüklemi
+   * (`isFullyOff`) okuduğu için ikisi aynı şeyi söyler.
+   */
+  it("tam gün izinli günde isOpen false döner", async () => {
+    const { barber } = await createBarber();
+    await prisma.timeOff.create({
+      data: { barberId: barber.id, startsAt: new Date("2026-09-17T21:00:00Z"), endsAt: new Date("2026-09-18T21:00:00Z") },
+    });
+    const r = await getAvailability(barber.id, 30, day("2026-09-18"), NOW);
+    expect(r.isOpen).toBe(false);
+    expect(r.slots).toEqual([]);
+    const summary = (await getDaySummaries(barber.id, 30, NOW)).find((s) => s.dateKey === "2026-09-18");
+    expect(summary?.open).toBe(r.isOpen);
+  });
+
+  it("randevularla dolan gün kapalı değil, yalnızca saatsizdir", async () => {
+    const { barber } = await createBarber();
+    const customer = await createCustomer();
+    await prisma.appointment.create({
+      data: { barberId: barber.id, customerId: customer.id, startsAt: new Date("2026-09-17T21:00:00Z"), endsAt: new Date("2026-09-18T21:00:00Z") },
+    });
+    const r = await getAvailability(barber.id, 30, day("2026-09-18"), NOW);
+    expect(r.isOpen).toBe(true);
+    expect(r.slots).toEqual([]);
+  });
+
   it("ileri günün randevusu o günün ızgarasından düşer", async () => {
     const { barber } = await createBarber();
     const customer = await createCustomer();

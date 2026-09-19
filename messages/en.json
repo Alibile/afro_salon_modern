@@ -78,7 +78,7 @@
       "step1Title": "Pick your barber",
       "step1Text": "Meet the team and choose the hands you want to sit down with.",
       "step2Title": "Pick your day and time",
-      "step2Text": "Seven days from today, Sundays aside. Only the hours that are genuinely free show up.",
+      "step2Text": "Pick a day within the next week; we're closed on Sundays. Only genuinely free times show up.",
       "step3Title": "Come in and sit down",
       "step3Text": "Your slot is held; there is no queue to wait in.",
       "cancelNote": "If your plans change, you can cancel up to {minutes} minutes before your appointment."
@@ -103,7 +103,7 @@
         "beard": "Beard trim and shaping"
       },
       "book": "Book your slot",
-      "note": "One price, no surprises. Today or later this week — closed on Sundays."
+      "note": "One price, no surprises. Today or later in the week; we're closed on Sundays."
     },
     "whyUs": {
       "title": "WHY US",
@@ -143,7 +143,7 @@
       "title": "FREQUENTLY ASKED",
       "note": "Short answers; the rest we'll talk through in the chair.",
       "q1": "How do I book?",
-      "a1": "Here on the site, in a few taps. The diary is open for seven days from today, Sundays aside: pick your barber and your day, and the hours still free appear.",
+      "a1": "Here on the site, in a few taps. You can pick any day within the next week; we're closed on Sundays. Choose your barber and your day, and the hours still free appear.",
       "q2": "Can I cancel?",
       "a2": "Yes. You can cancel from \"My bookings\" up to {minutes} minutes before your appointment; after that, give the shop a call.",
       "q3": "How do I pay?",

@@ -78,7 +78,7 @@
       "step1Title": "Choisissez votre barbier",
       "step1Text": "Découvrez l'équipe et choisissez les mains entre lesquelles vous asseoir.",
       "step2Title": "Choisissez votre jour et votre heure",
-      "step2Text": "Sept jours à partir d'aujourd'hui, dimanche excepté. Seuls les créneaux réellement libres s'affichent.",
+      "step2Text": "Choisissez un jour dans la semaine à venir ; nous sommes fermés le dimanche. Seuls les créneaux réellement libres apparaissent.",
       "step3Title": "Venez vous asseoir",
       "step3Text": "Votre créneau est retenu ; aucune file à l'entrée.",
       "cancelNote": "Si vos plans changent, vous pouvez annuler jusqu'à {minutes} minutes avant votre rendez-vous."
@@ -103,7 +103,7 @@
         "beard": "Taille et mise en forme de la barbe"
       },
       "book": "Réserver votre créneau",
-      "note": "Un tarif unique, sans surprise. Aujourd'hui ou dans la semaine, sauf le dimanche."
+      "note": "Un tarif unique, sans surprise. Aujourd'hui ou dans la semaine ; nous sommes fermés le dimanche."
     },
     "whyUs": {
       "title": "POURQUOI NOUS",
@@ -143,7 +143,7 @@
       "title": "QUESTIONS FRÉQUENTES",
       "note": "Des réponses courtes ; le reste, on en parle dans le fauteuil.",
       "q1": "Comment prendre rendez-vous ?",
-      "a1": "Ici, sur le site, en quelques gestes. L'agenda est ouvert sept jours à partir d'aujourd'hui, dimanche excepté : choisissez votre barbier et votre jour, et les heures encore libres apparaissent.",
+      "a1": "Ici, sur le site, en quelques gestes. Vous pouvez choisir un jour dans la semaine à venir ; nous sommes fermés le dimanche. Choisissez votre barbier et votre jour, et les heures encore libres apparaissent.",
       "q2": "Puis-je annuler ?",
       "a2": "Oui. Depuis « Mes rendez-vous », jusqu'à {minutes} minutes avant l'heure prévue ; passé ce délai, appelez le salon.",
       "q3": "Comment régler ?",

@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { computeSlots, type Interval, type WorkingInterval } from "@/lib/availability";
+import { computeSlots, isFullyOff, type Interval, type WorkingInterval } from "@/lib/availability";
 import { addMinutes, parseTime, shopDayOfWeek, shopDayStart } from "@/lib/time";
 import { bookableDays } from "@/lib/booking-window";
 import { getSettings } from "@/lib/settings";
@@ -58,7 +58,17 @@ export async function getActiveBarbers(locale: string) {
   }));
 }
 
-export async function getBarberDayBusy(barberId: string, dayStart: Date, dayEnd: Date): Promise<Interval[]> {
+/**
+ * Bir günün doluluğu iki parça hâlinde: `busy` ızgaradan düşülecek her şeydir
+ * (randevular + izinler), `off` yalnızca izinlerdir. İkisi ayrı duruyor çünkü
+ * "gün kapalı mı?" sorusunu yalnızca izinler cevaplar — randevularla dolmuş
+ * bir gün kapalı değil, doludur.
+ */
+export async function getBarberDayIntervals(
+  barberId: string,
+  dayStart: Date,
+  dayEnd: Date,
+): Promise<{ busy: Interval[]; off: Interval[] }> {
   const [appointments, timeOffs] = await Promise.all([
     prisma.appointment.findMany({
       where: { barberId, status: "SCHEDULED", startsAt: { lt: dayEnd }, endsAt: { gt: dayStart } },
@@ -69,7 +79,8 @@ export async function getBarberDayBusy(barberId: string, dayStart: Date, dayEnd:
       select: { startsAt: true, endsAt: true },
     }),
   ]);
-  return [...appointments, ...timeOffs].map((x) => ({ start: x.startsAt, end: x.endsAt }));
+  const toInterval = (x: { startsAt: Date; endsAt: Date }) => ({ start: x.startsAt, end: x.endsAt });
+  return { busy: [...appointments, ...timeOffs].map(toInterval), off: timeOffs.map(toInterval) };
 }
 
 async function getWorkingIntervals(barberId: string, dayOfWeek: number): Promise<WorkingInterval[]> {
@@ -107,9 +118,9 @@ export async function getAvailability(
   const dayEnd = addMinutes(dayStart, 24 * 60);
   const dow = shopDayOfWeek(dayStart);
 
-  const [working, busy, nextDayRows] = await Promise.all([
+  const [working, { busy, off }, nextDayRows] = await Promise.all([
     getWorkingIntervals(barberId, dow),
-    getBarberDayBusy(barberId, dayStart, dayEnd),
+    getBarberDayIntervals(barberId, dayStart, dayEnd),
     prisma.workingHours.findMany({
       where: { barberId, dayOfWeek: (dow + 1) % 7, isOff: false },
       orderBy: { startTime: "asc" },
@@ -128,7 +139,9 @@ export async function getAvailability(
 
   return {
     slots,
-    isOpen: working.length > 0,
+    // Tam gün izinli gün de kapalıdır (`isFullyOff`): gün çipleriyle aynı
+    // kuralı okumazsa aynı gün için çip "Kapalı", sihirbaz "dolu" derdi.
+    isOpen: working.length > 0 && !isFullyOff(dayStart, working, off),
     opensAt: nextDayRows[0]?.startTime ?? null,
   };
 }
@@ -175,17 +188,6 @@ export async function getDaySummaries(
     const working = hours
       .filter((h) => h.dayOfWeek === day.dayOfWeek)
       .map((h) => ({ startMinutes: parseTime(h.startTime), endMinutes: parseTime(h.endTime) }));
-    // Tam gün izin: çalışma aralıklarının hepsi tek bir izinle örtülmüşse gün
-    // "dolu" değil "kapalı"dır — berber o gün salonda yok.
-    const fullyOff =
-      working.length > 0 &&
-      working.every((w) =>
-        off.some(
-          (o) =>
-            o.start.getTime() <= addMinutes(day.dayStart, w.startMinutes).getTime() &&
-            o.end.getTime() >= addMinutes(day.dayStart, w.endMinutes).getTime(),
-        ),
-      );
     const slots = computeSlots({
       dayStart: day.dayStart,
       workingIntervals: working,
@@ -194,6 +196,10 @@ export async function getDaySummaries(
       slotStepMinutes: settings.slotStepMinutes,
       ...leadFilter(day.dayStart, now, settings.minLeadMinutes),
     });
-    return { dateKey: day.dateKey, open: working.length > 0 && !fullyOff, slotCount: slots.length };
+    return {
+      dateKey: day.dateKey,
+      open: working.length > 0 && !isFullyOff(day.dayStart, working, off),
+      slotCount: slots.length,
+    };
   });
 }

@@ -3,8 +3,8 @@ import { addDays, shopDateKey, shopDayOfWeek, shopDayStart } from "@/lib/time";
 /**
  * Randevu penceresi: **bugün + 6 gün**, yani bugünden başlayan yedi günlük kayan
  * pencere. Pazar (haftanın 0. günü) salon kapalı olduğu için pencereden hiç
- * geçmez — bir hafta içinde altı ya da yedi gün kalır, hangi günden bakıldığına
- * göre.
+ * geçmez: yedi günlük pencere her zaman tam bir Pazar içerdiği için geriye
+ * her zaman altı gün kalır.
  *
  * Pencere tek bir yerde tanımlı: sihirbazın çipleri, `/api/availability` ve
  * randevuyu yazan server action aynı listeye bakar. Tarih anahtarı hep dükkanın
