@@ -291,6 +291,13 @@ sayfa bağlantısıdır; ayrı bir "Ana Sayfa" maddesi yoktur. Bağlantılar:
 Hakkımızda · Hizmet & Fiyat · Ekip · Galeri · Yorumlar · İletişim. Sosyal medya
 ikonları navbar'dan kaldırılmış — yalnızca iletişim bölümü ve footer'da görülür.
 
+Masaüstü çubuğu (bağlantılar + dil anahtarı + tema + hesap + randevu düğmesi)
+**1280 px'ten** (`xl`) itibaren açılır. Altında — tablet ve 1024–1279 arası dar
+masaüstü dahil — hamburger menü kullanılır: altı bölüm bağlantısı, hesap
+bağlantısı ve dil anahtarı o panelin içindedir; tema düğmesi ile "Randevu al"
+her genişlikte çubukta durur, menüde tekrarlanmaz. Marka adı yalnızca `sm`
+altında kısalır ("Afro Salon"), üstünde tam basılır.
+
 **Nasıl çalışır (`#nasil`):** Hero'nun hemen altında üç numaralı adım (berber
 seç → bugünkü saati seç → gel, otur) ve iptal penceresini
 (`Settings.cancellationWindowMinutes`) yazan bir alt not. Menüde yer almaz.
@@ -302,9 +309,13 @@ süre ve "Bugün randevu al". Panelden ikinci bir hizmet eklendiğinde aynı bö
 kendiliğinden eski fiyat listesi düzenine geçer.
 
 **SSS (`#sss`):** Altı soru, `<details>/<summary>` ile (JavaScript kapalıyken de
-açılır). Cevaplardaki iptal süresi, fiyat ve çalışma saatleri veriden gelir;
-aynı metinler sayfaya `FAQPage` JSON-LD olarak da yazılır. Menüde değil,
-altbilginin "Site" sütununda.
+açılır). Cevaplardaki iptal süresi, fiyat, paket süresi ve çalışma saatleri
+veriden gelir; aynı metinler sayfaya `FAQPage` JSON-LD olarak da yazılır
+(`serializeJsonLd` ile kaçırılarak: metinden gelen bir `</script>` etiketi
+kapatamaz). Fiyat/süre sorusu yalnızca **tek aktif hizmet** varken basılır —
+koşul `singlePackage` ile hizmetler bölümüyle ortaktır, ikinci bir hizmet
+eklendiğinde hem paket kartı hem o soru birlikte kalkar; kalan beş soru çalışma
+saatleri girildiği sürece durur. Menüde değil, altbilginin "Site" sütununda.
 
 **Harita:** İletişim bölümünde "Neredeyiz"in altında tıkla-yükle harita kutusu
 (`MapEmbed`). İlk hâli desenli bir yer tutucudur; `google.com`a hiçbir istek

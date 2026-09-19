@@ -97,6 +97,42 @@ test.describe("marka", () => {
     await expect(menu.getByRole("link", { name: "Hizmet & Fiyat" })).toBeVisible();
   });
 
+  test("üst çubuk 1280 px altında hamburgere düşer, taşma olmaz", async ({ page }) => {
+    await page.goto("/");
+    // 1024–1279 arası: masaüstü çubuğu bu aralıkta sığmıyordu (randevu düğmesi
+    // ekranın sağından taşıyordu). Artık mobil menü kullanılıyor.
+    await page.setViewportSize({ width: 1100, height: 800 });
+    await expect(page.getByRole("button", { name: "Menüyü aç" })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "Ana menü" })).toHaveCount(0);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(1100);
+
+    // Menü altı bölüm bağlantısını, hesap bağlantısını ve dil anahtarını taşır.
+    await page.getByRole("button", { name: "Menüyü aç" }).click();
+    const menu = page.locator("#mobil-menu");
+    await expect(menu.getByRole("link", { name: "Hakkımızda" })).toBeVisible();
+    await expect(menu.getByRole("link", { name: "İletişim" })).toBeVisible();
+    await expect(menu.getByRole("link", { name: "Giriş" })).toBeVisible();
+    await expect(menu.getByRole("group", { name: "Dil" })).toBeVisible();
+    // Randevu düğmesi her genişlikte çubukta durur, menüde tekrarlanmaz.
+    await expect(page.locator("header").getByRole("link", { name: "Randevu al", exact: true })).toBeVisible();
+  });
+
+  test("1280 px'te masaüstü bağlantıları açılır ve düğme ekranın içinde kalır", async ({ page }) => {
+    await page.goto("/");
+    await page.setViewportSize({ width: 1280, height: 800 });
+    const nav = page.getByRole("navigation", { name: "Ana menü" });
+    await expect(nav.getByRole("link", { name: "Hizmet & Fiyat" })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "Yorumlar" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Menüyü aç" })).toBeHidden();
+
+    const cta = page.locator("header").getByRole("link", { name: "Randevu al", exact: true });
+    const box = await cta.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.x).toBeGreaterThanOrEqual(0);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(1280);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(1280);
+  });
+
   test("ikon ve paylaşım görseli servis edilir", async ({ request }) => {
     const icon = await request.get("/icon.svg");
     expect(icon.status()).toBe(200);

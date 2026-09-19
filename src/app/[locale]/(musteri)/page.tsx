@@ -6,6 +6,8 @@ import { getSessionUser } from "@/lib/auth-helpers";
 import { preloadHero } from "@/lib/hero-image";
 import { shopDayOfWeek } from "@/lib/time";
 import { formatKurus } from "@/lib/money";
+import { serializeJsonLd } from "@/lib/json-ld";
+import { singlePackage } from "@/lib/package";
 import { toAppLocale } from "@/i18n/routing";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 import { SiteNav } from "@/components/landing/SiteNav";
@@ -17,7 +19,7 @@ import { WhyUsSection } from "@/components/landing/WhyUsSection";
 import { TeamSection } from "@/components/landing/TeamSection";
 import { GallerySection } from "@/components/landing/GallerySection";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
-import { FaqSection, FAQ_KEYS, type FaqValues } from "@/components/landing/FaqSection";
+import { FaqSection, faqValueBag, visibleFaqKeys, type FaqValues } from "@/components/landing/FaqSection";
 import { ContactSection } from "@/components/landing/ContactSection";
 import { SiteFooter } from "@/components/landing/SiteFooter";
 
@@ -47,34 +49,34 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
   ]);
   const social = { instagram: settings.instagram, facebook: settings.facebook, whatsapp: settings.whatsapp };
 
-  // SSS cevaplarındaki değişkenler: iptal penceresi ayarlardan, fiyat ve süre
-  // ilk hizmetten (salon tek paketle çalışıyor), açılış–kapanış haftanın ilk
-  // açık gününden. İkisinden biri yoksa bölüm hiç basılmaz — yarım cevap
-  // yazmaktansa (henüz hizmeti ya da çalışma saati girilmemiş bir salonda)
-  // susmak yeğdir; "45 dakika sürer" gibi bir cümle veriden kopuk kalırdı.
+  // SSS cevaplarındaki değişkenler: iptal penceresi ayarlardan, açılış–kapanış
+  // haftanın ilk açık gününden, fiyat ve süre paketten. Çalışma saati hiç
+  // girilmemişse bölüm basılmaz; paket yoksa (sıfır ya da birden çok hizmet)
+  // yalnızca fiyat/süre sorusu düşer, kalan beşi durur —
+  // `singlePackage` koşulu hizmetler bölümüyle ortaktır, ikisi ayrışamaz.
   const openDay = weeklyHours.find((d) => d.opensAt && d.closesAt);
-  const faqValues: FaqValues | null =
-    openDay && services.length > 0
-      ? {
-          minutes: settings.cancellationWindowMinutes,
-          price: formatKurus(services[0].priceKurus, toAppLocale(locale)),
-          duration: services[0].durationMinutes,
-          open: openDay.opensAt!,
-          close: openDay.closesAt!,
-        }
-      : null;
+  const pkg = singlePackage(services);
+  const faqValues: FaqValues | null = openDay
+    ? {
+        minutes: settings.cancellationWindowMinutes,
+        open: openDay.opensAt!,
+        close: openDay.closesAt!,
+        package: pkg ? { price: formatKurus(pkg.priceKurus, toAppLocale(locale)), duration: pkg.durationMinutes } : null,
+      }
+    : null;
   const tFaq = faqValues ? await getTranslations("landing.faq") : null;
   // Arama sonucunda soru-cevap olarak görünmesi için aynı metinler yapısal
-  // veriyle de duyurulur; kaynak bölümün kendisiyle aynı çeviri anahtarları.
+  // veriyle de duyurulur; kaynak bölümün kendisiyle aynı çeviri anahtarları ve
+  // aynı görünürlük kuralı.
   const faqJsonLd =
     tFaq && faqValues
       ? {
           "@context": "https://schema.org",
           "@type": "FAQPage",
-          mainEntity: FAQ_KEYS.map((item) => ({
+          mainEntity: visibleFaqKeys(faqValues).map((item) => ({
             "@type": "Question",
             name: tFaq(item.q),
-            acceptedAnswer: { "@type": "Answer", text: tFaq(item.a, faqValues) },
+            acceptedAnswer: { "@type": "Answer", text: tFaq(item.a, faqValueBag(faqValues)) },
           })),
         }
       : null;
@@ -104,7 +106,9 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
       <TestimonialsSection items={testimonials} />
       {faqValues && <FaqSection values={faqValues} />}
       {faqJsonLd && (
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+        // `serializeJsonLd`: metnin içinden gelebilecek bir `</script>` dizisi
+        // etiketi kapatmasın (veri panelden ve çeviri dosyalarından geliyor).
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqJsonLd) }} />
       )}
       <ContactSection
         address={settings.address}

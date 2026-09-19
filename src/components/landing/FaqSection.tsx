@@ -8,23 +8,49 @@ import { staggerDelay } from "@/lib/motion-utils";
  * tutmak üç dilin sırasını ve sayısını birbirine bağlayamazdı (parite testi
  * anahtar yollarına bakıyor). Aynı liste hem bölümü hem sayfadaki `FAQPage`
  * JSON-LD'sini besler.
+ *
+ * `needsPackage`: dördüncü soru ("ne kadar sürüyor?") süre ve fiyat söylüyor,
+ * yani ancak ortada **tek bir paket** varken doğru. Panelden ikinci bir hizmet
+ * eklendiğinde o soru hem bölümden hem yapısal veriden düşer; kalan beşi
+ * çalışma saatleri girildiği sürece durur.
  */
 export const FAQ_KEYS = [
-  { q: "q1", a: "a1" },
-  { q: "q2", a: "a2" },
-  { q: "q3", a: "a3" },
-  { q: "q4", a: "a4" },
-  { q: "q5", a: "a5" },
-  { q: "q6", a: "a6" },
+  { q: "q1", a: "a1", needsPackage: false },
+  { q: "q2", a: "a2", needsPackage: false },
+  { q: "q3", a: "a3", needsPackage: false },
+  { q: "q4", a: "a4", needsPackage: true },
+  { q: "q5", a: "a5", needsPackage: false },
+  { q: "q6", a: "a6", needsPackage: false },
 ] as const;
 
 /**
- * Cevaplardaki değişkenler tek yerden gelir: iptal penceresi ayarlardan, fiyat
- * ve süre paketin kendisinden, açılış–kapanış bugünün çalışma saatlerinden.
- * Metinlere sayı gömülmez, çeviriler eskimez — paket 45 dakikadan 60'a çıkarsa
- * cevap da onunla birlikte değişir.
+ * Cevaplardaki değişkenler tek yerden gelir: iptal penceresi ayarlardan,
+ * açılış–kapanış bugünün çalışma saatlerinden, fiyat ve süre paketin
+ * kendisinden (`singlePackage`). Metinlere sayı gömülmez, çeviriler eskimez —
+ * paket 45 dakikadan 60'a çıkarsa cevap da onunla birlikte değişir.
  */
-export type FaqValues = { minutes: number; price: string; duration: number; open: string; close: string };
+export type FaqValues = {
+  minutes: number;
+  open: string;
+  close: string;
+  /** Tam olarak bir aktif hizmet varsa dolu, yoksa `null`. */
+  package: { price: string; duration: number } | null;
+};
+
+/** O anki veriyle gerçekten cevaplanabilen sorular. */
+export function visibleFaqKeys(values: FaqValues) {
+  return FAQ_KEYS.filter((item) => !item.needsPackage || values.package !== null);
+}
+
+/** ICU yer tutucularının değerleri; paket yoksa fiyat/süre hiç gönderilmez. */
+export function faqValueBag(values: FaqValues): Record<string, string | number> {
+  return {
+    minutes: values.minutes,
+    open: values.open,
+    close: values.close,
+    ...(values.package ? { price: values.package.price, duration: values.package.duration } : {}),
+  };
+}
 
 /**
  * SSS. `<details>/<summary>` ile kurulur: JavaScript hiç çalışmasa da açılır
@@ -34,6 +60,7 @@ export type FaqValues = { minutes: number; price: string; duration: number; open
  */
 export function FaqSection({ values }: { values: FaqValues }) {
   const t = useTranslations("landing.faq");
+  const bag = faqValueBag(values);
   return (
     <section id="sss" className="scroll-mt-20 border-b border-border">
       <div className="mx-auto max-w-6xl px-5 py-16 md:py-24">
@@ -42,7 +69,7 @@ export function FaqSection({ values }: { values: FaqValues }) {
           <p className="editorial-note max-w-[38ch] text-muted-foreground">{t("note")}</p>
         </Reveal>
         <ul className="mt-12 border-t border-border md:max-w-3xl">
-          {FAQ_KEYS.map((item, i) => (
+          {visibleFaqKeys(values).map((item, i) => (
             <Reveal as="li" key={item.q} className="border-b border-border" delay={staggerDelay(i, 0.05)}>
               <details className="group">
                 <summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-5 transition-colors hover:text-primary [&::-webkit-details-marker]:hidden">
@@ -53,7 +80,7 @@ export function FaqSection({ values }: { values: FaqValues }) {
                   />
                 </summary>
                 <p className="measure animate-in fade-in slide-in-from-top-1 pb-6 leading-relaxed text-muted-foreground duration-200">
-                  {t(item.a, values)}
+                  {t(item.a, bag)}
                 </p>
               </details>
             </Reveal>

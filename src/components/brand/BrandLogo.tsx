@@ -8,10 +8,12 @@ import { cn } from "@/lib/utils";
  * değiştirilebilir) hiçbir yerde sabit yazılmaz; iki varyant da adı dışarıdan
  * alır.
  *
- * - `compact`: üst çubuk. İşaret solda, ad tek satırda. `xl` altında kısa ad
- *   ("Afro Salon Modern" → "Afro Salon") kullanılır: 1280 px'te altı bölüm
- *   bağlantısı, dil anahtarı, tema düğmesi, hesap bağlantısı ve randevu
- *   düğmesi aynı satıra sığmalı ve marka adı kesilmemeli.
+ * - `compact`: üst çubuk. İşaret solda, ad tek satırda. Yalnızca `sm` altında
+ *   (telefon) kısa ada düşülür: "Afro Salon Modern" 390 px'te tema düğmesi,
+ *   randevu düğmesi ve menü düğmesiyle aynı satıra sığmıyor. `sm` üstünde tam
+ *   ad basılır — masaüstü çubuğu 1280 px'ten itibaren açıldığı için (bkz.
+ *   `SiteNav`) 1024–1279 arasında zaten bolca yer var, 1280'de de tam ad
+ *   bağlantıların yanına sığıyor.
  * - `stacked`: altbilgi. İşaret üstte, adın her kelimesi altında ayrı satırda.
  */
 export type BrandLogoVariant = "compact" | "stacked";
@@ -61,8 +63,8 @@ export function BrandLogo({
           name
         ) : (
           <>
-            <span className="xl:hidden">{short}</span>
-            <span className="hidden xl:inline">{name}</span>
+            <span className="sm:hidden">{short}</span>
+            <span className="hidden sm:inline">{name}</span>
           </>
         )}
       </span>

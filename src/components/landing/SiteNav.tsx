@@ -117,7 +117,15 @@ export function SiteNav({ shopName, user }: { shopName: string; user: SessionUse
           <BrandLogo name={shopName} markSize={shrunk ? 24 : 28} />
         </Link>
 
-        <nav aria-label={t("mainMenu")} className="mx-auto hidden items-center gap-5 lg:flex xl:gap-7">
+        {/*
+         * Masaüstü çubuğu 1280 px'ten (`xl`) itibaren açılır, 1024'ten değil:
+         * altı bölüm bağlantısı + dil anahtarı + tema + hesap + randevu düğmesi
+         * 1024–1279 arasında satıra sığmıyor ve düğme ekranın sağından taşıyordu.
+         * O aralıkta da mobil menü kullanılır — içinde aynı altı bağlantı, hesap
+         * bağlantısı ve dil anahtarı var; randevu düğmesi ise her genişlikte
+         * çubukta duruyor, menüde ikinci kez tekrarlanmıyor.
+         */}
+        <nav aria-label={t("mainMenu")} className="mx-auto hidden items-center gap-7 xl:flex">
           {SECTION_LINKS.map((l) => (
             <Link key={l.href} href={l.href} className={cn(NAV_LINK, !solid && "hover:border-accent hover:text-accent")}>
               {t(l.key)}
@@ -125,10 +133,10 @@ export function SiteNav({ shopName, user }: { shopName: string; user: SessionUse
           ))}
         </nav>
 
-        <div className="ml-auto flex items-center gap-1 lg:ml-0">
-          <LocaleSwitcher tone={solid ? "default" : "hero"} className="hidden lg:flex" />
+        <div className="ml-auto flex items-center gap-1 xl:ml-0">
+          <LocaleSwitcher tone={solid ? "default" : "hero"} className="hidden xl:flex" />
           <ThemeToggle />
-          <Link href={account.href} className={cn(NAV_LINK, "mx-2 hidden lg:inline-block", !solid && "hover:border-accent hover:text-accent")}>
+          <Link href={account.href} className={cn(NAV_LINK, "mx-2 hidden xl:inline-block", !solid && "hover:border-accent hover:text-accent")}>
             {t(account.key)}
           </Link>
           <Button asChild className={cn("shrink-0 rounded-none px-3 text-sm transition-[height] duration-300 sm:px-4", shrunk ? "h-9" : "h-10")}>
@@ -141,7 +149,7 @@ export function SiteNav({ shopName, user }: { shopName: string; user: SessionUse
             aria-controls="mobil-menu"
             onClick={() => setOpen((v) => !v)}
             className={cn(
-              "inline-flex size-10 items-center justify-center transition-colors lg:hidden",
+              "inline-flex size-10 items-center justify-center transition-colors xl:hidden",
               solid ? "text-foreground hover:text-primary" : "text-hero-sand hover:text-accent",
             )}
           >
@@ -151,7 +159,7 @@ export function SiteNav({ shopName, user }: { shopName: string; user: SessionUse
       </div>
 
       {open && (
-        <div id="mobil-menu" className="animate-in slide-in-from-top-2 border-t border-border bg-background duration-150 lg:hidden">
+        <div id="mobil-menu" className="animate-in slide-in-from-top-2 border-t border-border bg-background duration-150 xl:hidden">
           <nav aria-label={t("mainMenu")} className="mx-auto max-w-6xl px-5 pb-4">
             {SECTION_LINKS.map((l) => (
               <Link

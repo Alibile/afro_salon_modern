@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { telHref } from "@/components/brand/SocialLinks";
 import { formatKurus } from "@/lib/money";
+import { singlePackage } from "@/lib/package";
 import type { AppLocale } from "@/i18n/routing";
 import { Reveal } from "@/components/motion/Reveal";
 import { staggerDelay } from "@/lib/motion-utils";
@@ -59,7 +60,8 @@ export function ServicesSection({ services, phone }: { services: ServiceRowItem[
   const tPackage = useTranslations("landing.package");
   const tCommon = useTranslations("common");
   const locale = useLocale() as AppLocale;
-  const single = services.length === 1 ? services[0] : null;
+  // Koşul SSS ile ortak: paket kartı ile "tek fiyat" cevabı hep birlikte gelir.
+  const single = singlePackage(services);
   return (
     <section id="hizmetler" className="scroll-mt-20 border-b border-border">
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-5 py-16 md:grid-cols-12 md:gap-10 md:py-24">
