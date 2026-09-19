@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { i18nText } from "@/lib/i18n-content";
 
 export const userProfileSchema = z.object({
   name: z.string().trim().min(3, "errors.fullNameMin3").max(80),
@@ -21,7 +22,8 @@ export function isUploadedBarberPhotoKey(key: string): boolean {
 }
 
 export const barberProfileSchema = userProfileSchema.extend({
-  bio: z.string().trim().max(200).optional().or(z.literal("")),
+  /** Kısa tanıtım üç dilde; berber dilediği dili boş bırakabilir. */
+  bio: i18nText({ max: 200 }),
   photoKey: z.string().min(1, "errors.photoRequired"),
 });
 export type BarberProfileInput = z.infer<typeof barberProfileSchema>;

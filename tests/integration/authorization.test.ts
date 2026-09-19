@@ -69,8 +69,8 @@ const galleryKey = "gallery/00000000-0000-4000-8000-000000000002.jpg";
 
 /** Personel (BARBER/ADMIN) gerektiren her wrapper; hiçbiri aktör parametresi almaz. */
 const staffWrappers: [string, () => Promise<{ ok: boolean; error?: string }>][] = [
-  ["createBarber", () => createBarber({ name: "Yeni Berber", email: "yeni@t.co", password: "Sifre123!", photoKey: "barbers/x.jpg", bio: "" })],
-  ["updateBarber", () => updateBarber("b1", { name: "Yeni Berber", bio: "", photoKey: "barbers/x.jpg", isActive: true })],
+  ["createBarber", () => createBarber({ name: "Yeni Berber", email: "yeni@t.co", password: "Sifre123!", photoKey: "barbers/x.jpg", bio: { tr: "" } })],
+  ["updateBarber", () => updateBarber("b1", { name: "Yeni Berber", bio: { tr: "" }, photoKey: "barbers/x.jpg", isActive: true })],
   ["saveWorkingHours", () => saveWorkingHours("b1", { days })],
   ["resetBarberPassword", () => resetBarberPassword("b1", "Sifre123!")],
   ["deleteBarber", () => deleteBarber("b1")],

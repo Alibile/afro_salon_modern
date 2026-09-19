@@ -4,7 +4,8 @@ import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { publicUrl } from "@/lib/storage-public";
 
-export type BarberItem = { id: string; name: string; bio: string | null; photoKey: string; recentPhotoKeys: string[] };
+/** `bio` ziyaretçinin dilinde seçilmiş metin; çeviri de Türkçe de yoksa boş. */
+export type BarberItem = { id: string; name: string; bio: string; photoKey: string; recentPhotoKeys: string[] };
 
 export function BarberStep({ barbers, selectedId, onSelect }: { barbers: BarberItem[]; selectedId: string | null; onSelect: (id: string) => void }) {
   const t = useTranslations("booking");

@@ -82,6 +82,17 @@ test.describe("müşteri yüzü çevirileri", () => {
     await page.goto("/fr");
     await expect(page.locator("#hizmetler").getByText("Coupe de cheveux", { exact: true })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Une expérience à part" })).toBeVisible();
+    await expect(page.locator("#ekip").getByText("Tresses, twists et line-up", { exact: true })).toBeVisible();
+  });
+
+  // Berber tanıtımı da panelden girilen üç dilli içerik (Tur 5, Task 6):
+  // seed EN metnini yazar, `/en` ekip kartı Türkçesini değil onu basmalı.
+  test("İngilizce ekip kartı berber tanıtımını İngilizce basar", async ({ page }) => {
+    await page.goto("/en");
+    const team = page.locator("#ekip");
+    await expect(team.getByText("Fades and design cuts are his signature", { exact: true })).toBeVisible();
+    await expect(team.getByText("Braids, twists and line-ups", { exact: true })).toBeVisible();
+    await expect(team.getByText("Fade ve tasarım kesim uzmanı")).toHaveCount(0);
   });
 
   test("İngilizce randevu sihirbazı hizmetleri İngilizce listeler", async ({ page }) => {

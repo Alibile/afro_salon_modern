@@ -31,6 +31,25 @@ describe("getLandingData", () => {
     expect(d.weeklyHours[6]).toEqual({ dayOfWeek: 0, opensAt: null, closesAt: null });
   });
 
+  it("berber tanıtımını ziyaretçinin dilinde döner, çeviri yoksa Türkçesini", async () => {
+    await createBarber({ name: "Kwame Mensah", bio: { tr: "Fade uzmanı", en: "Fade specialist" } });
+    await createBarber({ name: "Yusuf Adeyemi", bio: { tr: "Örgü ve twist" } });
+
+    const tr = await getLandingData("tr", NOW);
+    expect(tr.barbers.map((b) => b.bio)).toEqual(["Fade uzmanı", "Örgü ve twist"]);
+    // Çevirisi girilmiş berber İngilizcesini, girilmemiş olan Türkçesini gösterir.
+    const en = await getLandingData("en", NOW);
+    expect(en.barbers.map((b) => b.bio)).toEqual(["Fade specialist", "Örgü ve twist"]);
+    const fr = await getLandingData("fr", NOW);
+    expect(fr.barbers.map((b) => b.bio)).toEqual(["Fade uzmanı", "Örgü ve twist"]);
+  });
+
+  it("tanıtımı hiç yazılmamış berberde boş dize döner (kartta satır basılmaz)", async () => {
+    await createBarber({ name: "Kwame Mensah" });
+    const en = await getLandingData("en", NOW);
+    expect(en.barbers[0].bio).toBe("");
+  });
+
   it("yalnızca aktif yorumları sortOrder sırasıyla döner", async () => {
     await prisma.testimonial.create({ data: { name: "Nadia T.", text: "Örgüde gerçekten usta bir ekip.", rating: 5, sortOrder: 2 } });
     await prisma.testimonial.create({ data: { name: "Emre K.", text: "Fade kesim tam istediğim gibi oldu.", rating: 4, sortOrder: 1 } });

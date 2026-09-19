@@ -9,10 +9,11 @@ import {
   LEGACY_GALLERY_DEFAULTS,
   LEGACY_ABOUT_TEXT,
   LEGACY_NADIA_TEXT,
+  SEED_BARBERS,
 } from "../../prisma/seed";
 import { GALLERY_TAGS } from "@/lib/gallery-tags";
 import { asI18nText } from "@/lib/i18n-content";
-import { getActiveServices } from "@/lib/queries/booking";
+import { getActiveBarbers, getActiveServices } from "@/lib/queries/booking";
 
 describe("runSeed", () => {
   it("eski seed/ yer tutucu fotoğraf anahtarını landing/ ile değiştirir, gerçek yüklenmiş anahtara dokunmaz", async () => {
@@ -177,6 +178,38 @@ describe("runSeed", () => {
     expect(rows.find((r) => (r.nameI18n as { tr: string }).tr === "Sakal")!.nameI18n).toEqual({ tr: "Sakal", en: "Beard" });
   });
 
+  it("berber biyografisinin çevirilerini doldurur, elle yazılmış metne dokunmaz", async () => {
+    const [kwame, yusuf] = SEED_BARBERS;
+    // Kwame: göçten çıkan hâl (`{tr: <eski>}`) — çeviriler eklenmeli.
+    const kwameUser = await prisma.user.create({
+      data: { name: kwame.name, email: kwame.email, passwordHash: "x", role: Role.BARBER },
+    });
+    await prisma.barber.create({ data: { userId: kwameUser.id, photoKey: kwame.photoKey, bioI18n: { tr: kwame.bioI18n.tr } } });
+    // Yusuf: berber kendi metnini yazmış — hiç dokunulmamalı.
+    const yusufUser = await prisma.user.create({
+      data: { name: yusuf.name, email: yusuf.email, passwordHash: "x", role: Role.BARBER },
+    });
+    await prisma.barber.create({ data: { userId: yusufUser.id, photoKey: yusuf.photoKey, bioI18n: { tr: "Kendi yazdığım tanıtım" } } });
+
+    await runSeed(prisma);
+
+    const kwameRow = await prisma.barber.findUniqueOrThrow({ where: { userId: kwameUser.id } });
+    expect(kwameRow.bioI18n).toEqual(kwame.bioI18n);
+    const yusufRow = await prisma.barber.findUniqueOrThrow({ where: { userId: yusufUser.id } });
+    expect(yusufRow.bioI18n).toEqual({ tr: "Kendi yazdığım tanıtım" });
+  });
+
+  it("berber biyografileri /en ve /fr'de kendi dillerinde görünür", async () => {
+    await runSeed(prisma);
+
+    const en = (await getActiveBarbers("en")).map((b) => b.bio);
+    const fr = (await getActiveBarbers("fr")).map((b) => b.bio);
+    for (const b of SEED_BARBERS) {
+      expect(en).toContain(b.bioI18n.en);
+      expect(fr).toContain(b.bioI18n.fr);
+    }
+  });
+
   it("eski aynı metinli 'Nadia T.' yorumunu aynı id ile 'Derrick B.' adına taşır", async () => {
     const legacy = await prisma.testimonial.create({
       data: { name: "Nadia T.", text: LEGACY_NADIA_TEXT, rating: 5, sortOrder: 2 },
@@ -220,6 +253,9 @@ describe("runSeed", () => {
     }
     for (const photo of await prisma.galleryPhoto.findMany()) {
       expect(asI18nText(photo.captionI18n).tr).not.toBe("");
+    }
+    for (const barber of await prisma.barber.findMany()) {
+      expect(asI18nText(barber.bioI18n).tr).not.toBe("");
     }
   });
 

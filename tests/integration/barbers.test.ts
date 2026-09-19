@@ -8,12 +8,13 @@ vi.mock("@/lib/storage", () => ({
 }));
 
 import { createBarberAs, saveWorkingHoursAs, updateBarberAs } from "@/actions/impl/barbers";
+import { getActiveBarbers } from "@/lib/queries/booking";
 
 const admin: SessionUser = { id: "a", name: "Admin", email: "a@t", role: "ADMIN", barberId: null, locale: "tr" };
 
 describe("barbers actions", () => {
   it("creates user+barber with default hours (Sunday off)", async () => {
-    const r = await createBarberAs(admin, { name: "Kwame Mensah", email: "K@t.co", password: "Sifre123!", photoKey: "barbers/a.jpg", bio: "" });
+    const r = await createBarberAs(admin, { name: "Kwame Mensah", email: "K@t.co", password: "Sifre123!", photoKey: "barbers/a.jpg", bio: { tr: "" } });
     expect(r.ok).toBe(true);
     if (!r.ok) return;
     const b = await prisma.barber.findUnique({ where: { id: r.data.barberId }, include: { user: true, workingHours: true } });
@@ -24,7 +25,7 @@ describe("barbers actions", () => {
   });
 
   it("saveWorkingHours replaces rows", async () => {
-    const r = await createBarberAs(admin, { name: "Kwame Mensah", email: "k@t.co", password: "Sifre123!", photoKey: "barbers/a.jpg" });
+    const r = await createBarberAs(admin, { name: "Kwame Mensah", email: "k@t.co", password: "Sifre123!", photoKey: "barbers/a.jpg", bio: { tr: "" } });
     if (!r.ok) throw new Error();
     const days = [0, 1, 2, 3, 4, 5, 6].map((d) => ({ dayOfWeek: d, isOff: d === 0 || d === 1, startTime: "10:00", endTime: "20:00" }));
     const s = await saveWorkingHoursAs(admin, r.data.barberId, { days });
@@ -42,12 +43,42 @@ describe("barbers actions", () => {
   });
 
   it("updateBarber changes name and active flag", async () => {
-    const r = await createBarberAs(admin, { name: "Kwame Mensah", email: "k@t.co", password: "Sifre123!", photoKey: "barbers/a.jpg" });
+    const r = await createBarberAs(admin, { name: "Kwame Mensah", email: "k@t.co", password: "Sifre123!", photoKey: "barbers/a.jpg", bio: { tr: "" } });
     if (!r.ok) throw new Error();
-    await updateBarberAs(admin, r.data.barberId, { name: "Kwame M.", bio: "Fade", photoKey: "barbers/b.jpg", isActive: false });
+    await updateBarberAs(admin, r.data.barberId, { name: "Kwame M.", bio: { tr: "Fade", fr: "Dégradé" }, photoKey: "barbers/b.jpg", isActive: false });
     const b = await prisma.barber.findUnique({ where: { id: r.data.barberId }, include: { user: true } });
     expect(b?.user.name).toBe("Kwame M.");
     expect(b?.isActive).toBe(false);
     expect(b?.photoKey).toBe("barbers/b.jpg");
+  });
+});
+
+describe("berber tanıtımı üç dilde", () => {
+  it("panelden girilen çeviriler saklanır ve ziyaretçiye kendi dilinde gider", async () => {
+    const r = await createBarberAs(admin, {
+      name: "Kwame Mensah",
+      email: "kwame@t.co",
+      password: "Sifre123!",
+      photoKey: "barbers/a.jpg",
+      bio: { tr: "Fade ve tasarım kesim uzmanı", en: "Fade and design cut specialist" },
+    });
+    if (!r.ok) throw new Error();
+    const created = await prisma.barber.findUnique({ where: { id: r.data.barberId } });
+    expect(created?.bioI18n).toEqual({ tr: "Fade ve tasarım kesim uzmanı", en: "Fade and design cut specialist" });
+
+    // Ziyaretçi yüzü: İngilizcesi girilmiş, Fransızcası girilmemiş.
+    expect((await getActiveBarbers("en"))[0].bio).toBe("Fade and design cut specialist");
+    expect((await getActiveBarbers("fr"))[0].bio).toBe("Fade ve tasarım kesim uzmanı");
+
+    // Boş bırakılan sekme silinmiş sayılır: EN kaldırılınca /en yine Türkçesini gösterir.
+    await updateBarberAs(admin, r.data.barberId, {
+      name: "Kwame Mensah",
+      bio: { tr: "Fade ve tasarım kesim uzmanı", en: "  " },
+      photoKey: "barbers/a.jpg",
+      isActive: true,
+    });
+    const updated = await prisma.barber.findUnique({ where: { id: r.data.barberId } });
+    expect(updated?.bioI18n).toEqual({ tr: "Fade ve tasarım kesim uzmanı" });
+    expect((await getActiveBarbers("en"))[0].bio).toBe("Fade ve tasarım kesim uzmanı");
   });
 });

@@ -7,7 +7,9 @@ import { Reveal } from "@/components/motion/Reveal";
 import { staggerDelay } from "@/lib/motion-utils";
 import { cn } from "@/lib/utils";
 
-export type TeamMember = { id: string; name: string; bio: string | null; photoKey: string };
+/** `bio` ziyaretçinin dilinde seçilmiş metindir; çevirisi de Türkçesi de
+ *  yoksa boş dizedir ve satır hiç basılmaz (bkz. `getActiveBarbers`). */
+export type TeamMember = { id: string; name: string; bio: string; photoKey: string };
 
 export function TeamSection({ barbers }: { barbers: TeamMember[] }) {
   const t = useTranslations("landing.team");

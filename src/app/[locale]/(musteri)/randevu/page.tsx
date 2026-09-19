@@ -29,7 +29,7 @@ export default async function RandevuPage(props: {
   const [sp, { locale }] = await Promise.all([props.searchParams, props.params]);
   const [services, barbers, settings, user, status, t, tStatus] = await Promise.all([
     getActiveServices(locale),
-    getActiveBarbers(),
+    getActiveBarbers(locale),
     getSettings(),
     getSessionUser(),
     getTodayShopStatus(),

@@ -1,10 +1,16 @@
 import { prisma } from "@/lib/db";
+import { asI18nText } from "@/lib/i18n-content";
 
 export async function listBarbersForAdmin() {
   const rows = await prisma.barber.findMany({ include: { user: { select: { name: true, email: true } } }, orderBy: { user: { name: "asc" } } });
   return rows.map((b) => ({ id: b.id, name: b.user.name, email: b.user.email, photoKey: b.photoKey, isActive: b.isActive }));
 }
 
+/**
+ * Düzenleme formunun verisi. Tanıtım burada **ham** üç dilli nesne olarak
+ * döner (`bioI18n`): panel formu üç sekmeyi de doldurur, seçilmiş tek bir dil
+ * onu düzenlemeye yetmez.
+ */
 export async function getBarberDetail(barberId: string) {
   const b = await prisma.barber.findUnique({
     where: { id: barberId },
@@ -23,7 +29,7 @@ export async function getBarberDetail(barberId: string) {
     id: b.id,
     name: b.user.name,
     email: b.user.email,
-    bio: b.bio ?? "",
+    bioI18n: asI18nText(b.bioI18n),
     photoKey: b.photoKey,
     isActive: b.isActive,
     hours,

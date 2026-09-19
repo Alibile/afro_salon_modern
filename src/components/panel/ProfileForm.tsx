@@ -6,12 +6,13 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { ImageUploader } from "./ImageUploader";
+import { I18nTextarea } from "./I18nField";
 import { updateOwnProfile } from "@/actions/profile";
 import { useActionError } from "@/lib/use-action-error";
+import { readI18nField, type I18nText } from "@/lib/i18n-content";
 
-type Profile = { name: string; phone: string; bio?: string; photoKey?: string };
+type Profile = { name: string; phone: string; bioI18n?: I18nText; photoKey?: string };
 
 export function ProfileForm({ profile, hasBarber }: { profile: Profile; hasBarber: boolean }) {
   const t = useTranslations("panel");
@@ -28,7 +29,7 @@ export function ProfileForm({ profile, hasBarber }: { profile: Profile; hasBarbe
         const fd = new FormData(e.currentTarget);
         start(async () => {
           const input = hasBarber
-            ? { name: String(fd.get("name")), phone: String(fd.get("phone")), bio: String(fd.get("bio")), photoKey: String(fd.get("photoKey")) }
+            ? { name: String(fd.get("name")), phone: String(fd.get("phone")), bio: readI18nField(fd, "bio"), photoKey: String(fd.get("photoKey")) }
             : { name: String(fd.get("name")), phone: String(fd.get("phone")) };
           const r = await updateOwnProfile(input);
           if (!r.ok) { setError(showError(r)); return; }
@@ -42,7 +43,10 @@ export function ProfileForm({ profile, hasBarber }: { profile: Profile; hasBarbe
       <div><Label htmlFor="phone">{t("profile.phone")}</Label><Input id="phone" name="phone" defaultValue={profile.phone} maxLength={20} /></div>
       {hasBarber && (
         <>
-          <div className="sm:col-span-2"><Label htmlFor="bio">{t("profile.bio")}</Label><Textarea id="bio" name="bio" defaultValue={profile.bio} maxLength={200} /></div>
+          <div className="sm:col-span-2">
+            <I18nTextarea name="bio" label={t("profile.bio")} defaultValue={profile.bioI18n} maxLength={200} />
+            <p className="mt-1 text-xs text-muted-foreground">{t("i18nField.hint")}</p>
+          </div>
           <div className="sm:col-span-2">
             <Label>{t("profile.photo")}</Label>
             <ImageUploader kind="barber" name="photoKey" defaultKey={profile.photoKey} />

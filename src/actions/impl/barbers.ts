@@ -20,7 +20,7 @@ export async function createBarberAs(actor: SessionUser | null, input: CreateBar
   const passwordHash = await bcrypt.hash(password, 10);
   const barber = await prisma.$transaction(async (tx) => {
     const user = await tx.user.create({ data: { name, email, passwordHash, role: "BARBER" } });
-    const b = await tx.barber.create({ data: { userId: user.id, bio: bio || null, photoKey } });
+    const b = await tx.barber.create({ data: { userId: user.id, bioI18n: bio, photoKey } });
     await tx.workingHours.createMany({ data: DEFAULT_HOURS.map((h) => ({ ...h, barberId: b.id })) });
     return b;
   });
@@ -36,7 +36,7 @@ export async function updateBarberAs(actor: SessionUser | null, barberId: string
   const { name, bio, photoKey, isActive } = parsed.data;
   await prisma.$transaction([
     prisma.user.update({ where: { id: existing.userId }, data: { name } }),
-    prisma.barber.update({ where: { id: barberId }, data: { bio: bio || null, photoKey, isActive } }),
+    prisma.barber.update({ where: { id: barberId }, data: { bioI18n: bio, photoKey, isActive } }),
   ]);
   if (existing.photoKey !== photoKey && !existing.photoKey.startsWith("seed/") && !existing.photoKey.startsWith("landing/"))
     await deleteObject(existing.photoKey);

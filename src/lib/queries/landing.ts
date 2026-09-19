@@ -26,14 +26,15 @@ export type WeeklyHoursRow = { dayOfWeek: number; opensAt: string | null; closes
 
 /**
  * Ana sayfanın tüm verisi, ziyaretçinin dilinde. Panelden girilen içerik
- * (hizmet adı, hakkımızda, galeri başlığı) `Json` sütunlarda üç dilde durur;
- * seçim burada yapılır ki bölüm bileşenleri düz metin almaya devam etsin.
+ * (hizmet adı, hakkımızda, galeri başlığı, berber tanıtımı) `Json` sütunlarda
+ * üç dilde durur; seçim burada yapılır ki bölüm bileşenleri düz metin almaya
+ * devam etsin.
  */
 export async function getLandingData(locale: string, now: Date = new Date()) {
   const [settingsRow, services, barbers, hoursRows, gallery, testimonials] = await Promise.all([
     getSettings(),
     getActiveServices(locale),
-    getActiveBarbers(),
+    getActiveBarbers(locale),
     prisma.workingHours.findMany({ where: { barber: { isActive: true } }, select: { dayOfWeek: true, isOff: true, startTime: true, endTime: true } }),
     getGalleryData(locale),
     prisma.testimonial.findMany({

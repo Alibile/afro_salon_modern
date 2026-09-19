@@ -154,6 +154,33 @@ function isBlank(current: unknown): boolean {
   return text.tr.trim() === "" && (text.en ?? "").trim() === "" && (text.fr ?? "").trim() === "";
 }
 
+/**
+ * Seed berberleri. Tanıtım üç dilde gelir (Tur 5, Task 6): Türkçe kaynak
+ * metindir, İngilizce ve Fransızcası aynı kısa salon tonunu taşır.
+ */
+export const SEED_BARBERS: { name: string; email: string; bioI18n: I18nText; photoKey: string }[] = [
+  {
+    name: "Kwame Mensah",
+    email: "kwame@afrosalon.local",
+    bioI18n: {
+      tr: "Fade ve tasarım kesim uzmanı",
+      en: "Fades and design cuts are his signature",
+      fr: "Spécialiste du dégradé et de la coupe dessinée",
+    },
+    photoKey: "landing/team-2.jpg",
+  },
+  {
+    name: "Yusuf Adeyemi",
+    email: "yusuf@afrosalon.local",
+    bioI18n: {
+      tr: "Örgü, twist ve line-up",
+      en: "Braids, twists and line-ups",
+      fr: "Tresses, twists et line-up",
+    },
+    photoKey: "landing/team-1.jpg",
+  },
+];
+
 const DEFAULT_TESTIMONIALS = [
   { name: "Emre K.", text: "Fade kesim tam istediğim gibi oldu, ekip çok ilgili. Kesinlikle tekrar geleceğim.", rating: 5, sortOrder: 1 },
   { name: "Derrick B.", text: "Örgü konusunda gerçekten usta bir ekip. Randevu almak da çok kolaydı.", rating: 5, sortOrder: 2 },
@@ -225,11 +252,7 @@ export async function runSeed(client: PrismaClient) {
     create: { name: "Salon Yöneticisi", email: "admin@afrosalon.local", passwordHash, role: "ADMIN" },
   });
 
-  const barbers = [
-    { name: "Kwame Mensah", email: "kwame@afrosalon.local", bio: "Fade ve tasarım kesim uzmanı", photoKey: "landing/team-2.jpg" },
-    { name: "Yusuf Adeyemi", email: "yusuf@afrosalon.local", bio: "Örgü, twist ve line-up", photoKey: "landing/team-1.jpg" },
-  ];
-  for (const b of barbers) {
+  for (const b of SEED_BARBERS) {
     const user = await client.user.upsert({
       where: { email: b.email },
       update: {},
@@ -238,10 +261,16 @@ export async function runSeed(client: PrismaClient) {
     // Eski "seed/" yer tutucu anahtarını yeni "landing/" fotoğrafıyla güncelle; ancak panelden
     // gerçekten yüklenmiş (ör. "barbers/...") bir fotoğraf varsa asla üzerine yazma.
     const existingBarber = await client.barber.findUnique({ where: { userId: user.id } });
+    const update: { photoKey?: string; bioI18n?: I18nText } = {};
+    if (existingBarber?.photoKey.startsWith("seed/")) update.photoKey = b.photoKey;
+    // Tanıtım da üç dilli (Tur 5, Task 6). Satır hâlâ çevirisiz seed
+    // varsayılanıysa (`{tr: <eski>}`) çeviriler eklenir; berber ya da admin
+    // kendi metnini yazmışsa dokunulmaz.
+    if (existingBarber && untranslatedDefault(existingBarber.bioI18n, b.bioI18n)) update.bioI18n = b.bioI18n;
     const barber = await client.barber.upsert({
       where: { userId: user.id },
-      update: existingBarber?.photoKey.startsWith("seed/") ? { photoKey: b.photoKey } : {},
-      create: { userId: user.id, bio: b.bio, photoKey: b.photoKey },
+      update,
+      create: { userId: user.id, bioI18n: b.bioI18n, photoKey: b.photoKey },
     });
     const count = await client.workingHours.count({ where: { barberId: barber.id } });
     if (count === 0) {

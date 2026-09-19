@@ -30,8 +30,8 @@ export async function createCustomer(overrides: { name?: string; email?: string;
   });
 }
 
-/** Berber + kullanıcı + Pzt-Cmt 09:00-19:00, Pazar kapalı */
-export async function createBarber(overrides: { name?: string; hours?: boolean; locale?: string } = {}) {
+/** Berber + kullanıcı + Pzt-Cmt 09:00-19:00, Pazar kapalı. Tanıtım üç dilli. */
+export async function createBarber(overrides: { name?: string; hours?: boolean; locale?: string; bio?: I18nText } = {}) {
   const user = await prisma.user.create({
     data: {
       name: overrides.name ?? "Berber Test",
@@ -42,7 +42,7 @@ export async function createBarber(overrides: { name?: string; hours?: boolean; 
     },
   });
   const barber = await prisma.barber.create({
-    data: { userId: user.id, photoKey: "barbers/test.jpg" },
+    data: { userId: user.id, photoKey: "barbers/test.jpg", ...(overrides.bio ? { bioI18n: overrides.bio } : {}) },
   });
   if (overrides.hours !== false) {
     await prisma.workingHours.createMany({

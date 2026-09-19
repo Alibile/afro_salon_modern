@@ -22,35 +22,49 @@ describe("profile actions", () => {
   it("barber updates own name, phone, bio and photo", async () => {
     const { user, barber } = await createBarber();
     const actor = asBarber(user, barber.id);
-    const r = await updateOwnProfileAs(actor, { name: "Yeni İsim", phone: "5551112233", bio: "Fade ustası", photoKey: uploadedKey });
+    const r = await updateOwnProfileAs(actor, { name: "Yeni İsim", phone: "5551112233", bio: { tr: "Fade ustası", en: "Fade specialist" }, photoKey: uploadedKey });
     expect(r.ok).toBe(true);
 
     const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
     const dbBarber = await prisma.barber.findUnique({ where: { id: barber.id } });
     expect(dbUser?.name).toBe("Yeni İsim");
     expect(dbUser?.phone).toBe("5551112233");
-    expect(dbBarber?.bio).toBe("Fade ustası");
+    expect(dbBarber?.bioI18n).toEqual({ tr: "Fade ustası", en: "Fade specialist" });
     expect(dbBarber?.photoKey).toBe(uploadedKey);
     expect(deleteObject).toHaveBeenCalledWith("barbers/test.jpg");
+  });
+
+  it("berber kendi tanıtımını üç dilde yazar; boş sekme kaydedilmez", async () => {
+    const { user, barber } = await createBarber();
+    const actor = asBarber(user, barber.id);
+    const r = await updateOwnProfileAs(actor, {
+      name: user.name,
+      phone: "",
+      bio: { tr: "Örgü ve twist", en: "Braids and twists", fr: "   " },
+      photoKey: barber.photoKey,
+    });
+    expect(r.ok).toBe(true);
+    const dbBarber = await prisma.barber.findUnique({ where: { id: barber.id } });
+    expect(dbBarber?.bioI18n).toEqual({ tr: "Örgü ve twist", en: "Braids and twists" });
   });
 
   it("does not touch other users' records", async () => {
     const { user: user1, barber: barber1 } = await createBarber();
     const { user: user2, barber: barber2 } = await createBarber();
     const actor = asBarber(user1, barber1.id);
-    await updateOwnProfileAs(actor, { name: "Değişen", phone: "", bio: "", photoKey: "barbers/test.jpg" });
+    await updateOwnProfileAs(actor, { name: "Değişen", phone: "", bio: { tr: "" }, photoKey: "barbers/test.jpg" });
 
     const dbUser2 = await prisma.user.findUnique({ where: { id: user2.id } });
     const dbBarber2 = await prisma.barber.findUnique({ where: { id: barber2.id } });
     expect(dbUser2?.name).toBe(user2.name);
-    expect(dbBarber2?.bio).toBe(barber2.bio);
+    expect(dbBarber2?.bioI18n).toEqual(barber2.bioI18n);
   });
 
   it("refuses a photo key that is not this barber's own upload", async () => {
     const { user, barber } = await createBarber();
     const actor = asBarber(user, barber.id);
     vi.mocked(deleteObject).mockClear();
-    const r = await updateOwnProfileAs(actor, { name: user.name, phone: "", bio: "", photoKey: "landing/team-1.jpg" });
+    const r = await updateOwnProfileAs(actor, { name: user.name, phone: "", bio: { tr: "" }, photoKey: "landing/team-1.jpg" });
     expect(r).toEqual({ ok: false, error: "errors.invalidPhotoKey" });
     const dbBarber = await prisma.barber.findUnique({ where: { id: barber.id } });
     expect(dbBarber?.photoKey).toBe(barber.photoKey);
@@ -62,7 +76,7 @@ describe("profile actions", () => {
     const { barber: other } = await createBarber();
     await prisma.barber.update({ where: { id: other.id }, data: { photoKey: "landing/team-2.jpg" } });
     const actor = asBarber(user, barber.id);
-    const r = await updateOwnProfileAs(actor, { name: user.name, phone: "", bio: "", photoKey: "landing/team-2.jpg" });
+    const r = await updateOwnProfileAs(actor, { name: user.name, phone: "", bio: { tr: "" }, photoKey: "landing/team-2.jpg" });
     expect(r).toEqual({ ok: false, error: "errors.invalidPhotoKey" });
     expect((await prisma.barber.findUnique({ where: { id: other.id } }))?.photoKey).toBe("landing/team-2.jpg");
   });
@@ -70,7 +84,7 @@ describe("profile actions", () => {
   it("refuses a path-traversal style key", async () => {
     const { user, barber } = await createBarber();
     const actor = asBarber(user, barber.id);
-    const r = await updateOwnProfileAs(actor, { name: user.name, phone: "", bio: "", photoKey: "barbers/../haircuts/gizli.jpg" });
+    const r = await updateOwnProfileAs(actor, { name: user.name, phone: "", bio: { tr: "" }, photoKey: "barbers/../haircuts/gizli.jpg" });
     expect(r).toEqual({ ok: false, error: "errors.invalidPhotoKey" });
     expect((await prisma.barber.findUnique({ where: { id: barber.id } }))?.photoKey).toBe(barber.photoKey);
   });
@@ -79,7 +93,7 @@ describe("profile actions", () => {
     const { user, barber } = await createBarber();
     await prisma.barber.update({ where: { id: barber.id }, data: { photoKey: "landing/team-1.jpg" } });
     const actor = asBarber(user, barber.id);
-    const r = await updateOwnProfileAs(actor, { name: "Aynı Anahtar", phone: "", bio: "", photoKey: "landing/team-1.jpg" });
+    const r = await updateOwnProfileAs(actor, { name: "Aynı Anahtar", phone: "", bio: { tr: "" }, photoKey: "landing/team-1.jpg" });
     expect(r.ok).toBe(true);
     const dbBarber = await prisma.barber.findUnique({ where: { id: barber.id } });
     expect(dbBarber?.photoKey).toBe("landing/team-1.jpg");
@@ -89,14 +103,14 @@ describe("profile actions", () => {
     const { user, barber } = await createBarber();
     const actor = asBarber(user, barber.id);
     vi.mocked(deleteObject).mockClear();
-    await updateOwnProfileAs(actor, { name: user.name, phone: "", bio: "", photoKey: barber.photoKey });
+    await updateOwnProfileAs(actor, { name: user.name, phone: "", bio: { tr: "" }, photoKey: barber.photoKey });
     expect(deleteObject).not.toHaveBeenCalled();
   });
 
   it("never touches isActive or role", async () => {
     const { user, barber } = await createBarber();
     const actor = asBarber(user, barber.id);
-    await updateOwnProfileAs(actor, { name: "İsim", phone: "", bio: "", photoKey: barber.photoKey });
+    await updateOwnProfileAs(actor, { name: "İsim", phone: "", bio: { tr: "" }, photoKey: barber.photoKey });
     const dbBarber = await prisma.barber.findUnique({ where: { id: barber.id } });
     const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
     expect(dbBarber?.isActive).toBe(true);

@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { requireStaff } from "@/lib/auth-helpers";
 import { toAppLocale } from "@/i18n/routing";
+import { asI18nText } from "@/lib/i18n-content";
 import { prisma } from "@/lib/db";
 import { ProfileForm } from "@/components/panel/ProfileForm";
 import { PasswordForm } from "@/components/panel/PasswordForm";
@@ -25,7 +26,7 @@ export default async function ProfilPage() {
           profile={{
             name: user.name,
             phone: user.phone ?? "",
-            bio: user.barber?.bio ?? "",
+            bioI18n: asI18nText(user.barber?.bioI18n),
             photoKey: user.barber?.photoKey ?? "",
           }}
           hasBarber={Boolean(user.barber)}

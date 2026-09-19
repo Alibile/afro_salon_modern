@@ -63,9 +63,10 @@ e-postalarda kullanılır — müşteriye giden e-posta müşterinin, berbere gi
 berberin dilinde yazılır (`src/lib/email/i18n.ts`).
 
 **Panelden girilen içerik.** Hizmet adı, "Hakkımızda", "Neden biz" maddeleri,
-galeri başlıkları gibi alanlar veritabanında `*I18n` adlı `Json` sütunlarda
-`{ tr, en?, fr? }` biçiminde durur. Panel formlarında her alanın üç sekmesi
-vardır: **TR zorunludur**, EN/FR boş bırakılabilir. Boş bırakılan çeviri
+galeri başlıkları, berberin kısa tanıtımı gibi alanlar veritabanında `*I18n`
+adlı `Json` sütunlarda `{ tr, en?, fr? }` biçiminde durur. Panel formlarında
+her alanın üç sekmesi vardır: **hizmet adında TR zorunludur**, öbürlerinde
+üçü de boş bırakılabilir; EN/FR her zaman isteğe bağlıdır. Boş bırakılan çeviri
 kaydedilmez; ziyaretçi o dilde sayfayı açtığında Türkçe kaynak metni görür
 (`pick`, `src/lib/i18n-content.ts`).
 
@@ -100,9 +101,9 @@ korunur.
 - `/panel/izinler` — berber izinleri (barber)
 - `/panel/musteriler` — tüm müşteriler (admin)
 - `/panel/hizmetler` — hizmet listesi (adı üç dilli), fiyat ve süre (sıralamadan sil/düzenle; hard delete kuralı: geçmiş randevusu olan hizmetler sadece pasifleştirilebilir). Fiyat için satır içi düzenleme: listede fiyata tıklayıp yeni değeri yazıp Enter'a basmak yeterli; Esc vazgeçer, alan boş bırakılırsa kayıt yapılmaz
-- `/panel/berberler` — berber listesi (sıralamadan sil/düzenle; hard delete kuralı: geçmiş randevusu olan berberler sadece pasifleştirilebilir)
+- `/panel/berberler` — berber listesi (kısa tanıtım üç dilli; sıralamadan sil/düzenle; hard delete kuralı: geçmiş randevusu olan berberler sadece pasifleştirilebilir)
 - `/panel/galeri` — galeri fotoğrafları (admin): çoklu dosya yükleme, başlık (üç dilli) ve etiket yönetimi, sıralama (yukarı/aşağı), aktif/pasif geçişi, silme
-- `/panel/profil` — kendi profil bilgileri ve şifre değişimi (tüm personel)
+- `/panel/profil` — kendi profil bilgileri (berberin kısa tanıtımı üç dilli) ve şifre değişimi (tüm personel)
 - `/panel/yorumlar` — müşteri yorumları yönetimi: ekle/düzenle/aktif-pasif geçişi (admin)
 - `/panel/ayarlar` — salon ve site içeriği ayarları (admin)
 

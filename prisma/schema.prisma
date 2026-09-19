@@ -45,7 +45,10 @@ model User {
 model Barber {
   id       String  @id @default(cuid())
   userId   String  @unique
-  bio      String?
+  /// Berberin kısa tanıtımı üç dilde: `{ tr, en?, fr? }` (bkz.
+  /// `src/lib/i18n-content.ts`). Türkçesi de boş bırakılabilir; çevirisi
+  /// girilmemişse ziyaretçi Türkçesini görür (Tur 5, Task 6).
+  bioI18n  Json    @default("{\"tr\":\"\"}")
   photoKey String
   isActive Boolean @default(true)
 

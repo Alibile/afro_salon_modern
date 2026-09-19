@@ -34,7 +34,12 @@ export async function getActiveServices(locale: string) {
     .sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name, tag));
 }
 
-export async function getActiveBarbers() {
+/**
+ * Randevu alınabilir berberler, tanıtımları ziyaretçinin dilinde. Ad kişiye
+ * ait, çevrilmez; tanıtım panelden üç dilde girilir ve burada seçilir — liste
+ * istemci paketine kadar gittiği için okunmayacak iki dil taşınmaz.
+ */
+export async function getActiveBarbers(locale: string) {
   const barbers = await prisma.barber.findMany({
     where: { isActive: true },
     include: {
@@ -46,7 +51,7 @@ export async function getActiveBarbers() {
   return barbers.map((b) => ({
     id: b.id,
     name: b.user.name,
-    bio: b.bio,
+    bio: pick(b.bioI18n, locale),
     photoKey: b.photoKey,
     recentPhotoKeys: b.photos.map((p) => p.storageKey),
   }));

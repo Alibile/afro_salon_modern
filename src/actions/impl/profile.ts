@@ -24,7 +24,7 @@ export async function updateOwnProfileAs(actorInput: SessionUser | null, input: 
     if (photoKey !== existing.photoKey && !isUploadedBarberPhotoKey(photoKey)) return fail("errors.invalidPhotoKey");
     await prisma.$transaction([
       prisma.user.update({ where: { id: actor.id }, data: { name, phone: phone || null } }),
-      prisma.barber.update({ where: { id: actor.barberId }, data: { bio: bio || null, photoKey } }),
+      prisma.barber.update({ where: { id: actor.barberId }, data: { bioI18n: bio, photoKey } }),
     ]);
     if (existing.photoKey !== photoKey && !existing.photoKey.startsWith("seed/") && !existing.photoKey.startsWith("landing/"))
       await deleteObject(existing.photoKey);
