@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { prisma } from "@/lib/db";
-import { createBarber, createCustomer, createService } from "./helpers";
-import { getTodayAvailability } from "@/lib/queries/booking";
+import { asActor, createBarber, createCustomer, createService } from "./helpers";
+import { getActiveServices, getTodayAvailability } from "@/lib/queries/booking";
 import * as bookingQueries from "@/lib/queries/booking";
 import { createAppointmentFor } from "@/actions/impl/appointments";
 
@@ -47,6 +47,33 @@ describe("getTodayAvailability", () => {
   });
 });
 
+describe("getActiveServices", () => {
+  it("hizmet adını ziyaretçinin dilinde verir, çeviri yoksa Türkçesini", async () => {
+    await createService({ name: { tr: "Saç Kesimi", en: "Haircut", fr: "Coupe de cheveux" }, sortOrder: 1 });
+    await createService({ name: { tr: "Örgü / Twist" }, sortOrder: 2 });
+
+    expect((await getActiveServices("tr")).map((s) => s.name)).toEqual(["Saç Kesimi", "Örgü / Twist"]);
+    // İkinci hizmetin İngilizcesi girilmemiş: Türkçesi görünür.
+    expect((await getActiveServices("en")).map((s) => s.name)).toEqual(["Haircut", "Örgü / Twist"]);
+    expect((await getActiveServices("fr")).map((s) => s.name)).toEqual(["Coupe de cheveux", "Örgü / Twist"]);
+  });
+
+  it("aynı sıradaki hizmetleri o dilin alfabetik sırasına göre ayırır", async () => {
+    await createService({ name: { tr: "Sakal", en: "Beard trim" }, sortOrder: 0 });
+    await createService({ name: { tr: "Saç", en: "Haircut" }, sortOrder: 0 });
+
+    // Sıralama dilin kendi alfabesiyle: Türkçede "ç" < "k", İngilizcede B < H.
+    expect((await getActiveServices("tr")).map((s) => s.name)).toEqual(["Saç", "Sakal"]);
+    expect((await getActiveServices("en")).map((s) => s.name)).toEqual(["Beard trim", "Haircut"]);
+  });
+
+  it("pasif hizmeti hiç döndürmez", async () => {
+    await createService({ name: "Saç Kesimi" });
+    await prisma.service.create({ data: { nameI18n: { tr: "Eski" }, durationMinutes: 30, priceKurus: 100, isActive: false } });
+    expect((await getActiveServices("tr")).map((s) => s.name)).toEqual(["Saç Kesimi"]);
+  });
+});
+
 describe("createAppointment", () => {
   it("creates appointment with service snapshots", async () => {
     const { barber } = await createBarber();
@@ -54,7 +81,7 @@ describe("createAppointment", () => {
     const s1 = await createService({ name: "Saç", durationMinutes: 30, priceKurus: 40000 });
     const s2 = await createService({ name: "Sakal", durationMinutes: 15, priceKurus: 20000 });
 
-    const r = await createAppointmentFor(customer.id, NOW, { barberId: barber.id, serviceIds: [s1.id, s2.id], startsAt: "2026-09-17T08:00:00.000Z" });
+    const r = await createAppointmentFor(asActor(customer), NOW, { barberId: barber.id, serviceIds: [s1.id, s2.id], startsAt: "2026-09-17T08:00:00.000Z" });
     expect(r.ok).toBe(true);
     if (!r.ok) return;
     const appt = await prisma.appointment.findUnique({ where: { id: r.data.id }, include: { services: true } });
@@ -63,11 +90,46 @@ describe("createAppointment", () => {
     expect(appt?.services.find((s) => s.serviceId === s1.id)?.nameSnapshot).toBe("Saç");
   });
 
+  it("hizmet adı anlık görüntüsünü müşterinin dilinde yazar", async () => {
+    const { barber } = await createBarber();
+    const customer = await createCustomer({ locale: "en" });
+    const s1 = await createService({ name: { tr: "Saç Kesimi", en: "Haircut" }, durationMinutes: 30 });
+    // Fransızcası girilmemiş hizmet: Fransızca müşteri de Türkçesini görür.
+    const s2 = await createService({ name: { tr: "Sakal" }, durationMinutes: 15 });
+
+    const r = await createAppointmentFor(asActor(customer), NOW, {
+      barberId: barber.id,
+      serviceIds: [s1.id, s2.id],
+      startsAt: "2026-09-17T08:00:00.000Z",
+    });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    const appt = await prisma.appointment.findUniqueOrThrow({ where: { id: r.data.id }, include: { services: true } });
+    expect(appt.services.find((s) => s.serviceId === s1.id)?.nameSnapshot).toBe("Haircut");
+    expect(appt.services.find((s) => s.serviceId === s2.id)?.nameSnapshot).toBe("Sakal");
+  });
+
+  it("Türkçe müşteride anlık görüntü Türkçe kalır", async () => {
+    const { barber } = await createBarber();
+    const customer = await createCustomer();
+    const s1 = await createService({ name: { tr: "Saç Kesimi", en: "Haircut" }, durationMinutes: 30 });
+
+    const r = await createAppointmentFor(asActor(customer), NOW, {
+      barberId: barber.id,
+      serviceIds: [s1.id],
+      startsAt: "2026-09-17T08:00:00.000Z",
+    });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    const appt = await prisma.appointment.findUniqueOrThrow({ where: { id: r.data.id }, include: { services: true } });
+    expect(appt.services[0].nameSnapshot).toBe("Saç Kesimi");
+  });
+
   it("rejects slot in the past / before lead time", async () => {
     const { barber } = await createBarber();
     const customer = await createCustomer();
     const s1 = await createService();
-    const r = await createAppointmentFor(customer.id, NOW, { barberId: barber.id, serviceIds: [s1.id], startsAt: "2026-09-17T07:00:00.000Z" });
+    const r = await createAppointmentFor(asActor(customer), NOW, { barberId: barber.id, serviceIds: [s1.id], startsAt: "2026-09-17T07:00:00.000Z" });
     expect(r).toEqual({ ok: false, error: "errors.slotUnavailable" });
   });
 
@@ -77,9 +139,9 @@ describe("createAppointment", () => {
     const c2 = await createCustomer();
     const s1 = await createService();
     const input = { barberId: barber.id, serviceIds: [s1.id], startsAt: "2026-09-17T08:00:00.000Z" };
-    const first = await createAppointmentFor(c1.id, NOW, input);
+    const first = await createAppointmentFor(asActor(c1), NOW, input);
     expect(first.ok).toBe(true);
-    const second = await createAppointmentFor(c2.id, NOW, input);
+    const second = await createAppointmentFor(asActor(c2), NOW, input);
     expect(second.ok).toBe(false);
   });
 
@@ -87,7 +149,7 @@ describe("createAppointment", () => {
     const { barber } = await createBarber();
     const customer = await createCustomer();
     const s1 = await createService();
-    const r = await createAppointmentFor(customer.id, NOW, { barberId: barber.id, serviceIds: [s1.id], startsAt: "2026-09-17T08:07:00.000Z" });
+    const r = await createAppointmentFor(asActor(customer), NOW, { barberId: barber.id, serviceIds: [s1.id], startsAt: "2026-09-17T08:07:00.000Z" });
     expect(r.ok).toBe(false);
   });
 
@@ -98,8 +160,8 @@ describe("createAppointment", () => {
     const s1 = await createService();
     const input = { barberId: barber.id, serviceIds: [s1.id], startsAt: "2026-09-17T08:00:00.000Z" };
     const [a, b] = await Promise.all([
-      createAppointmentFor(c1.id, NOW, input),
-      createAppointmentFor(c2.id, NOW, input),
+      createAppointmentFor(asActor(c1), NOW, input),
+      createAppointmentFor(asActor(c2), NOW, input),
     ]);
     const results = [a, b];
     expect(results.filter((r) => r.ok)).toHaveLength(1);
@@ -128,7 +190,7 @@ describe("createAppointment", () => {
       data: { barberId: barber.id, customerId: c1.id, startsAt, endsAt: new Date("2026-09-17T08:30:00.000Z") },
     });
 
-    const r = await createAppointmentFor(c2.id, NOW, { barberId: barber.id, serviceIds: [s1.id], startsAt: startsAt.toISOString() });
+    const r = await createAppointmentFor(asActor(c2), NOW, { barberId: barber.id, serviceIds: [s1.id], startsAt: startsAt.toISOString() });
 
     spy.mockRestore();
     expect(r).toEqual({ ok: false, error: "errors.slotTaken" });
@@ -137,8 +199,8 @@ describe("createAppointment", () => {
   it("rejects inactive service", async () => {
     const { barber } = await createBarber();
     const customer = await createCustomer();
-    const s1 = await prisma.service.create({ data: { name: "Eski", durationMinutes: 30, priceKurus: 100, isActive: false } });
-    const r = await createAppointmentFor(customer.id, NOW, { barberId: barber.id, serviceIds: [s1.id], startsAt: "2026-09-17T08:00:00.000Z" });
+    const s1 = await prisma.service.create({ data: { nameI18n: { tr: "Eski" }, durationMinutes: 30, priceKurus: 100, isActive: false } });
+    const r = await createAppointmentFor(asActor(customer), NOW, { barberId: barber.id, serviceIds: [s1.id], startsAt: "2026-09-17T08:00:00.000Z" });
     expect(r).toEqual({ ok: false, error: "errors.selectedServiceNotFound" });
   });
 });

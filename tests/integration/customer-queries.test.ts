@@ -68,8 +68,8 @@ describe("getCustomerAppointments", () => {
     const a = await appt(c.id, barber.id, "2026-09-17T12:00:00Z");
     await prisma.appointmentService.createMany({
       data: [
-        { appointmentId: a.id, serviceId: s1.id, nameSnapshot: s1.name, durationSnapshot: s1.durationMinutes, priceSnapshot: s1.priceKurus },
-        { appointmentId: a.id, serviceId: s2.id, nameSnapshot: s2.name, durationSnapshot: s2.durationMinutes, priceSnapshot: s2.priceKurus },
+        { appointmentId: a.id, serviceId: s1.id, nameSnapshot: "Saç Kesimi", durationSnapshot: s1.durationMinutes, priceSnapshot: s1.priceKurus },
+        { appointmentId: a.id, serviceId: s2.id, nameSnapshot: "Sakal", durationSnapshot: s2.durationMinutes, priceSnapshot: s2.priceKurus },
       ],
     });
 

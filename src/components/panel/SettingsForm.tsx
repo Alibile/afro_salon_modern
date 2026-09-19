@@ -5,10 +5,11 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { updateSettings } from "@/actions/settings";
 import type { SettingsInput } from "@/schemas/settings";
 import { useActionError } from "@/lib/use-action-error";
+import { readI18nField } from "@/lib/i18n-content";
+import { I18nTextField, I18nTextarea } from "./I18nField";
 
 export function SettingsForm({ initial }: { initial: SettingsInput }) {
   const t = useTranslations("panel");
@@ -35,14 +36,14 @@ export function SettingsForm({ initial }: { initial: SettingsInput }) {
             facebook: String(fd.get("facebook")),
             whatsapp: String(fd.get("whatsapp")),
             mapsUrl: String(fd.get("mapsUrl")),
-            aboutTitle: String(fd.get("aboutTitle")),
-            aboutText: String(fd.get("aboutText")),
-            whyUs1Title: String(fd.get("whyUs1Title")),
-            whyUs1Text: String(fd.get("whyUs1Text")),
-            whyUs2Title: String(fd.get("whyUs2Title")),
-            whyUs2Text: String(fd.get("whyUs2Text")),
-            whyUs3Title: String(fd.get("whyUs3Title")),
-            whyUs3Text: String(fd.get("whyUs3Text")),
+            aboutTitle: readI18nField(fd, "aboutTitle"),
+            aboutText: readI18nField(fd, "aboutText"),
+            whyUs1Title: readI18nField(fd, "whyUs1Title"),
+            whyUs1Text: readI18nField(fd, "whyUs1Text"),
+            whyUs2Title: readI18nField(fd, "whyUs2Title"),
+            whyUs2Text: readI18nField(fd, "whyUs2Text"),
+            whyUs3Title: readI18nField(fd, "whyUs3Title"),
+            whyUs3Text: readI18nField(fd, "whyUs3Text"),
             satisfactionPercent: Number(fd.get("satisfactionPercent")),
             yearsExperience: Number(fd.get("yearsExperience")),
           });
@@ -74,29 +75,24 @@ export function SettingsForm({ initial }: { initial: SettingsInput }) {
         <div><Label htmlFor="facebook">Facebook</Label><Input id="facebook" name="facebook" placeholder="https://facebook.com/..." defaultValue={initial.facebook} /></div>
         <div><Label htmlFor="whatsapp">WhatsApp</Label><Input id="whatsapp" name="whatsapp" placeholder="905551112233" defaultValue={initial.whatsapp} /></div>
         <div><Label htmlFor="mapsUrl">{t("settings.mapsUrl")}</Label><Input id="mapsUrl" name="mapsUrl" placeholder="https://maps.google.com/..." defaultValue={initial.mapsUrl} /></div>
-        <div><Label htmlFor="aboutTitle">{t("settings.aboutTitle")}</Label><Input id="aboutTitle" name="aboutTitle" defaultValue={initial.aboutTitle} /></div>
-        <div><Label htmlFor="aboutText">{t("settings.aboutText")}</Label><Textarea id="aboutText" name="aboutText" rows={4} defaultValue={initial.aboutText} /></div>
+        <p className="text-xs text-muted-foreground">{t("i18nField.hint")}</p>
+        <I18nTextField name="aboutTitle" label={t("settings.aboutTitle")} defaultValue={initial.aboutTitle} maxLength={100} />
+        <I18nTextarea name="aboutText" label={t("settings.aboutText")} defaultValue={initial.aboutText} rows={4} maxLength={500} />
         <div className="grid gap-3 sm:grid-cols-2">
           <div><Label htmlFor="satisfactionPercent">{t("settings.satisfaction")}</Label><Input id="satisfactionPercent" name="satisfactionPercent" type="number" min={0} max={100} defaultValue={initial.satisfactionPercent} /></div>
           <div><Label htmlFor="yearsExperience">{t("settings.years")}</Label><Input id="yearsExperience" name="yearsExperience" type="number" min={0} max={100} defaultValue={initial.yearsExperience} /></div>
         </div>
         <div className="grid gap-2">
-          <Label htmlFor="whyUs1Title">{t("settings.whyUsTitle", { index: 1 })}</Label>
-          <Input id="whyUs1Title" name="whyUs1Title" defaultValue={initial.whyUs1Title} />
-          <Label htmlFor="whyUs1Text">{t("settings.whyUsText", { index: 1 })}</Label>
-          <Textarea id="whyUs1Text" name="whyUs1Text" rows={2} defaultValue={initial.whyUs1Text} />
+          <I18nTextField name="whyUs1Title" label={t("settings.whyUsTitle", { index: 1 })} defaultValue={initial.whyUs1Title} maxLength={60} />
+          <I18nTextarea name="whyUs1Text" label={t("settings.whyUsText", { index: 1 })} defaultValue={initial.whyUs1Text} rows={2} maxLength={500} />
         </div>
         <div className="grid gap-2">
-          <Label htmlFor="whyUs2Title">{t("settings.whyUsTitle", { index: 2 })}</Label>
-          <Input id="whyUs2Title" name="whyUs2Title" defaultValue={initial.whyUs2Title} />
-          <Label htmlFor="whyUs2Text">{t("settings.whyUsText", { index: 2 })}</Label>
-          <Textarea id="whyUs2Text" name="whyUs2Text" rows={2} defaultValue={initial.whyUs2Text} />
+          <I18nTextField name="whyUs2Title" label={t("settings.whyUsTitle", { index: 2 })} defaultValue={initial.whyUs2Title} maxLength={60} />
+          <I18nTextarea name="whyUs2Text" label={t("settings.whyUsText", { index: 2 })} defaultValue={initial.whyUs2Text} rows={2} maxLength={500} />
         </div>
         <div className="grid gap-2">
-          <Label htmlFor="whyUs3Title">{t("settings.whyUsTitle", { index: 3 })}</Label>
-          <Input id="whyUs3Title" name="whyUs3Title" defaultValue={initial.whyUs3Title} />
-          <Label htmlFor="whyUs3Text">{t("settings.whyUsText", { index: 3 })}</Label>
-          <Textarea id="whyUs3Text" name="whyUs3Text" rows={2} defaultValue={initial.whyUs3Text} />
+          <I18nTextField name="whyUs3Title" label={t("settings.whyUsTitle", { index: 3 })} defaultValue={initial.whyUs3Title} maxLength={60} />
+          <I18nTextarea name="whyUs3Text" label={t("settings.whyUsText", { index: 3 })} defaultValue={initial.whyUs3Text} rows={2} maxLength={500} />
         </div>
       </fieldset>
 

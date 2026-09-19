@@ -8,8 +8,19 @@ import { toggleService, deleteService } from "@/actions/services";
 import { ServiceForm } from "./ServiceForm";
 import { InlinePrice } from "./InlinePrice";
 import { DeleteButton } from "./DeleteButton";
+import type { I18nText } from "@/lib/i18n-content";
 
-type S = { id: string; name: string; durationMinutes: number; priceKurus: number; sortOrder: number; isActive: boolean; usageCount: number };
+/** `name` panel kullanıcısının dilindeki ad; `nameI18n` düzenleme formunun üç sekmesi. */
+type S = {
+  id: string;
+  name: string;
+  nameI18n: I18nText;
+  durationMinutes: number;
+  priceKurus: number;
+  sortOrder: number;
+  isActive: boolean;
+  usageCount: number;
+};
 
 export function ServiceRow({ service }: { service: S }) {
   const t = useTranslations("panel");

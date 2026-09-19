@@ -50,7 +50,7 @@ describe("addGalleryPhotosAs", () => {
     expect(rows.map((p) => p.storageKey)).toEqual(items.map((i) => i.storageKey));
     expect(rows.map((p) => p.sortOrder)).toEqual([0, 1, 2]);
     expect(rows.every((p) => p.isActive)).toBe(true);
-    expect(rows[0].caption).toBe("");
+    expect(rows[0].captionI18n).toEqual({ tr: "" });
     expect(rows[0].tags).toEqual([]);
     expect(rows[0].width).toBe(1600);
     expect(rows[0].height).toBe(1200);
@@ -125,17 +125,28 @@ describe("addGalleryPhotosAs", () => {
 describe("updateGalleryPhotoAs", () => {
   it("başlık ve etiketleri kaydeder, etiketleri kırpıp tekilleştirir", async () => {
     const id = await addOne();
-    const r = await updateGalleryPhotoAs(admin, id, { caption: "  Yüksek fade  ", tags: " Fade , fade ,  Line-up " });
+    const r = await updateGalleryPhotoAs(admin, id, { caption: { tr: "  Yüksek fade  " }, tags: " Fade , fade ,  line-up " });
     expect(r.ok).toBe(true);
     const p = await prisma.galleryPhoto.findUniqueOrThrow({ where: { id } });
-    expect(p.caption).toBe("Yüksek fade");
-    expect(p.tags).toEqual(["Fade", "Line-up"]);
+    expect(p.captionI18n).toEqual({ tr: "Yüksek fade" });
+    expect(p.tags).toEqual(["Fade", "line-up"]);
+  });
+
+  it("başlığı üç dilde birden kaydeder, boş çeviriyi yazmaz", async () => {
+    const id = await addOne();
+    const r = await updateGalleryPhotoAs(admin, id, {
+      caption: { tr: "Sakalda son rötuş", en: "Finishing touch on the beard", fr: "  " },
+      tags: "beard",
+    });
+    expect(r.ok).toBe(true);
+    const p = await prisma.galleryPhoto.findUniqueOrThrow({ where: { id } });
+    expect(p.captionI18n).toEqual({ tr: "Sakalda son rötuş", en: "Finishing touch on the beard" });
   });
 
   it("etiket dizisini de kabul eder", async () => {
     const id = await addOne();
-    await updateGalleryPhotoAs(admin, id, { tags: ["Afro", "Twist"] });
-    expect((await prisma.galleryPhoto.findUniqueOrThrow({ where: { id } })).tags).toEqual(["Afro", "Twist"]);
+    await updateGalleryPhotoAs(admin, id, { tags: ["afro", "twist"] });
+    expect((await prisma.galleryPhoto.findUniqueOrThrow({ where: { id } })).tags).toEqual(["afro", "twist"]);
   });
 
   it("6'dan fazla etiketi ve çok kısa/uzun etiketi reddeder", async () => {
@@ -156,28 +167,28 @@ describe("updateGalleryPhotoAs", () => {
 
   it("yalnızca isActive gönderildiğinde etiket ve başlığa dokunmaz", async () => {
     const id = await addOne();
-    await updateGalleryPhotoAs(admin, id, { caption: "Twist", tags: "Twist" });
+    await updateGalleryPhotoAs(admin, id, { caption: { tr: "Twist" }, tags: "twist" });
     const r = await updateGalleryPhotoAs(admin, id, { isActive: false });
     expect(r.ok).toBe(true);
     const p = await prisma.galleryPhoto.findUniqueOrThrow({ where: { id } });
     expect(p.isActive).toBe(false);
-    expect(p.caption).toBe("Twist");
-    expect(p.tags).toEqual(["Twist"]);
+    expect(p.captionI18n).toEqual({ tr: "Twist" });
+    expect(p.tags).toEqual(["twist"]);
   });
 
   it("uzun başlığı reddeder", async () => {
     const id = await addOne();
-    const r = await updateGalleryPhotoAs(admin, id, { caption: "x".repeat(121) });
+    const r = await updateGalleryPhotoAs(admin, id, { caption: { tr: "x".repeat(121) } });
     expect(r.ok).toBe(false);
   });
 
   it("olmayan fotoğrafta bulunamadı döner", async () => {
-    expect(await updateGalleryPhotoAs(admin, "yok", { caption: "x" })).toEqual({ ok: false, error: "errors.photoNotFound" });
+    expect(await updateGalleryPhotoAs(admin, "yok", { caption: { tr: "x" } })).toEqual({ ok: false, error: "errors.photoNotFound" });
   });
 
   it("berber reddedilir", async () => {
     const id = await addOne();
-    expect(await updateGalleryPhotoAs(barber, id, { caption: "x" })).toEqual({ ok: false, error: "errors.notAllowed" });
+    expect(await updateGalleryPhotoAs(barber, id, { caption: { tr: "x" } })).toEqual({ ok: false, error: "errors.notAllowed" });
   });
 });
 
@@ -253,30 +264,40 @@ describe("getGalleryData", () => {
     const a = await addOne();
     const b = await addOne();
     const c = await addOne();
-    await updateGalleryPhotoAs(admin, a, { caption: "Fade", tags: "Fade, Sakal" });
-    await updateGalleryPhotoAs(admin, b, { tags: "Afro, Fade" });
-    await updateGalleryPhotoAs(admin, c, { tags: "Twist", isActive: false });
+    await updateGalleryPhotoAs(admin, a, { caption: { tr: "Fade", en: "Fade" }, tags: "Fade, beard" });
+    await updateGalleryPhotoAs(admin, b, { tags: "afro, Fade" });
+    await updateGalleryPhotoAs(admin, c, { tags: "twist", isActive: false });
 
-    const d = await getGalleryData();
+    const d = await getGalleryData("tr");
     expect(d.photos.map((p) => p.id)).toEqual([a, b]);
     expect(d.photos[0].caption).toBe("Fade");
     expect(d.photos[0].width).toBe(1600);
-    // "Afro" ve "Sakal" sabit listeden (liste sırasıyla), "Fade" serbest: sona gelir.
-    expect(d.tags).toEqual(["Afro", "Sakal", "Fade"]);
+    // "afro" ve "beard" sabit listeden (liste sırasıyla), "Fade" serbest: sona gelir.
+    expect(d.tags).toEqual(["afro", "beard", "Fade"]);
+  });
+
+  it("başlığı ziyaretçinin dilinde döner, çeviri yoksa Türkçesini", async () => {
+    const a = await addOne();
+    const b = await addOne();
+    await updateGalleryPhotoAs(admin, a, { caption: { tr: "Sakalda son rötuş", en: "Finishing touch on the beard" }, tags: "beard" });
+    await updateGalleryPhotoAs(admin, b, { caption: { tr: "Afroda makas düzeltmesi" }, tags: "afro" });
+
+    const en = await getGalleryData("en");
+    expect(en.photos.map((p) => p.caption)).toEqual(["Finishing touch on the beard", "Afroda makas düzeltmesi"]);
   });
 
   it("etiketleri sabit kategori sırasına dizer, listede olmayanları sona alır", async () => {
     const a = await addOne();
     const b = await addOne();
-    await updateGalleryPhotoAs(admin, a, { tags: "Sakal, Ombre" });
-    await updateGalleryPhotoAs(admin, b, { tags: "Low Taper Fade, Afro" });
+    await updateGalleryPhotoAs(admin, a, { tags: "beard, Ombre" });
+    await updateGalleryPhotoAs(admin, b, { tags: "low-taper-fade, afro" });
 
-    const d = await getGalleryData();
-    expect(d.tags).toEqual(["Low Taper Fade", "Afro", "Sakal", "Ombre"]);
+    const d = await getGalleryData("tr");
+    expect(d.tags).toEqual(["low-taper-fade", "afro", "beard", "Ombre"]);
   });
 
   it("galeri boşsa boş liste döner", async () => {
-    const d = await getGalleryData();
+    const d = await getGalleryData("tr");
     expect(d.photos).toEqual([]);
     expect(d.tags).toEqual([]);
   });
@@ -286,7 +307,7 @@ describe("getGalleryData", () => {
     const { barber: b } = await createBarber();
     const c = await createCustomer();
     await prisma.haircutPhoto.create({ data: { customerId: c.id, barberId: b.id, storageKey: "haircuts/x.jpg" } });
-    const d = await getGalleryData();
+    const d = await getGalleryData("tr");
     expect(d.photos).toEqual([]);
   });
 });

@@ -1,9 +1,12 @@
 "use client";
 import { useTranslations } from "next-intl";
+import { tagLabel } from "@/lib/gallery-tags";
 import { cn } from "@/lib/utils";
 
 /**
- * Kategori çipleri: yalnızca etiket adı ve sayı. Şerit dar ekranda yatay kayar
+ * Kategori çipleri: yalnızca etiket adı ve sayı. Gelen etiketler anahtardır
+ * (`skin-fade`); görünen ad ziyaretçinin dilinde `gallery.tags`'ten okunur,
+ * serbest etiketler yazıldığı gibi durur. Şerit dar ekranda yatay kayar
  * (kenarlarda maske, gizli kaydırma çubuğu), geniş ekranda sığdığı kadar satıra
  * yayılır. Seçim `aria-pressed` ile duyurulur; görsel dil sayfanın geri
  * kalanıyla aynı: köşesiz kutular, ince çizgi, seçili olan dolu terracotta.
@@ -23,9 +26,10 @@ export function GalleryFilters({
   totalCount: number;
 }) {
   const t = useTranslations("landing.gallery");
+  const tTag = useTranslations("gallery.tags");
   const items: { key: string; label: string; value: string | null; count: number }[] = [
     { key: "all", label: t("all"), value: null, count: totalCount },
-    ...tags.map((t) => ({ key: t, label: t, value: t as string | null, count: counts[t] ?? 0 })),
+    ...tags.map((tag) => ({ key: tag, label: tagLabel(tag, tTag), value: tag as string | null, count: counts[tag] ?? 0 })),
   ];
   return (
     <div

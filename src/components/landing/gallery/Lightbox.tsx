@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { publicUrl } from "@/lib/storage-public";
 import { nextIndex, prevIndex, type GalleryPhoto } from "@/lib/gallery-utils";
+import { tagLabel } from "@/lib/gallery-tags";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 
 /** Parmakla kaydırmanın fotoğraf değiştirmesi için gereken en küçük yatay mesafe. */
@@ -22,6 +23,7 @@ export function Lightbox({
   onClose: () => void;
 }) {
   const t = useTranslations("landing.gallery");
+  const tTag = useTranslations("gallery.tags");
   const tCommon = useTranslations("common");
   const open = index !== null;
   const startX = useRef<number | null>(null);
@@ -131,9 +133,9 @@ export function Lightbox({
           {photo.caption.trim() !== "" && <p className="editorial-note text-lg">{photo.caption}</p>}
           {photo.tags.length > 0 && (
             <ul className="mt-2 flex flex-wrap gap-2">
-              {photo.tags.map((t) => (
-                <li key={t} className="border border-border px-2.5 py-1 text-xs text-muted-foreground">
-                  {t}
+              {photo.tags.map((tag) => (
+                <li key={tag} className="border border-border px-2.5 py-1 text-xs text-muted-foreground">
+                  {tagLabel(tag, tTag)}
                 </li>
               ))}
             </ul>

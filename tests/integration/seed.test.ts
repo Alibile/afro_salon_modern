@@ -11,6 +11,8 @@ import {
   LEGACY_NADIA_TEXT,
 } from "../../prisma/seed";
 import { GALLERY_TAGS } from "@/lib/gallery-tags";
+import { asI18nText } from "@/lib/i18n-content";
+import { getActiveServices } from "@/lib/queries/booking";
 
 describe("runSeed", () => {
   it("eski seed/ yer tutucu fotoğraf anahtarını landing/ ile değiştirir, gerçek yüklenmiş anahtara dokunmaz", async () => {
@@ -60,13 +62,13 @@ describe("runSeed", () => {
     const first = await prisma.galleryPhoto.findFirstOrThrow({ where: { storageKey: "landing/gallery-1.jpg" } });
     expect(first.width).toBe(1367);
     expect(first.height).toBe(1367);
-    expect(first.tags).toEqual(["Taper Fade", "Line-up", "Düz Saç"]);
+    expect(first.tags).toEqual(["taper-fade", "line-up", "straight"]);
     expect(first.isActive).toBe(true);
 
-    await prisma.galleryPhoto.update({ where: { id: first.id }, data: { caption: "Panelden yazıldı", tags: ["Fade"] } });
+    await prisma.galleryPhoto.update({ where: { id: first.id }, data: { captionI18n: { tr: "Panelden yazıldı" }, tags: ["Fade"] } });
     await runSeed(prisma);
     const again = await prisma.galleryPhoto.findUniqueOrThrow({ where: { id: first.id } });
-    expect(again.caption).toBe("Panelden yazıldı");
+    expect(again.captionI18n).toEqual({ tr: "Panelden yazıldı" });
     expect(again.tags).toEqual(["Fade"]);
     expect(await prisma.galleryPhoto.count()).toBe(DEFAULT_GALLERY.length);
   });
@@ -76,28 +78,63 @@ describe("runSeed", () => {
     const portrait = DEFAULT_GALLERY.find((g) => g.file === "gallery-2.jpg")!;
     const row = await prisma.galleryPhoto.findFirstOrThrow({ where: { storageKey: "landing/gallery-2.jpg" } });
     // Eski (kare) boyutlarla kalmış bir kayıt: seed yeniden çalıştığında gerçek orana dönmeli.
-    await prisma.galleryPhoto.update({ where: { id: row.id }, data: { width: 1600, height: 1600, caption: "Elle yazıldı" } });
+    await prisma.galleryPhoto.update({ where: { id: row.id }, data: { width: 1600, height: 1600, captionI18n: { tr: "Elle yazıldı" } } });
 
     await runSeed(prisma);
 
     const fixed = await prisma.galleryPhoto.findUniqueOrThrow({ where: { id: row.id } });
     expect(fixed.width).toBe(portrait.width);
     expect(fixed.height).toBe(portrait.height);
-    expect(fixed.caption).toBe("Elle yazıldı");
+    expect(fixed.captionI18n).toEqual({ tr: "Elle yazıldı" });
   });
 
   it("eski (Tur 3 öncesi) varsayılan aboutText'i yeni erkek odaklı metne taşır, özel metne dokunmaz", async () => {
-    await prisma.settings.update({ where: { id: 1 }, data: { aboutText: LEGACY_ABOUT_TEXT } });
+    await prisma.settings.update({ where: { id: 1 }, data: { aboutTextI18n: { tr: LEGACY_ABOUT_TEXT } } });
     await runSeed(prisma);
     const settings = await prisma.settings.findUniqueOrThrow({ where: { id: 1 } });
-    expect(settings.aboutText).toBe(DEFAULT_LANDING_CONTENT.aboutText);
+    expect(settings.aboutTextI18n).toEqual(DEFAULT_LANDING_CONTENT.aboutTextI18n);
   });
 
   it("admin tarafından girilmiş özel aboutText'e dokunmaz", async () => {
-    await prisma.settings.update({ where: { id: 1 }, data: { aboutText: "Özel metin" } });
+    await prisma.settings.update({ where: { id: 1 }, data: { aboutTextI18n: { tr: "Özel metin" } } });
     await runSeed(prisma);
     const settings = await prisma.settings.findUniqueOrThrow({ where: { id: 1 } });
-    expect(settings.aboutText).toBe("Özel metin");
+    expect(settings.aboutTextI18n).toEqual({ tr: "Özel metin" });
+  });
+
+  it("çevirisiz duran varsayılan içerik alanına çevirileri ekler, düzenlenmiş alana dokunmaz", async () => {
+    // Tur 5 göçünün bıraktığı hâl: tek dilli, hâlâ birebir seed varsayılanı.
+    await prisma.settings.update({
+      where: { id: 1 },
+      data: {
+        aboutTextI18n: { tr: DEFAULT_LANDING_CONTENT.aboutTextI18n.tr },
+        aboutTitleI18n: { tr: DEFAULT_LANDING_CONTENT.aboutTitleI18n.tr },
+        whyUs1TitleI18n: { tr: "Bizim ekip" },
+      },
+    });
+
+    await runSeed(prisma);
+
+    const settings = await prisma.settings.findUniqueOrThrow({ where: { id: 1 } });
+    expect(settings.aboutTitleI18n).toEqual(DEFAULT_LANDING_CONTENT.aboutTitleI18n);
+    expect(settings.whyUs1TitleI18n).toEqual({ tr: "Bizim ekip" });
+  });
+
+  it("hizmetlerin çevirilerini de doldurur, yeniden adlandırılmış hizmete dokunmaz", async () => {
+    await prisma.service.create({ data: { nameI18n: { tr: "Saç Kesimi" }, durationMinutes: 30, priceKurus: 40000, sortOrder: 1 } });
+    await prisma.service.create({ data: { nameI18n: { tr: "Sakal", en: "Beard" }, durationMinutes: 15, priceKurus: 20000, sortOrder: 2 } });
+
+    await runSeed(prisma);
+
+    const rows = await prisma.service.findMany();
+    expect(rows).toHaveLength(4);
+    expect(rows.find((r) => (r.nameI18n as { tr: string }).tr === "Saç Kesimi")!.nameI18n).toEqual({
+      tr: "Saç Kesimi",
+      en: "Haircut",
+      fr: "Coupe de cheveux",
+    });
+    // Admin EN adını kendisi girmiş: seed üzerine yazmaz.
+    expect(rows.find((r) => (r.nameI18n as { tr: string }).tr === "Sakal")!.nameI18n).toEqual({ tr: "Sakal", en: "Beard" });
   });
 
   it("eski aynı metinli 'Nadia T.' yorumunu aynı id ile 'Derrick B.' adına taşır", async () => {
@@ -131,6 +168,29 @@ describe("runSeed", () => {
     expect(await prisma.testimonial.count({ where: { name: "Nadia T." } })).toBe(0);
   });
 
+  it("her içerik alanının Türkçesi doludur (göç sonrası hiçbir alan boş kalmaz)", async () => {
+    await runSeed(prisma);
+
+    const settings = await prisma.settings.findUniqueOrThrow({ where: { id: 1 } });
+    for (const field of ["aboutTitleI18n", "aboutTextI18n", "whyUs1TitleI18n", "whyUs1TextI18n", "whyUs2TitleI18n", "whyUs2TextI18n", "whyUs3TitleI18n", "whyUs3TextI18n"] as const) {
+      expect(asI18nText(settings[field]).tr, field).not.toBe("");
+    }
+    for (const service of await prisma.service.findMany()) {
+      expect(asI18nText(service.nameI18n).tr).not.toBe("");
+    }
+    for (const photo of await prisma.galleryPhoto.findMany()) {
+      expect(asI18nText(photo.captionI18n).tr).not.toBe("");
+    }
+  });
+
+  it("hizmet adları /en ve /fr'de kendi dillerinde görünür", async () => {
+    await runSeed(prisma);
+
+    expect((await getActiveServices("en")).map((s) => s.name)).toContain("Haircut");
+    expect((await getActiveServices("fr")).map((s) => s.name)).toContain("Coupe de cheveux");
+    expect((await getActiveServices("tr")).map((s) => s.name)).toContain("Saç Kesimi");
+  });
+
   it("her seed fotoğrafı sabit kategori listesinden 1–3 etiket taşır", () => {
     for (const g of DEFAULT_GALLERY) {
       expect(g.tags.length).toBeGreaterThanOrEqual(1);
@@ -148,8 +208,8 @@ describe("runSeed", () => {
     const legacy = await prisma.galleryPhoto.create({
       data: {
         storageKey: LEGACY_GALLERY_KEYS[0],
-        caption: "Admin başlığı",
-        tags: ["Afro"],
+        captionI18n: { tr: "Admin başlığı" },
+        tags: ["afro"],
         width: 1600,
         height: 1067,
         sortOrder: 3,
@@ -161,8 +221,8 @@ describe("runSeed", () => {
     const after = await prisma.galleryPhoto.findUniqueOrThrow({ where: { id: legacy.id } });
     expect(after.isActive).toBe(false);
     // Satır ve admin verisi korunur: yalnızca yayından kaldırılır.
-    expect(after.caption).toBe("Admin başlığı");
-    expect(after.tags).toEqual(["Afro"]);
+    expect(after.captionI18n).toEqual({ tr: "Admin başlığı" });
+    expect(after.tags).toEqual(["afro"]);
     expect(after.sortOrder).toBe(3);
   });
 
@@ -170,7 +230,7 @@ describe("runSeed", () => {
     const uploaded = await prisma.galleryPhoto.create({
       data: {
         storageKey: "gallery/2b0a6f1c-9b3e-4e2a-8f77-1d5c6e0a9b21.jpg",
-        caption: "Panelden yüklendi",
+        captionI18n: { tr: "Panelden yüklendi" },
         tags: ["Fade"],
         width: 1200,
         height: 900,
@@ -181,13 +241,13 @@ describe("runSeed", () => {
 
     const after = await prisma.galleryPhoto.findUniqueOrThrow({ where: { id: uploaded.id } });
     expect(after.isActive).toBe(true);
-    expect(after.caption).toBe("Panelden yüklendi");
+    expect(after.captionI18n).toEqual({ tr: "Panelden yüklendi" });
     expect(after.tags).toEqual(["Fade"]);
   });
 
   it("pasifleştirme idempotenttir: ikinci çalıştırmada satır sayısı ve durum değişmez", async () => {
     await prisma.galleryPhoto.create({
-      data: { storageKey: LEGACY_GALLERY_KEYS[1], tags: ["Afro"], width: 1600, height: 1067 },
+      data: { storageKey: LEGACY_GALLERY_KEYS[1], tags: ["afro"], width: 1600, height: 1067 },
     });
 
     await runSeed(prisma);
@@ -209,7 +269,7 @@ describe("runSeed", () => {
     const row = await prisma.galleryPhoto.create({
       data: {
         storageKey: "landing/gallery-1.jpg",
-        caption: legacy.caption,
+        captionI18n: { tr: legacy.caption },
         tags: legacy.tags,
         width: 1367,
         height: 1367,
@@ -221,7 +281,7 @@ describe("runSeed", () => {
 
     const migrated = await prisma.galleryPhoto.findUniqueOrThrow({ where: { id: row.id } });
     const target = DEFAULT_GALLERY.find((g) => g.file === "gallery-1.jpg")!;
-    expect(migrated.caption).toBe(target.caption);
+    expect(migrated.captionI18n).toEqual(target.caption);
     expect(migrated.tags).toEqual(target.tags);
     // Serbest "Fade" etiketi artık hiçbir aktif fotoğrafta yok.
     const active = await prisma.galleryPhoto.findMany({ where: { isActive: true }, select: { tags: true } });
@@ -233,7 +293,7 @@ describe("runSeed", () => {
     const row = await prisma.galleryPhoto.create({
       data: {
         storageKey: "landing/gallery-1.jpg",
-        caption: "Ahmet'in kesimi",
+        captionI18n: { tr: "Ahmet'in kesimi" },
         tags: legacy.tags,
         width: 1367,
         height: 1367,
@@ -243,7 +303,7 @@ describe("runSeed", () => {
     await runSeed(prisma);
 
     const untouched = await prisma.galleryPhoto.findUniqueOrThrow({ where: { id: row.id } });
-    expect(untouched.caption).toBe("Ahmet'in kesimi");
+    expect(untouched.captionI18n).toEqual({ tr: "Ahmet'in kesimi" });
     expect(untouched.tags).toEqual(legacy.tags);
   });
 
@@ -252,7 +312,7 @@ describe("runSeed", () => {
     const row = await prisma.galleryPhoto.create({
       data: {
         storageKey: "landing/gallery-1.jpg",
-        caption: legacy.caption,
+        captionI18n: { tr: legacy.caption },
         tags: ["Fade"],
         width: 1367,
         height: 1367,
@@ -263,13 +323,13 @@ describe("runSeed", () => {
 
     const untouched = await prisma.galleryPhoto.findUniqueOrThrow({ where: { id: row.id } });
     expect(untouched.tags).toEqual(["Fade"]);
-    expect(untouched.caption).toBe(legacy.caption);
+    expect(untouched.captionI18n).toEqual({ tr: legacy.caption });
   });
 
   it("taşıma idempotenttir: ikinci çalıştırma taşınmış satırı geri almaz", async () => {
     const legacy = LEGACY_GALLERY_DEFAULTS["landing/gallery-1.jpg"];
     const row = await prisma.galleryPhoto.create({
-      data: { storageKey: "landing/gallery-1.jpg", caption: legacy.caption, tags: legacy.tags, width: 1367, height: 1367 },
+      data: { storageKey: "landing/gallery-1.jpg", captionI18n: { tr: legacy.caption }, tags: legacy.tags, width: 1367, height: 1367 },
     });
 
     await runSeed(prisma);
@@ -277,7 +337,7 @@ describe("runSeed", () => {
 
     const target = DEFAULT_GALLERY.find((g) => g.file === "gallery-1.jpg")!;
     const after = await prisma.galleryPhoto.findUniqueOrThrow({ where: { id: row.id } });
-    expect(after.caption).toBe(target.caption);
+    expect(after.captionI18n).toEqual(target.caption);
     expect(after.tags).toEqual(target.tags);
     expect(await prisma.galleryPhoto.count()).toBe(DEFAULT_GALLERY.length);
   });

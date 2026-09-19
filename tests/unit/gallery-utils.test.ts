@@ -9,9 +9,9 @@ import {
 } from "@/lib/gallery-utils";
 
 const photos = [
-  { id: "1", tags: ["Fade", "Line-up"] },
-  { id: "2", tags: ["Afro"] },
-  { id: "3", tags: ["Fade", "Sakal"] },
+  { id: "1", tags: ["Fade", "line-up"] },
+  { id: "2", tags: ["afro"] },
+  { id: "3", tags: ["Fade", "beard"] },
   { id: "4", tags: [] },
 ];
 
@@ -23,7 +23,7 @@ describe("filterByTag", () => {
 
   it("etikete göre süzer", () => {
     expect(filterByTag(photos, "Fade").map((p) => p.id)).toEqual(["1", "3"]);
-    expect(filterByTag(photos, "Afro").map((p) => p.id)).toEqual(["2"]);
+    expect(filterByTag(photos, "afro").map((p) => p.id)).toEqual(["2"]);
   });
 
   it("bilinmeyen etikette boş liste döner", () => {

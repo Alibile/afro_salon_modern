@@ -23,7 +23,9 @@ import { useActionError } from "@/lib/use-action-error";
  */
 export function LanguageForm() {
   const t = useTranslations("panel.profile");
-  const tc = useTranslations("common");
+  // Seçenekler her dilde dilin **kendi** adını taşır ("Türkçe", "English",
+  // "Français"): Fransızca paneldeki bir kullanıcı da aradığı dili tanır.
+  const tc = useTranslations("common.endonyms");
   const showError = useActionError();
   const current = useLocale() as AppLocale;
   const [pending, start] = useTransition();
@@ -55,7 +57,7 @@ export function LanguageForm() {
       >
         {routing.locales.map((locale) => (
           <option key={locale} value={locale}>
-            {tc(`languages.${locale}`)}
+            {tc(locale)}
           </option>
         ))}
       </select>

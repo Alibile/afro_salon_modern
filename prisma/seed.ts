@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
+import { pick, sameI18nText, type I18nText } from "../src/lib/i18n-content";
 
 const DEFAULT_HOURS = [0, 1, 2, 3, 4, 5, 6].map((d) => ({
   dayOfWeek: d,
@@ -14,24 +15,59 @@ const DEFAULT_HOURS = [0, 1, 2, 3, 4, 5, 6].map((d) => ({
 
 const DEFAULT_SEED_PASSWORD = "Sifre123!";
 
+/**
+ * Site metinleri üç dilde birden gelir (Tur 5, Task 4). Türkçe kaynak metindir;
+ * İngilizce ve Fransızca aynı tonu taşır, kelimesi kelimesine çeviri değildir.
+ */
 export const DEFAULT_LANDING_CONTENT = {
   email: "info@afrosalonmodern.com",
   instagram: "https://instagram.com/afrosalonmodern",
   facebook: "https://facebook.com/afrosalonmodern",
   whatsapp: "905550000000",
   mapsUrl: "https://maps.google.com/?q=Afro+Salon+Modern+Istanbul",
-  aboutTitle: "Benzersiz bir deneyim",
-  aboutText:
-    "Afro Salon Modern, erkeklere özel afro saç sanatını İstanbul'un kalbine taşıyor. Fade, örgü, twist ve bakımda ustalaşmış ekibimizle her kesim kişiye özel planlanır. Randevu yalnızca bugün için alınır; beklemeden, sırasız.",
-  whyUs1Title: "Usta berberler",
-  whyUs1Text: "Afro saç dokusunda yılların deneyimi; her kesim yüz hatlarına göre planlanır.",
-  whyUs2Title: "Premium ürünler",
-  whyUs2Text: "Saç ve cilde uygun, test edilmiş profesyonel ürünler.",
-  whyUs3Title: "Hijyen ve temizlik",
-  whyUs3Text: "Her müşteriden sonra sterilize edilen ekipman, temiz ve ferah salon.",
+  aboutTitleI18n: {
+    tr: "Benzersiz bir deneyim",
+    en: "An experience of its own",
+    fr: "Une expérience à part",
+  },
+  aboutTextI18n: {
+    tr: "Afro Salon Modern, erkeklere özel afro saç sanatını İstanbul'un kalbine taşıyor. Fade, örgü, twist ve bakımda ustalaşmış ekibimizle her kesim kişiye özel planlanır. Randevu yalnızca bugün için alınır; beklemeden, sırasız.",
+    en: "Afro Salon Modern brings the art of afro hair for men to the heart of Istanbul. Our team knows fades, braids, twists and grooming inside out, and every cut is planned around the man in the chair. Booking is for today only — no queue, no waiting.",
+    fr: "Afro Salon Modern amène l'art du cheveu afro pour homme au cœur d'Istanbul. Notre équipe maîtrise le dégradé, les tresses, les twists et le soin, et chaque coupe est pensée pour celui qui s'assoit dans le fauteuil. La réservation se fait pour le jour même : sans file, sans attente.",
+  },
+  whyUs1TitleI18n: { tr: "Usta berberler", en: "Master barbers", fr: "Des barbiers d'expérience" },
+  whyUs1TextI18n: {
+    tr: "Afro saç dokusunda yılların deneyimi; her kesim yüz hatlarına göre planlanır.",
+    en: "Years of hands-on work with afro hair texture; every cut follows the shape of your face.",
+    fr: "Des années de pratique sur le cheveu afro ; chaque coupe suit les traits du visage.",
+  },
+  whyUs2TitleI18n: { tr: "Premium ürünler", en: "Premium products", fr: "Des produits haut de gamme" },
+  whyUs2TextI18n: {
+    tr: "Saç ve cilde uygun, test edilmiş profesyonel ürünler.",
+    en: "Professional products we have tested ourselves, kind to hair and skin alike.",
+    fr: "Des produits professionnels éprouvés, respectueux du cheveu comme de la peau.",
+  },
+  whyUs3TitleI18n: { tr: "Hijyen ve temizlik", en: "Clean and hygienic", fr: "Hygiène et propreté" },
+  whyUs3TextI18n: {
+    tr: "Her müşteriden sonra sterilize edilen ekipman, temiz ve ferah salon.",
+    en: "Tools sterilised after every client, in a salon that stays bright and clean.",
+    fr: "Des outils stérilisés après chaque client, dans un salon clair et net.",
+  },
   satisfactionPercent: 99,
   yearsExperience: 10,
 };
+
+/** Üç dilli site metni alanlarının adları; seed hepsini aynı kurala göre işler. */
+const CONTENT_FIELDS = [
+  "aboutTitleI18n",
+  "aboutTextI18n",
+  "whyUs1TitleI18n",
+  "whyUs1TextI18n",
+  "whyUs2TitleI18n",
+  "whyUs2TextI18n",
+  "whyUs3TitleI18n",
+  "whyUs3TextI18n",
+] as const;
 
 /**
  * Galerinin başlangıç içeriği: `public/landing/` altındaki stok fotoğraflar.
@@ -39,29 +75,29 @@ export const DEFAULT_LANDING_CONTENT = {
  * `storageKey` benzersiz kabul edilir: seed tekrar çalışsa da satır çoğalmaz,
  * panelden düzenlenmiş başlık/etiketlerin üzerine yazılmaz.
  */
-export const DEFAULT_GALLERY = [
-  { file: "gallery-9.jpg", width: 1066, height: 1600, caption: "Yüksek üst, keskin taper", tags: ["Taper Fade", "Line-up", "Sakal"] },
-  { file: "gallery-22.jpg", width: 1066, height: 1600, caption: "Skin fade ve sakal birleşimi", tags: ["Skin Fade", "Düz Saç", "Sakal"] },
-  { file: "gallery-10.jpg", width: 1600, height: 1067, caption: "Low taper ve sakal hattı", tags: ["Low Taper Fade", "Sakal"] },
-  { file: "gallery-24.jpg", width: 1066, height: 1600, caption: "Jiletle çekilmiş hat", tags: ["Skin Fade", "Line-up", "Sakal"] },
-  { file: "gallery-19.jpg", width: 1600, height: 1600, caption: "Sıfıra inen skin fade", tags: ["Skin Fade", "Kısa Saç"] },
-  { file: "gallery-1.jpg", width: 1367, height: 1367, caption: "Keskin geçişli taper fade", tags: ["Taper Fade", "Line-up", "Düz Saç"] },
-  { file: "gallery-12.jpg", width: 1600, height: 1067, caption: "Kıvırcık üst, alçak geçiş", tags: ["Low Taper Fade", "Kıvırcık"] },
-  { file: "gallery-17.jpg", width: 1143, height: 1600, caption: "Ensede taper ve temiz hat", tags: ["Taper Fade", "Line-up"] },
-  { file: "gallery-23.jpg", width: 1280, height: 1600, caption: "Kısa kesim ve alın hattı", tags: ["Line-up", "Kısa Saç"] },
-  { file: "gallery-27.jpg", width: 1280, height: 1600, caption: "Örgü ve şakakta geçiş", tags: ["Örgü", "Taper Fade"] },
-  { file: "gallery-13.jpg", width: 1600, height: 1067, caption: "Makineyle taper geçişi", tags: ["Taper Fade", "Kıvırcık"] },
-  { file: "gallery-20.jpg", width: 1600, height: 1067, caption: "Dokulu perçem, net hat", tags: ["Textured Fringe", "Line-up"] },
-  { file: "gallery-11.jpg", width: 1066, height: 1600, caption: "Taze low taper, temiz ense", tags: ["Low Taper Fade", "Kısa Saç"] },
-  { file: "gallery-21.jpg", width: 1600, height: 1600, caption: "Tarakla fade kontrolü", tags: ["Skin Fade", "Textured Fringe"] },
-  { file: "gallery-15.jpg", width: 1066, height: 1600, caption: "Alın hattında line-up", tags: ["Line-up", "Sakal"] },
-  { file: "gallery-26.jpg", width: 1600, height: 1067, caption: "Afro tarağıyla şekillendirme", tags: ["Afro", "Kıvırcık"] },
-  { file: "gallery-14.jpg", width: 1600, height: 1067, caption: "Kıvırcık üstte makas işi", tags: ["Kıvırcık", "Taper Fade"] },
-  { file: "gallery-18.jpg", width: 1066, height: 1600, caption: "Kulak çevresinde geçiş", tags: ["Taper Fade", "Kıvırcık"] },
-  { file: "gallery-25.jpg", width: 1600, height: 1067, caption: "Sakalda son rötuş", tags: ["Sakal"] },
-  { file: "gallery-16.jpg", width: 1600, height: 1067, caption: "Afroda makas düzeltmesi", tags: ["Afro"] },
-  { file: "gallery-2.jpg", width: 1280, height: 1600, caption: "Twist ve dolgun sakal", tags: ["Twist", "Sakal"] },
-  { file: "gallery-28.jpg", width: 1066, height: 1600, caption: "Yüksek skin fade, düz üst", tags: ["Skin Fade", "Buzz Cut"] },
+export const DEFAULT_GALLERY: { file: string; width: number; height: number; caption: I18nText; tags: string[] }[] = [
+  { file: "gallery-9.jpg", width: 1066, height: 1600, caption: { tr: "Yüksek üst, keskin taper", en: "High on top, sharp taper", fr: "Volume sur le dessus, taper net" }, tags: ["taper-fade", "line-up", "beard"] },
+  { file: "gallery-22.jpg", width: 1066, height: 1600, caption: { tr: "Skin fade ve sakal birleşimi", en: "Skin fade blended into the beard", fr: "Skin fade fondu dans la barbe" }, tags: ["skin-fade", "straight", "beard"] },
+  { file: "gallery-10.jpg", width: 1600, height: 1067, caption: { tr: "Low taper ve sakal hattı", en: "Low taper with a clean beard line", fr: "Low taper et ligne de barbe nette" }, tags: ["low-taper-fade", "beard"] },
+  { file: "gallery-24.jpg", width: 1066, height: 1600, caption: { tr: "Jiletle çekilmiş hat", en: "Razor-sharp line", fr: "Ligne tracée au rasoir" }, tags: ["skin-fade", "line-up", "beard"] },
+  { file: "gallery-19.jpg", width: 1600, height: 1600, caption: { tr: "Sıfıra inen skin fade", en: "Skin fade down to zero", fr: "Skin fade descendu à zéro" }, tags: ["skin-fade", "short"] },
+  { file: "gallery-1.jpg", width: 1367, height: 1367, caption: { tr: "Keskin geçişli taper fade", en: "Taper fade with a sharp blend", fr: "Taper fade au fondu net" }, tags: ["taper-fade", "line-up", "straight"] },
+  { file: "gallery-12.jpg", width: 1600, height: 1067, caption: { tr: "Kıvırcık üst, alçak geçiş", en: "Curly on top, low blend", fr: "Boucles sur le dessus, fondu bas" }, tags: ["low-taper-fade", "curly"] },
+  { file: "gallery-17.jpg", width: 1143, height: 1600, caption: { tr: "Ensede taper ve temiz hat", en: "Taper at the nape, clean line", fr: "Taper sur la nuque, ligne nette" }, tags: ["taper-fade", "line-up"] },
+  { file: "gallery-23.jpg", width: 1280, height: 1600, caption: { tr: "Kısa kesim ve alın hattı", en: "Short cut with a fresh hairline", fr: "Coupe courte et ligne frontale nette" }, tags: ["line-up", "short"] },
+  { file: "gallery-27.jpg", width: 1280, height: 1600, caption: { tr: "Örgü ve şakakta geçiş", en: "Braids with a taper at the temple", fr: "Tresses et fondu sur les tempes" }, tags: ["braids", "taper-fade"] },
+  { file: "gallery-13.jpg", width: 1600, height: 1067, caption: { tr: "Makineyle taper geçişi", en: "Taper blended with the clipper", fr: "Fondu taper à la tondeuse" }, tags: ["taper-fade", "curly"] },
+  { file: "gallery-20.jpg", width: 1600, height: 1067, caption: { tr: "Dokulu perçem, net hat", en: "Textured fringe, crisp line", fr: "Frange texturée, ligne nette" }, tags: ["textured-fringe", "line-up"] },
+  { file: "gallery-11.jpg", width: 1066, height: 1600, caption: { tr: "Taze low taper, temiz ense", en: "Fresh low taper, clean nape", fr: "Low taper frais, nuque nette" }, tags: ["low-taper-fade", "short"] },
+  { file: "gallery-21.jpg", width: 1600, height: 1600, caption: { tr: "Tarakla fade kontrolü", en: "Checking the fade with a comb", fr: "Contrôle du fondu au peigne" }, tags: ["skin-fade", "textured-fringe"] },
+  { file: "gallery-15.jpg", width: 1066, height: 1600, caption: { tr: "Alın hattında line-up", en: "Line-up along the hairline", fr: "Line-up sur la ligne frontale" }, tags: ["line-up", "beard"] },
+  { file: "gallery-26.jpg", width: 1600, height: 1067, caption: { tr: "Afro tarağıyla şekillendirme", en: "Shaping with the afro pick", fr: "Mise en forme au peigne afro" }, tags: ["afro", "curly"] },
+  { file: "gallery-14.jpg", width: 1600, height: 1067, caption: { tr: "Kıvırcık üstte makas işi", en: "Scissor work on a curly top", fr: "Travail aux ciseaux sur le dessus bouclé" }, tags: ["curly", "taper-fade"] },
+  { file: "gallery-18.jpg", width: 1066, height: 1600, caption: { tr: "Kulak çevresinde geçiş", en: "Blending around the ear", fr: "Fondu autour de l'oreille" }, tags: ["taper-fade", "curly"] },
+  { file: "gallery-25.jpg", width: 1600, height: 1067, caption: { tr: "Sakalda son rötuş", en: "Finishing touch on the beard", fr: "Dernière retouche de la barbe" }, tags: ["beard"] },
+  { file: "gallery-16.jpg", width: 1600, height: 1067, caption: { tr: "Afroda makas düzeltmesi", en: "Evening out an afro with scissors", fr: "Égalisation de l'afro aux ciseaux" }, tags: ["afro"] },
+  { file: "gallery-2.jpg", width: 1280, height: 1600, caption: { tr: "Twist ve dolgun sakal", en: "Twists and a full beard", fr: "Twists et barbe fournie" }, tags: ["twist", "beard"] },
+  { file: "gallery-28.jpg", width: 1066, height: 1600, caption: { tr: "Yüksek skin fade, düz üst", en: "High skin fade, flat top", fr: "Skin fade haut, dessus plat" }, tags: ["skin-fade", "buzz-cut"] },
 ];
 
 /**
@@ -88,13 +124,25 @@ export const LEGACY_GALLERY_KEYS = [
  * Başlık ya da etiketlerden biri farklıysa (panelden düzenlenmiş) hiç dokunulmaz.
  */
 export const LEGACY_GALLERY_DEFAULTS: Record<string, { caption: string; tags: string[] }> = {
-  "landing/gallery-1.jpg": { caption: "Keskin geçişli fade", tags: ["Fade", "Line-up"] },
-  "landing/gallery-2.jpg": { caption: "Twist ve dolgun sakal", tags: ["Twist", "Sakal"] },
+  // Etiketler Task 4 göçünde anahtara çevrildi ("Line-up" → "line-up"); sabit
+  // listede olmayan "Fade" serbest etiket olduğu için olduğu gibi kaldı.
+  "landing/gallery-1.jpg": { caption: "Keskin geçişli fade", tags: ["Fade", "line-up"] },
+  "landing/gallery-2.jpg": { caption: "Twist ve dolgun sakal", tags: ["twist", "beard"] },
 };
 
 /** Etiket dizilerinin sıra dahil birebir eşitliği. */
 function sameTags(a: string[], b: string[]): boolean {
   return a.length === b.length && a.every((tag, i) => tag === b[i]);
+}
+
+/**
+ * Bir içerik alanı hâlâ seed'in yazdığı Türkçe varsayılanla mı duruyor?
+ * Tur 5'ten önce alanlar tek dilliydi; göç onları `{tr: <eski>}` yaptı. Satır
+ * **birebir** o hâldeyse (çeviri de eklenmemişse) admin hiç dokunmamış
+ * demektir ve seed çevirileri doldurabilir. Tek bir harf farklıysa dokunulmaz.
+ */
+function untranslatedDefault(current: unknown, target: I18nText): boolean {
+  return sameI18nText(current, { tr: target.tr });
 }
 
 const DEFAULT_TESTIMONIALS = [
@@ -135,12 +183,22 @@ export async function runSeed(client: PrismaClient) {
     create: { id: 1, shopName: "Afro Salon Modern", address: "İstanbul", phone: "+90 555 000 00 00", ...DEFAULT_LANDING_CONTENT },
   });
   // Var olan geliştirme veritabanlarında içerik alanları boşsa varsayılanlarla doldur (idempotent).
-  if (settings.aboutText.trim() === "") {
+  const aboutText = pick(settings.aboutTextI18n, "tr");
+  if (aboutText.trim() === "") {
     await client.settings.update({ where: { id: 1 }, data: DEFAULT_LANDING_CONTENT });
-  } else if (settings.aboutText.trim() === LEGACY_ABOUT_TEXT.trim()) {
-    // Metin hâlâ Tur 3 öncesi varsayılansa (admin hiç değiştirmemiş) yeni erkek odaklı
-    // varsayılana taşı; yalnızca bu alanı güncelle, diğer içerik alanlarına dokunma.
-    await client.settings.update({ where: { id: 1 }, data: { aboutText: DEFAULT_LANDING_CONTENT.aboutText } });
+  } else {
+    // Tur 5 göçü alanları `{tr: <eski>}` yaptı: hâlâ birebir seed varsayılanı
+    // olan (yani admin hiç düzenlememiş) alanlara çevirileri ekle. Tek harfi
+    // bile değişmiş bir alana dokunulmaz.
+    const fill: Record<string, I18nText> = {};
+    for (const field of CONTENT_FIELDS) {
+      const target = DEFAULT_LANDING_CONTENT[field];
+      if (untranslatedDefault(settings[field], target)) fill[field] = target;
+    }
+    // Metin hâlâ Tur 3 öncesi varsayılansa (admin hiç değiştirmemiş) yeni erkek
+    // odaklı varsayılana taşı; öbür içerik alanları yukarıdaki kurala tabidir.
+    if (aboutText.trim() === LEGACY_ABOUT_TEXT.trim()) fill.aboutTextI18n = DEFAULT_LANDING_CONTENT.aboutTextI18n;
+    if (Object.keys(fill).length > 0) await client.settings.update({ where: { id: 1 }, data: fill });
   }
 
   await client.user.upsert({
@@ -187,15 +245,22 @@ export async function runSeed(client: PrismaClient) {
     }
   }
 
-  const services = [
-    { name: "Saç Kesimi", durationMinutes: 30, priceKurus: 40000, sortOrder: 1 },
-    { name: "Sakal", durationMinutes: 15, priceKurus: 20000, sortOrder: 2 },
-    { name: "Saç + Sakal", durationMinutes: 45, priceKurus: 55000, sortOrder: 3 },
-    { name: "Örgü / Twist", durationMinutes: 90, priceKurus: 120000, sortOrder: 4 },
+  const services: { nameI18n: I18nText; durationMinutes: number; priceKurus: number; sortOrder: number }[] = [
+    { nameI18n: { tr: "Saç Kesimi", en: "Haircut", fr: "Coupe de cheveux" }, durationMinutes: 30, priceKurus: 40000, sortOrder: 1 },
+    { nameI18n: { tr: "Sakal", en: "Beard trim", fr: "Taille de barbe" }, durationMinutes: 15, priceKurus: 20000, sortOrder: 2 },
+    { nameI18n: { tr: "Saç + Sakal", en: "Haircut + beard", fr: "Coupe + barbe" }, durationMinutes: 45, priceKurus: 55000, sortOrder: 3 },
+    { nameI18n: { tr: "Örgü / Twist", en: "Braids / Twists", fr: "Tresses / Twists" }, durationMinutes: 90, priceKurus: 120000, sortOrder: 4 },
   ];
+  // Hizmet adı artık `Json`: kimlik hâlâ Türkçe addır (eşleştirme onun üzerinden
+  // yapılır), ama satır hâlâ çevirisiz varsayılansa çeviriler doldurulur.
+  const existingServices = await client.service.findMany();
   for (const s of services) {
-    const exists = await client.service.findFirst({ where: { name: s.name } });
-    if (!exists) await client.service.create({ data: s });
+    const exists = existingServices.find((row) => pick(row.nameI18n, "tr") === s.nameI18n.tr);
+    if (!exists) {
+      await client.service.create({ data: s });
+    } else if (untranslatedDefault(exists.nameI18n, s.nameI18n)) {
+      await client.service.update({ where: { id: exists.id }, data: { nameI18n: s.nameI18n } });
+    }
   }
   for (const t of DEFAULT_TESTIMONIALS) {
     if (t.name === "Derrick B.") {
@@ -232,7 +297,7 @@ export async function runSeed(client: PrismaClient) {
     const exists = await client.galleryPhoto.findFirst({ where: { storageKey } });
     if (!exists) {
       await client.galleryPhoto.create({
-        data: { storageKey, caption: g.caption, tags: g.tags, width: g.width, height: g.height, sortOrder: i },
+        data: { storageKey, captionI18n: g.caption, tags: g.tags, width: g.width, height: g.height, sortOrder: i },
       });
     } else {
       if (exists.width !== g.width || exists.height !== g.height) {
@@ -240,10 +305,14 @@ export async function runSeed(client: PrismaClient) {
       }
       // Başlık/etiket hâlâ Tur 3 varsayılansa (admin hiç düzenlememiş) yeni metne taşı.
       const legacy = LEGACY_GALLERY_DEFAULTS[storageKey];
-      const untouched = legacy !== undefined && exists.caption === legacy.caption && sameTags(exists.tags, legacy.tags);
-      const differs = exists.caption !== g.caption || !sameTags(exists.tags, g.tags);
+      const untouched =
+        legacy !== undefined && sameI18nText(exists.captionI18n, { tr: legacy.caption }) && sameTags(exists.tags, legacy.tags);
+      const differs = !sameI18nText(exists.captionI18n, g.caption) || !sameTags(exists.tags, g.tags);
       if (untouched && differs) {
-        await client.galleryPhoto.update({ where: { id: exists.id }, data: { caption: g.caption, tags: g.tags } });
+        await client.galleryPhoto.update({ where: { id: exists.id }, data: { captionI18n: g.caption, tags: g.tags } });
+      } else if (untranslatedDefault(exists.captionI18n, g.caption)) {
+        // Başlık hâlâ birebir güncel Türkçe varsayılan: çevirileri ekle.
+        await client.galleryPhoto.update({ where: { id: exists.id }, data: { captionI18n: g.caption } });
       }
     }
   }

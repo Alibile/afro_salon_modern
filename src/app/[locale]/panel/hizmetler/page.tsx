@@ -6,9 +6,11 @@ import { ServiceRow } from "@/components/panel/ServiceRow";
 
 export const dynamic = "force-dynamic";
 
-export default async function HizmetlerPage() {
+export default async function HizmetlerPage({ params }: { params: Promise<{ locale: string }> }) {
   await requireAdmin();
-  const services = await listServicesForAdmin();
+  const { locale } = await params;
+  // Liste panel kullanıcısının dilinde okunur; form üç sekmeyi ham içerikten doldurur.
+  const services = await listServicesForAdmin(locale);
   const t = await getTranslations("panel.services");
   return (
     <div className="space-y-6">

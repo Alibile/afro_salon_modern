@@ -8,10 +8,13 @@ import { shopStatusText } from "@/lib/shop-status";
 
 export const dynamic = "force-dynamic";
 
-export default async function RandevuPage(props: { searchParams: Promise<{ s?: string; b?: string; t?: string }> }) {
-  const sp = await props.searchParams;
+export default async function RandevuPage(props: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ s?: string; b?: string; t?: string }>;
+}) {
+  const [sp, { locale }] = await Promise.all([props.searchParams, props.params]);
   const [services, barbers, settings, user, status, t, tStatus] = await Promise.all([
-    getActiveServices(),
+    getActiveServices(locale),
     getActiveBarbers(),
     getSettings(),
     getSessionUser(),

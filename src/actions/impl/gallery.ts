@@ -47,7 +47,11 @@ export async function updateGalleryPhotoAs(
   const existing = await prisma.galleryPhoto.findUnique({ where: { id } });
   if (!existing) return fail("errors.photoNotFound");
   // Yalnızca gönderilen alanlar yazılır; örneğin aktif/pasif düğmesi başlığa ve etiketlere dokunmaz.
-  await prisma.galleryPhoto.update({ where: { id }, data: parsed.data });
+  const { caption, ...rest } = parsed.data;
+  await prisma.galleryPhoto.update({
+    where: { id },
+    data: caption === undefined ? rest : { ...rest, captionI18n: caption },
+  });
   return ok(undefined);
 }
 

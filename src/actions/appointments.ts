@@ -9,7 +9,7 @@ import { sendAppointmentConfirmed, sendAppointmentCancelled, sendNewAppointmentT
 export async function createAppointment(input: CreateAppointmentInput): Promise<ActionResult<{ id: string }>> {
   const user = await getSessionUser();
   if (!user) return fail("errors.loginRequiredToBook");
-  const r = await createAppointmentFor(user.id, new Date(), input);
+  const r = await createAppointmentFor(user, new Date(), input);
   if (r.ok) await Promise.all([sendAppointmentConfirmed(r.data.id), sendNewAppointmentToBarber(r.data.id)]);
   return r;
 }

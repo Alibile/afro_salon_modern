@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { i18nText } from "@/lib/i18n-content";
 
 /** Instagram: @ ile başlayan veya çıplak kullanıcı adı https://instagram.com/<ad>'a normalize edilir; URL olduğu gibi kalır. */
 function normalizeInstagram(value: string): string {
@@ -34,14 +35,15 @@ export const settingsSchema = z.object({
   ),
   mapsUrl: trimmedText().pipe(z.url({ protocol: HTTP_PROTOCOL, error: "errors.invalidMapsUrl" }).or(z.literal(""))),
 
-  aboutTitle: z.string().trim().max(100),
-  aboutText: z.string().trim().max(500),
-  whyUs1Title: z.string().trim().max(60),
-  whyUs1Text: z.string().trim().max(500),
-  whyUs2Title: z.string().trim().max(60),
-  whyUs2Text: z.string().trim().max(500),
-  whyUs3Title: z.string().trim().max(60),
-  whyUs3Text: z.string().trim().max(500),
+  // Site metinleri üç dilde girilir; hiçbiri zorunlu değil (boş bölüm hiç basılmaz).
+  aboutTitle: i18nText({ max: 100 }),
+  aboutText: i18nText({ max: 500 }),
+  whyUs1Title: i18nText({ max: 60 }),
+  whyUs1Text: i18nText({ max: 500 }),
+  whyUs2Title: i18nText({ max: 60 }),
+  whyUs2Text: i18nText({ max: 500 }),
+  whyUs3Title: i18nText({ max: 60 }),
+  whyUs3Text: i18nText({ max: 500 }),
   satisfactionPercent: z.coerce.number().int().min(0).max(100),
   yearsExperience: z.coerce.number().int().min(0).max(100),
 });

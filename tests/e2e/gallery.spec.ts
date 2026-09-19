@@ -19,7 +19,7 @@ test.describe("landing galeri", () => {
 
     await filters.getByRole("button", { name: /^Afro/ }).click();
     await expect(cards).toHaveCount(AFRO_COUNT);
-    await expect(page).toHaveURL(/etiket=Afro/);
+    await expect(page).toHaveURL(/etiket=afro/);
 
     await filters.getByRole("button", { name: /^Tümü/ }).click();
     await expect(cards).toHaveCount(PAGE_SIZE);
@@ -52,12 +52,24 @@ test.describe("landing galeri", () => {
     await lowTaper.click();
     await expect(lowTaper).toHaveAttribute("aria-pressed", "true");
     await expect(cards).toHaveCount(LOW_TAPER_COUNT);
-    await expect(page).toHaveURL(/etiket=Low\+Taper\+Fade/);
+    await expect(page).toHaveURL(/etiket=low-taper-fade/);
+  });
+
+  test("çipler ziyaretçinin dilinde adlandırılır, anahtar adres satırında sabit kalır", async ({ page }) => {
+    await page.goto("/en");
+    const gallery = page.locator("#galeri");
+    const filters = gallery.getByRole("group", { name: "Filter by tag" });
+    // Türkçe "Kıvırcık" çipi İngilizcede "Curly": aynı fotoğraflar, aynı anahtar.
+    const curly = filters.getByRole("button", { name: /^Curly/ });
+    await expect(curly).toBeVisible();
+    await curly.click();
+    await expect(page).toHaveURL(/\/en\?etiket=curly/);
   });
 
   test("karta tıklayınca lightbox açılır, ok tuşuyla ilerler, Esc kapatır", async ({ page }) => {
-    // Etiket doğrudan URL'den gelir: filtre paylaşılabilir bir bağlantıdır.
-    await page.goto("/?etiket=Low+Taper+Fade");
+    // Etiket doğrudan URL'den gelir: filtre paylaşılabilir bir bağlantıdır ve
+    // anahtar dile bağlı olmadığı için üç dilde de aynı fotoğrafları açar.
+    await page.goto("/?etiket=low-taper-fade");
     const gallery = page.locator("#galeri");
     const cards = gallery.getByRole("button", { name: /büyüt$/ });
     await expect(cards).toHaveCount(LOW_TAPER_COUNT);

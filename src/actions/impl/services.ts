@@ -10,7 +10,12 @@ export async function upsertServiceAs(actor: SessionUser | null, input: ServiceI
   if (!asAdminActor(actor)) return fail("errors.notAllowed");
   const parsed = serviceSchema.safeParse(input);
   if (!parsed.success) return fail(firstIssueKey(parsed.error));
-  const data = { name: parsed.data.name, durationMinutes: parsed.data.durationMinutes, priceKurus: Math.round(parsed.data.priceLira * 100), sortOrder: parsed.data.sortOrder };
+  const data = {
+    nameI18n: parsed.data.name,
+    durationMinutes: parsed.data.durationMinutes,
+    priceKurus: Math.round(parsed.data.priceLira * 100),
+    sortOrder: parsed.data.sortOrder,
+  };
   if (input.id) {
     const existing = await prisma.service.findUnique({ where: { id: input.id } });
     if (!existing) return fail("errors.serviceNotFound");

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { normalizeTags, MAX_TAGS, TAG_MIN_LENGTH, TAG_MAX_LENGTH } from "@/lib/gallery-utils";
+import { i18nText } from "@/lib/i18n-content";
 
 /**
  * Galeri anahtarı ya presign ucunun ürettiği `gallery/<uuid>.<ext>` biçimindedir
@@ -45,7 +46,7 @@ const tagsField = z
   );
 
 export const updateGalleryPhotoSchema = z.object({
-  caption: z.string().trim().max(120, "errors.captionTooLong").optional(),
+  caption: i18nText({ max: 120, maxError: "errors.captionTooLong" }).optional(),
   tags: tagsField.optional(),
   sortOrder: z.coerce.number().int().min(0).max(9999).optional(),
   isActive: z.boolean().optional(),

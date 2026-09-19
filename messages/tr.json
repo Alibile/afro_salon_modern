@@ -7,6 +7,11 @@
       "en": "İngilizce",
       "fr": "Fransızca"
     },
+    "endonyms": {
+      "tr": "Türkçe",
+      "en": "English",
+      "fr": "Français"
+    },
     "close": "Kapat",
     "loading": "Yükleniyor…",
     "minutes": "{count} dakika",
@@ -127,6 +132,23 @@
       "submit": "Mesajı gönder",
       "sending": "Gönderiliyor…",
       "success": "Mesajınız alındı, en kısa sürede dönüş yapacağız"
+    }
+  },
+  "gallery": {
+    "tags": {
+      "low-taper-fade": "Low Taper Fade",
+      "taper-fade": "Taper Fade",
+      "skin-fade": "Skin Fade",
+      "buzz-cut": "Buzz Cut",
+      "line-up": "Line-up",
+      "curly": "Kıvırcık",
+      "straight": "Düz Saç",
+      "short": "Kısa Saç",
+      "textured-fringe": "Textured Fringe",
+      "afro": "Afro",
+      "braids": "Örgü",
+      "twist": "Twist",
+      "beard": "Sakal"
     }
   },
   "booking": {
@@ -299,6 +321,10 @@
         "CANCELLED": "İptal",
         "NO_SHOW": "Gelmedi"
       }
+    },
+    "i18nField": {
+      "tab": "{language} metni",
+      "hint": "Her metin üç dilde girilir. Türkçe kaynak metindir; İngilizce ya da Fransızca boş bırakılırsa ziyaretçi o alanın Türkçesini görür."
     },
     "today": {
       "heading": "Bugün · {date}",

@@ -66,6 +66,29 @@ test.describe("müşteri yüzü çevirileri", () => {
     await expect(page.getByRole("heading", { name: "1. Choisir une prestation" })).toBeVisible();
   });
 
+  // Panelden girilen içerik de üç dilli (Tur 5, Task 4): hizmet adı, hakkımızda
+  // metni ve galeri etiketleri seed'de İngilizceleriyle birlikte gelir.
+  test("İngilizce ana sayfa hizmet adlarını ve içeriği İngilizce basar", async ({ page }) => {
+    await page.goto("/en");
+    const services = page.locator("#hizmetler");
+    await expect(services.getByText("Haircut", { exact: true })).toBeVisible();
+    await expect(services.getByText("Braids / Twists", { exact: true })).toBeVisible();
+    // Türkçe kaynak metin İngilizce sayfada görünmemeli.
+    await expect(services.getByText("Saç Kesimi")).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "An experience of its own" })).toBeVisible();
+  });
+
+  test("Fransızca ana sayfa hizmet adlarını Fransızca basar", async ({ page }) => {
+    await page.goto("/fr");
+    await expect(page.locator("#hizmetler").getByText("Coupe de cheveux", { exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Une expérience à part" })).toBeVisible();
+  });
+
+  test("İngilizce randevu sihirbazı hizmetleri İngilizce listeler", async ({ page }) => {
+    await page.goto("/en/randevu");
+    await expect(page.getByRole("button", { name: /Haircut \+ beard/ })).toBeVisible();
+  });
+
   test("İngilizce giriş formu İngilizce etiketler taşır", async ({ page }) => {
     await page.goto("/en/giris");
     await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
@@ -80,7 +103,8 @@ test.describe.serial("İngilizce randevu akışı", () => {
 
   test("İngilizce kayıt olup bugün için randevu alır", async ({ page }) => {
     await page.goto("/en/randevu");
-    await page.getByRole("button", { name: /Saç Kesimi/ }).click();
+    // Hizmet adı artık İngilizce: aynı hizmet, ziyaretçinin dilinde.
+    await page.getByRole("button", { name: /Haircut/ }).first().click();
     await page.getByRole("button", { name: /Kwame Mensah/ }).click();
 
     const slots = page.locator('section:has(h2:text("3. Choose a time")) button');
@@ -136,14 +160,14 @@ test.describe.serial("panel çevirileri ve dil tercihi", () => {
 
     await page.goto("/en/panel/profil");
     await expect(page.getByRole("heading", { level: 1, name: "My profile" })).toBeVisible();
-    await page.getByLabel("Panel and email language").selectOption("fr");
+    await page.getByLabel("Dashboard and email language").selectOption("fr");
     await expect(page).toHaveURL("/fr/panel/profil");
     await expect(page.locator("html")).toHaveAttribute("lang", "fr");
     await expect(page.getByRole("heading", { level: 1, name: "Mon profil" })).toBeVisible();
 
     // Tercih kaydedildi: yeniden yüklemek adresi değil, seçili değeri sınar.
     await page.reload();
-    await expect(page.getByLabel("Langue du panneau et des e-mails")).toHaveValue("fr");
+    await expect(page.getByLabel("Langue de l'espace pro et des e-mails")).toHaveValue("fr");
   });
 
   test("Türkçeye geri alınır", async ({ page }) => {
@@ -153,7 +177,7 @@ test.describe.serial("panel çevirileri ve dil tercihi", () => {
     await page.getByRole("button", { name: "Se connecter" }).click();
     await expect(page).toHaveURL("/fr/panel");
     await page.goto("/fr/panel/profil");
-    await page.getByLabel("Langue du panneau et des e-mails").selectOption("tr");
+    await page.getByLabel("Langue de l'espace pro et des e-mails").selectOption("tr");
     await expect(page).toHaveURL("/panel/profil");
     await expect(page.getByRole("heading", { level: 1, name: "Profilim" })).toBeVisible();
   });

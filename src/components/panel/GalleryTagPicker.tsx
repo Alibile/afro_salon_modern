@@ -1,6 +1,6 @@
 "use client";
 import { useTranslations } from "next-intl";
-import { GALLERY_TAGS, orderTags } from "@/lib/gallery-tags";
+import { GALLERY_TAGS, orderTags, tagLabel } from "@/lib/gallery-tags";
 import { MAX_TAGS, TAG_MIN_LENGTH, TAG_MAX_LENGTH, normalizeTags } from "@/lib/gallery-utils";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,8 +9,9 @@ import { cn } from "@/lib/utils";
 /**
  * Etiket seçimi: sabit kategori listesi çip grubu olarak, altında serbest
  * etiketler için tek bir metin alanı. Liste, landing'deki çiplerle aynı
- * kaynaktan (`GALLERY_TAGS`) gelir — panelde "Low Taper Fade" yazarken harf
- * hatası yapılırsa landing'de ayrı bir çip belirirdi.
+ * kaynaktan (`GALLERY_TAGS`) gelir ve adları aynı çeviri ad alanından
+ * (`gallery.tags`) okunur — iki taraf ayrı yazsaydı aynı etiket iki ayrı çip
+ * gibi görünürdü.
  */
 export function GalleryTagPicker({
   id,
@@ -28,6 +29,9 @@ export function GalleryTagPicker({
   onCustomChange: (value: string) => void;
 }) {
   const t = useTranslations("panel.gallery");
+  // Etiket adları landing çipleriyle ortak ad alanından gelir: panelde "Örgü"
+  // seçilir, /en ziyaretçisi aynı fotoğrafı "Braids" çipinde bulur.
+  const tTag = useTranslations("gallery.tags");
   const total = selected.length + normalizeTags(custom).length;
   const full = total >= MAX_TAGS;
 
@@ -57,7 +61,7 @@ export function GalleryTagPicker({
                 !on && full && "cursor-not-allowed opacity-40 hover:border-border hover:text-muted-foreground",
               )}
             >
-              {tag}
+              {tagLabel(tag, tTag)}
             </button>
           );
         })}

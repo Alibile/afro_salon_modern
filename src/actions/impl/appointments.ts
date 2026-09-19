@@ -5,10 +5,17 @@ import { addMinutes } from "@/lib/time";
 import { getTodayAvailability } from "@/lib/queries/booking";
 import { createAppointmentSchema, type CreateAppointmentInput } from "@/schemas/booking";
 import { getSettings } from "@/lib/settings";
+import { pick } from "@/lib/i18n-content";
+import type { SessionUser } from "@/lib/auth-helpers";
 
-/** Randevuyu verilen müşteri adına ve verilen sunucu saatine göre oluşturur. */
+/**
+ * Randevuyu oturumdaki müşteri adına ve verilen sunucu saatine göre oluşturur.
+ * Hizmet adı satıra **o anki diliyle** kopyalanır (`nameSnapshot`): randevu
+ * e-postası ve "randevularım" listesi müşterinin randevuyu aldığı dilde kalır,
+ * hizmet sonradan panelden yeniden adlandırılsa bile.
+ */
 export async function createAppointmentFor(
-  customerId: string,
+  actor: SessionUser,
   now: Date,
   input: CreateAppointmentInput,
 ): Promise<ActionResult<{ id: string }>> {
@@ -32,12 +39,12 @@ export async function createAppointmentFor(
 
   try {
     const appt = await prisma.$transaction(async (tx) => {
-      const created = await tx.appointment.create({ data: { customerId, barberId, startsAt, endsAt } });
+      const created = await tx.appointment.create({ data: { customerId: actor.id, barberId, startsAt, endsAt } });
       await tx.appointmentService.createMany({
         data: services.map((s) => ({
           appointmentId: created.id,
           serviceId: s.id,
-          nameSnapshot: s.name,
+          nameSnapshot: pick(s.nameI18n, actor.locale),
           durationSnapshot: s.durationMinutes,
           priceSnapshot: s.priceKurus,
         })),

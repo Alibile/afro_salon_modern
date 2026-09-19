@@ -58,7 +58,9 @@ model Barber {
 
 model Service {
   id              String  @id @default(cuid())
-  name            String
+  /// Hizmet adı üç dilde: `{ tr, en?, fr? }` (bkz. `src/lib/i18n-content.ts`).
+  /// Türkçe kaynak metindir; çeviri yoksa ziyaretçi Türkçesini görür.
+  nameI18n        Json    @default("{\"tr\":\"\"}")
   durationMinutes Int
   priceKurus      Int
   isActive        Boolean @default(true)
@@ -154,14 +156,15 @@ model Settings {
   instagram           String @default("")
   facebook            String @default("")
   whatsapp            String @default("")
-  aboutTitle          String @default("Benzersiz bir deneyim")
-  aboutText           String @default("") @db.Text
-  whyUs1Title         String @default("")
-  whyUs1Text          String @default("") @db.Text
-  whyUs2Title         String @default("")
-  whyUs2Text          String @default("") @db.Text
-  whyUs3Title         String @default("")
-  whyUs3Text          String @default("") @db.Text
+  /// Panelden girilen site metinleri üç dilde: `{ tr, en?, fr? }`.
+  aboutTitleI18n      Json   @default("{\"tr\":\"Benzersiz bir deneyim\"}")
+  aboutTextI18n       Json   @default("{\"tr\":\"\"}")
+  whyUs1TitleI18n     Json   @default("{\"tr\":\"\"}")
+  whyUs1TextI18n      Json   @default("{\"tr\":\"\"}")
+  whyUs2TitleI18n     Json   @default("{\"tr\":\"\"}")
+  whyUs2TextI18n      Json   @default("{\"tr\":\"\"}")
+  whyUs3TitleI18n     Json   @default("{\"tr\":\"\"}")
+  whyUs3TextI18n      Json   @default("{\"tr\":\"\"}")
   satisfactionPercent Int    @default(99)
   yearsExperience     Int    @default(10)
   mapsUrl             String @default("")
@@ -183,7 +186,11 @@ model GalleryPhoto {
   /// Aynı dosya iki kez eklenemez: seed zaten anahtar üzerinden upsert eder ve
   /// silme, anahtarı depodan kaldırdığı için ikinci kayıt ölü bağlantı olurdu.
   storageKey String   @unique
-  caption    String   @default("")
+  /// Başlık üç dilde: `{ tr, en?, fr? }`.
+  captionI18n Json    @default("{\"tr\":\"\"}")
+  /// Etiketler **anahtar** olarak saklanır (`skin-fade`, `braids`); görünen
+  /// adları `messages/*.json` → `gallery.tags.*`. Listede olmayan serbest
+  /// etiketler yazıldığı gibi durur ve her dilde öyle görünür.
   tags       String[] @default([])
   width      Int
   height     Int

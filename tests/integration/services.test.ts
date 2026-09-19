@@ -8,31 +8,31 @@ const barber: SessionUser = { id: "b", name: "B", email: "b@t", role: "BARBER", 
 
 describe("services actions", () => {
   it("admin creates with kurus conversion", async () => {
-    const r = await upsertServiceAs(admin, { name: "Saç", durationMinutes: 30, priceLira: 400.5, sortOrder: 1 });
+    const r = await upsertServiceAs(admin, { name: { tr: "Saç" }, durationMinutes: 30, priceLira: 400.5, sortOrder: 1 });
     expect(r.ok).toBe(true);
     if (!r.ok) return;
     const s = await prisma.service.findUnique({ where: { id: r.data.id } });
     expect(s?.priceKurus).toBe(40050);
   });
   it("admin updates existing", async () => {
-    const c = await upsertServiceAs(admin, { name: "Saç", durationMinutes: 30, priceLira: 400, sortOrder: 1 });
+    const c = await upsertServiceAs(admin, { name: { tr: "Saç" }, durationMinutes: 30, priceLira: 400, sortOrder: 1 });
     if (!c.ok) throw new Error();
-    const u = await upsertServiceAs(admin, { id: c.data.id, name: "Saç Kesimi", durationMinutes: 45, priceLira: 450, sortOrder: 1 });
+    const u = await upsertServiceAs(admin, { id: c.data.id, name: { tr: "Saç Kesimi" }, durationMinutes: 45, priceLira: 450, sortOrder: 1 });
     expect(u.ok).toBe(true);
-    expect((await prisma.service.findUnique({ where: { id: c.data.id } }))?.name).toBe("Saç Kesimi");
+    expect((await prisma.service.findUnique({ where: { id: c.data.id } }))?.nameI18n).toEqual({ tr: "Saç Kesimi" });
   });
   it("barber is refused", async () => {
-    const r = await upsertServiceAs(barber, { name: "Saç", durationMinutes: 30, priceLira: 400, sortOrder: 1 });
+    const r = await upsertServiceAs(barber, { name: { tr: "Saç" }, durationMinutes: 30, priceLira: 400, sortOrder: 1 });
     expect(r).toEqual({ ok: false, error: "errors.notAllowed" });
   });
   it("toggle deactivates", async () => {
-    const c = await upsertServiceAs(admin, { name: "Saç", durationMinutes: 30, priceLira: 400, sortOrder: 1 });
+    const c = await upsertServiceAs(admin, { name: { tr: "Saç" }, durationMinutes: 30, priceLira: 400, sortOrder: 1 });
     if (!c.ok) throw new Error();
     await toggleServiceAs(admin, c.data.id, false);
     expect((await prisma.service.findUnique({ where: { id: c.data.id } }))?.isActive).toBe(false);
   });
   it("upsert non-existent returns not found", async () => {
-    const r = await upsertServiceAs(admin, { id: "yok", name: "Saç", durationMinutes: 30, priceLira: 400, sortOrder: 1 });
+    const r = await upsertServiceAs(admin, { id: "yok", name: { tr: "Saç" }, durationMinutes: 30, priceLira: 400, sortOrder: 1 });
     expect(r).toEqual({ ok: false, error: "errors.serviceNotFound" });
   });
   it("toggle non-existent returns not found", async () => {

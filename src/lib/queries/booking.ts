@@ -2,9 +2,22 @@ import { prisma } from "@/lib/db";
 import { computeSlots, type Interval, type WorkingInterval } from "@/lib/availability";
 import { addMinutes, parseTime, shopDayOfWeek, shopDayStart } from "@/lib/time";
 import { getSettings } from "@/lib/settings";
+import { pick } from "@/lib/i18n-content";
+import { intlLocale } from "@/lib/intl";
 
-export async function getActiveServices() {
-  return prisma.service.findMany({ where: { isActive: true }, orderBy: [{ sortOrder: "asc" }, { name: "asc" }] });
+/**
+ * Aktif hizmetler, ziyaretçinin dilindeki adlarıyla. Ad artık `Json` bir
+ * sütunda durduğu için ikincil sıralama veritabanında yapılamaz: aynı
+ * `sortOrder`'ı paylaşan hizmetler burada, o dilin kendi alfabetik sırasıyla
+ * ayrılır (`Saç` ile `Sakal` Türkçede, `Beard` ile `Braids` İngilizcede).
+ * Ham `nameI18n` de dönülür — panel formu üç sekmeyi ondan doldurur.
+ */
+export async function getActiveServices(locale: string) {
+  const rows = await prisma.service.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" } });
+  const tag = intlLocale(locale);
+  return rows
+    .map((s) => ({ ...s, name: pick(s.nameI18n, locale) }))
+    .sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name, tag));
 }
 
 export async function getActiveBarbers() {

@@ -41,7 +41,7 @@ describe("deleteServiceAs", () => {
       },
     });
     await prisma.appointmentService.create({
-      data: { appointmentId: appointment.id, serviceId: s.id, nameSnapshot: s.name, durationSnapshot: s.durationMinutes, priceSnapshot: s.priceKurus },
+      data: { appointmentId: appointment.id, serviceId: s.id, nameSnapshot: "Saç Kesimi", durationSnapshot: s.durationMinutes, priceSnapshot: s.priceKurus },
     });
     const r = await deleteServiceAs(admin, s.id);
     expect(r).toEqual({ ok: false, error: "errors.serviceInUse" });

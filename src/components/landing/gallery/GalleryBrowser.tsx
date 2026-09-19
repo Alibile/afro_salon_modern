@@ -4,17 +4,21 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { filterByTag, paginate, GALLERY_PAGE_SIZE, type GalleryPhoto } from "@/lib/gallery-utils";
+import { tagLabel } from "@/lib/gallery-tags";
 import { GalleryFilters } from "./GalleryFilters";
 import { MasonryGrid } from "./MasonryGrid";
 import { Lightbox } from "./Lightbox";
 
 /**
- * Galerinin istemci tarafı: etiket filtresi (URL'de `?etiket=`), "daha fazla
+ * Galerinin istemci tarafı: etiket filtresi (URL'de `?etiket=<anahtar>`;
+ * anahtar dile göre değişmediği için bağlantı üç dilde de aynı fotoğrafları
+ * açar), "daha fazla
  * göster" sayfalaması ve lightbox durumu burada tutulur. Seçim önce yerel
  * durumda uygulanır (anında tepki), URL'ye yalnızca paylaşılabilirlik için yazılır.
  */
 export function GalleryBrowser({ photos, tags }: { photos: GalleryPhoto[]; tags: string[] }) {
   const t = useTranslations("landing.gallery");
+  const tTag = useTranslations("gallery.tags");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -72,7 +76,7 @@ export function GalleryBrowser({ photos, tags }: { photos: GalleryPhoto[]; tags:
       </div>
 
       <p aria-live="polite" className="sr-only">
-        {active ? t("countWithTag", { tag: active, count: filtered.length }) : t("count", { count: filtered.length })}
+        {active ? t("countWithTag", { tag: tagLabel(active, tTag), count: filtered.length }) : t("count", { count: filtered.length })}
       </p>
 
       {remaining > 0 && (

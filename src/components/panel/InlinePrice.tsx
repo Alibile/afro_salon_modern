@@ -8,8 +8,9 @@ import { formatKurus, parsePriceInput } from "@/lib/money";
 import { upsertService } from "@/actions/services";
 import { useActionError } from "@/lib/use-action-error";
 import type { AppLocale } from "@/i18n/routing";
+import type { I18nText } from "@/lib/i18n-content";
 
-type Service = { id: string; name: string; durationMinutes: number; priceKurus: number; sortOrder: number };
+type Service = { id: string; nameI18n: I18nText; durationMinutes: number; priceKurus: number; sortOrder: number };
 
 export function InlinePrice({ service }: { service: Service }) {
   const t = useTranslations("panel.services");
@@ -60,7 +61,7 @@ export function InlinePrice({ service }: { service: Service }) {
     start(async () => {
       const r = await upsertService({
         id: service.id,
-        name: service.name,
+        name: service.nameI18n,
         durationMinutes: service.durationMinutes,
         priceLira,
         sortOrder: service.sortOrder,

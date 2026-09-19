@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { GALLERY_TAGS, orderTags, splitTags } from "@/lib/gallery-tags";
+import { GALLERY_TAGS, isGalleryTag, orderTags, splitTags, tagLabel } from "@/lib/gallery-tags";
+import tr from "../../messages/tr.json";
+import en from "../../messages/en.json";
+import fr from "../../messages/fr.json";
 import { TAG_MIN_LENGTH, TAG_MAX_LENGTH, MAX_TAGS } from "@/lib/gallery-utils";
 
 describe("GALLERY_TAGS", () => {
@@ -16,7 +19,27 @@ describe("GALLERY_TAGS", () => {
   });
 
   it("fade kategorileriyle başlar: çipler önce en çok istenen kesimleri gösterir", () => {
-    expect(GALLERY_TAGS.slice(0, 3)).toEqual(["Low Taper Fade", "Taper Fade", "Skin Fade"]);
+    expect(GALLERY_TAGS.slice(0, 3)).toEqual(["low-taper-fade", "taper-fade", "skin-fade"]);
+  });
+
+  it("anahtarlar dilden bağımsızdır: küçük harf, boşluksuz", () => {
+    for (const tag of GALLERY_TAGS) expect(tag).toMatch(/^[a-z][a-z-]*[a-z]$/);
+  });
+
+  it("her anahtarın üç dilde de bir adı vardır", () => {
+    for (const messages of [tr, en, fr]) {
+      const labels = messages.gallery.tags as Record<string, string>;
+      for (const tag of GALLERY_TAGS) expect(labels[tag], tag).toBeTruthy();
+    }
+    // Fazladan (kullanılmayan) çeviri de kalmasın.
+    expect(Object.keys(tr.gallery.tags)).toEqual([...GALLERY_TAGS]);
+  });
+
+  it("Türkçe adlar Tur 4'teki görünen metinlerin aynısıdır", () => {
+    expect(tr.gallery.tags["low-taper-fade"]).toBe("Low Taper Fade");
+    expect(tr.gallery.tags.curly).toBe("Kıvırcık");
+    expect(tr.gallery.tags.braids).toBe("Örgü");
+    expect(tr.gallery.tags.beard).toBe("Sakal");
   });
 
   it("bir fotoğrafa verilebilecek en fazla etiketten çok daha uzundur (liste seçim içindir)", () => {
@@ -26,17 +49,17 @@ describe("GALLERY_TAGS", () => {
 
 describe("orderTags", () => {
   it("bilinen etiketleri GALLERY_TAGS sırasına dizer, girdideki sıra önemsizdir", () => {
-    expect(orderTags(["Sakal", "Skin Fade", "Low Taper Fade"])).toEqual([
-      "Low Taper Fade",
-      "Skin Fade",
-      "Sakal",
+    expect(orderTags(["beard", "skin-fade", "low-taper-fade"])).toEqual([
+      "low-taper-fade",
+      "skin-fade",
+      "beard",
     ]);
   });
 
   it("listede olmayan etiketleri sona, Türkçe alfabetik sırayla koyar", () => {
-    expect(orderTags(["Şekil", "Afro", "Ombre", "Taper Fade"])).toEqual([
-      "Taper Fade",
-      "Afro",
+    expect(orderTags(["Şekil", "afro", "Ombre", "taper-fade"])).toEqual([
+      "taper-fade",
+      "afro",
       "Ombre",
       "Şekil",
     ]);
@@ -52,9 +75,9 @@ describe("orderTags", () => {
   });
 
   it("girdi dizisini değiştirmez", () => {
-    const input = ["Sakal", "Afro"];
+    const input = ["beard", "afro"];
     orderTags(input);
-    expect(input).toEqual(["Sakal", "Afro"]);
+    expect(input).toEqual(["beard", "afro"]);
   });
 
   it("listede olmayan tek bir etiket de düşmez", () => {
@@ -64,8 +87,8 @@ describe("orderTags", () => {
 
 describe("splitTags", () => {
   it("sabit listedeki etiketleri çip seçimine, kalanları metin alanına ayırır", () => {
-    expect(splitTags(["Skin Fade", "Dalga", "Sakal"])).toEqual({
-      selected: ["Skin Fade", "Sakal"],
+    expect(splitTags(["skin-fade", "Dalga", "beard"])).toEqual({
+      selected: ["skin-fade", "beard"],
       custom: "Dalga",
     });
   });
@@ -75,10 +98,36 @@ describe("splitTags", () => {
   });
 
   it("kayıtlı sırayı korur (panelde etiketler yer değiştirmez)", () => {
-    expect(splitTags(["Sakal", "Afro"]).selected).toEqual(["Sakal", "Afro"]);
+    expect(splitTags(["beard", "afro"]).selected).toEqual(["beard", "afro"]);
   });
 
   it("etiket yoksa boş seçim ve boş metin döner", () => {
     expect(splitTags([])).toEqual({ selected: [], custom: "" });
+  });
+});
+
+describe("tagLabel", () => {
+  /** `gallery.tags` ad alanına bağlı bir çevirmenin testteki karşılığı. */
+  const translator = (messages: { gallery: { tags: Record<string, string> } }) =>
+    ((key: string) => messages.gallery.tags[key]) as (key: (typeof GALLERY_TAGS)[number]) => string;
+
+  it("sabit etiketi ziyaretçinin dilinde verir", () => {
+    expect(tagLabel("braids", translator(tr))).toBe("Örgü");
+    expect(tagLabel("braids", translator(en))).toBe("Braids");
+    expect(tagLabel("braids", translator(fr))).toBe("Tresses");
+  });
+
+  it("serbest etiketi her dilde yazıldığı gibi bırakır", () => {
+    expect(tagLabel("Dalga", translator(en))).toBe("Dalga");
+    expect(tagLabel("Dalga", translator(fr))).toBe("Dalga");
+  });
+});
+
+describe("isGalleryTag", () => {
+  it("sabit listedeki anahtarı tanır, serbest etiketi tanımaz", () => {
+    expect(isGalleryTag("skin-fade")).toBe(true);
+    // Eski (Tur 4) görünen metin artık bir anahtar değil.
+    expect(isGalleryTag("Skin Fade")).toBe(false);
+    expect(isGalleryTag("Dalga")).toBe(false);
   });
 });

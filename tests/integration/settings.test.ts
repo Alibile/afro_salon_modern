@@ -19,14 +19,14 @@ const base: SettingsInput = {
   facebook: "https://facebook.com/afrosalonmodern",
   whatsapp: "905551112233",
   mapsUrl: "https://maps.google.com/?q=afro",
-  aboutTitle: "Benzersiz bir deneyim",
-  aboutText: "Afro saç sanatını İstanbul'un kalbine taşıyoruz.",
-  whyUs1Title: "Usta berberler",
-  whyUs1Text: "Yılların deneyimi.",
-  whyUs2Title: "Premium ürünler",
-  whyUs2Text: "Test edilmiş ürünler.",
-  whyUs3Title: "Hijyen ve temizlik",
-  whyUs3Text: "Sterilize edilmiş ekipman.",
+  aboutTitle: { tr: "Benzersiz bir deneyim", en: "An experience of its own", fr: "Une expérience à part" },
+  aboutText: { tr: "Afro saç sanatını İstanbul'un kalbine taşıyoruz." },
+  whyUs1Title: { tr: "Usta berberler" },
+  whyUs1Text: { tr: "Yılların deneyimi." },
+  whyUs2Title: { tr: "Premium ürünler" },
+  whyUs2Text: { tr: "Test edilmiş ürünler." },
+  whyUs3Title: { tr: "Hijyen ve temizlik" },
+  whyUs3Text: { tr: "Sterilize edilmiş ekipman." },
   satisfactionPercent: 98,
   yearsExperience: 8,
 };
@@ -41,6 +41,22 @@ describe("updateSettings", () => {
     expect(s?.notifyBarberOnBooking).toBe(false);
     expect(s?.satisfactionPercent).toBe(98);
     expect(s?.yearsExperience).toBe(8);
+  });
+
+  it("içerik alanlarını üç dilde yazar, boş çeviriyi hiç kaydetmez", async () => {
+    const r = await updateSettingsAs(admin, {
+      ...base,
+      aboutText: { tr: "Afro saç sanatı.", en: "The art of afro hair.", fr: "   " },
+    });
+    expect(r.ok).toBe(true);
+    const s = await prisma.settings.findUniqueOrThrow({ where: { id: 1 } });
+    expect(s.aboutTitleI18n).toEqual({ tr: "Benzersiz bir deneyim", en: "An experience of its own", fr: "Une expérience à part" });
+    expect(s.aboutTextI18n).toEqual({ tr: "Afro saç sanatı.", en: "The art of afro hair." });
+  });
+
+  it("çok uzun çeviriyi reddeder (sınır her dilde geçerli)", async () => {
+    const r = await updateSettingsAs(admin, { ...base, aboutTitle: { tr: "Kısa", en: "x".repeat(101) } });
+    expect(r.ok).toBe(false);
   });
 
   it("rejects invalid slot step", async () => {

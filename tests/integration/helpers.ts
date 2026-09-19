@@ -1,5 +1,9 @@
 import { prisma } from "@/lib/db";
 import { Role } from "@/generated/prisma/enums";
+import type { User } from "@/generated/prisma/client";
+import type { SessionUser } from "@/lib/auth-helpers";
+import { toAppLocale } from "@/i18n/routing";
+import type { I18nText } from "@/lib/i18n-content";
 
 export async function resetDb() {
   await prisma.$executeRawUnsafe(
@@ -54,15 +58,34 @@ export async function createBarber(overrides: { name?: string; hours?: boolean; 
   return { user, barber };
 }
 
+/** Hizmet adı üç dilli; kısa yazım için düz bir dize Türkçe kaynak metin sayılır. */
 export async function createService(
-  overrides: Partial<{ name: string; durationMinutes: number; priceKurus: number; sortOrder: number }> = {},
+  overrides: Partial<{ name: string | I18nText; durationMinutes: number; priceKurus: number; sortOrder: number }> = {},
 ) {
+  const name = overrides.name ?? "Saç Kesimi";
   return prisma.service.create({
     data: {
-      name: overrides.name ?? "Saç Kesimi",
+      nameI18n: typeof name === "string" ? { tr: name } : name,
       durationMinutes: overrides.durationMinutes ?? 30,
       priceKurus: overrides.priceKurus ?? 30000,
       sortOrder: overrides.sortOrder ?? 0,
     },
   });
+}
+
+/**
+ * Bir veritabanı kullanıcısından `impl` katmanının beklediği oturum aktörü.
+ * Randevu oluşturma artık aktörün dilini de kullanıyor (hizmet adı anlık
+ * görüntüsü), bu yüzden testler kimliği tek parça geçirir.
+ */
+export function asActor(user: User, overrides: Partial<SessionUser> = {}): SessionUser {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    barberId: null,
+    locale: toAppLocale(user.locale),
+    ...overrides,
+  };
 }

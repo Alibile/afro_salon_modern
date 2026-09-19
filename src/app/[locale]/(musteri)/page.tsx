@@ -16,13 +16,14 @@ import { SiteFooter } from "@/components/landing/SiteFooter";
 
 export const dynamic = "force-dynamic";
 
-export default async function LandingPage() {
+export default async function LandingPage({ params }: { params: Promise<{ locale: string }> }) {
   // Veri beklenmeden önce: LCP fotoğrafının duyurusu `<head>`in en başına,
   // satır içi stil bloğundan da önce girer (bkz. `preloadHero`).
   preloadHero();
   const now = new Date();
+  const { locale } = await params;
   const [{ settings, status, services, barbers, gallery, testimonials, weeklyHours }, user] = await Promise.all([
-    getLandingData(now),
+    getLandingData(locale, now),
     getSessionUser(),
   ]);
   const social = { instagram: settings.instagram, facebook: settings.facebook, whatsapp: settings.whatsapp };

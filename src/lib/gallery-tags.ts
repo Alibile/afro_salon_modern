@@ -4,28 +4,50 @@
  * listeden etiketler. Sıra alfabetik değil editoryaldır — salonun en çok
  * istenen kesimleri (fade'ler) başta durur, saç dokusu ve bakım sonra gelir.
  *
- * Liste kapalı değildir: panelden serbest etiket de yazılabilir, o etiketler
+ * Değerler **anahtar**tır, görünen ad değil: veritabanında, `?etiket=` adres
+ * parametresinde ve panelde bu anahtarlar durur; üç dildeki karşılıkları
+ * `messages/*.json` içinde `gallery.tags.<anahtar>` altında yaşar. Etiket bir
+ * dilde yazılıp öbüründe okunabilsin diye böyle: "Kıvırcık" ile "Curly" aynı
+ * fotoğraf kümesidir.
+ *
+ * Liste kapalı değildir: panelden serbest etiket de yazılabilir. Serbest
+ * etiketlerin çevirisi yoktur — her dilde yazıldığı gibi görünür ve
  * `orderTags` ile listenin sonuna alınır.
  */
 export const GALLERY_TAGS = [
-  "Low Taper Fade",
-  "Taper Fade",
-  "Skin Fade",
-  "Buzz Cut",
-  "Line-up",
-  "Kıvırcık",
-  "Düz Saç",
-  "Kısa Saç",
-  "Textured Fringe",
-  "Afro",
-  "Örgü",
-  "Twist",
-  "Sakal",
+  "low-taper-fade",
+  "taper-fade",
+  "skin-fade",
+  "buzz-cut",
+  "line-up",
+  "curly",
+  "straight",
+  "short",
+  "textured-fringe",
+  "afro",
+  "braids",
+  "twist",
+  "beard",
 ] as const;
 
 export type GalleryTag = (typeof GALLERY_TAGS)[number];
 
 const ORDER = new Map<string, number>(GALLERY_TAGS.map((tag, i) => [tag, i]));
+
+/** Etiket sabit listeden mi (yani çevrilebilir mi), yoksa serbest yazılmış mı? */
+export function isGalleryTag(tag: string): tag is GalleryTag {
+  return ORDER.has(tag);
+}
+
+/**
+ * Etiketin ziyaretçinin dilindeki adı. `t`, `gallery.tags` ad alanına bağlı bir
+ * çevirmendir; serbest etiketlerin çevirisi olmadığı için onlar olduğu gibi
+ * döner. Landing çipleri, lightbox ve panel seçicisi aynı işlevi kullanır —
+ * biri ayrı bir ad üretirse aynı etiket iki farklı şey gibi görünürdü.
+ */
+export function tagLabel(tag: string, t: (key: GalleryTag) => string): string {
+  return isGalleryTag(tag) ? t(tag) : tag;
+}
 
 /**
  * Etiketleri çip sırasına dizer: `GALLERY_TAGS` içindekiler liste sırasıyla,

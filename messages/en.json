@@ -7,6 +7,11 @@
       "en": "English",
       "fr": "French"
     },
+    "endonyms": {
+      "tr": "Türkçe",
+      "en": "English",
+      "fr": "Français"
+    },
     "close": "Close",
     "loading": "Loading…",
     "minutes": "{count} minutes",
@@ -127,6 +132,23 @@
       "submit": "Send message",
       "sending": "Sending…",
       "success": "Your message is with us, we'll get back to you shortly"
+    }
+  },
+  "gallery": {
+    "tags": {
+      "low-taper-fade": "Low Taper Fade",
+      "taper-fade": "Taper Fade",
+      "skin-fade": "Skin Fade",
+      "buzz-cut": "Buzz Cut",
+      "line-up": "Line-up",
+      "curly": "Curly",
+      "straight": "Straight Hair",
+      "short": "Short Cut",
+      "textured-fringe": "Textured Fringe",
+      "afro": "Afro",
+      "braids": "Braids",
+      "twist": "Twists",
+      "beard": "Beard"
     }
   },
   "booking": {
@@ -300,6 +322,10 @@
         "NO_SHOW": "No-show"
       }
     },
+    "i18nField": {
+      "tab": "{language} text",
+      "hint": "Every text is entered in three languages. Turkish is the source; leave English or French empty and visitors see the Turkish version of that field."
+    },
     "today": {
       "heading": "Today · {date}",
       "noBarbers": "No active barbers.",
@@ -365,8 +391,8 @@
       "passwordMismatch": "Passwords do not match",
       "changePassword": "Change password",
       "languageTitle": "Language",
-      "languageLabel": "Panel and email language",
-      "languageHint": "The panel opens in the language you pick, and your appointment emails arrive in it too.",
+      "languageLabel": "Dashboard and email language",
+      "languageHint": "The dashboard opens in the language you pick, and your appointment emails arrive in it too.",
       "languageSaved": "Language updated"
     },
     "services": {
@@ -511,7 +537,7 @@
       "greeting": "Hi {name},",
       "body": "<b>{customer}</b> ({phone}) booked the <b>{time}</b> slot.",
       "services": "Services: {list}",
-      "cta": "Open the panel"
+      "cta": "Open the dashboard"
     },
     "contact": {
       "subject": "New message from the site · {name}",
