@@ -16,9 +16,23 @@ npm run dev
 http://localhost:3000 adresinde açılır.
 
 Bu sürüme yükselten mevcut bir kurulumda `npm run db:seed` bir kez daha
-çalıştırılmalı: galeri setinden çıkarılan fotoğrafların pasifleştirilmesi ve
-kalanların yeni başlık/etiketlerine taşınması seed'de yapılır (seed
-idempotenttir, panelden düzenlenmiş kayıtlara dokunmaz).
+çalıştırılmalı: galeri setinden çıkarılan fotoğrafların pasifleştirilmesi,
+kalanların yeni başlık/etiketlerine taşınması, eski dört yer tutucu hizmetin
+temizlenmesi ve çalışma saatlerinin 11:00–22:30'a taşınması seed'de yapılır
+(seed idempotenttir, panelden düzenlenmiş kayıtlara dokunmaz).
+
+**Salon verisi (seed varsayılanı).**
+
+- Hizmet: tek paket — "Yıkama + Kesim + Sakal" (EN "Wash, cut & beard",
+  FR "Shampoing, coupe et barbe"), 700 ₺, 45 dakika.
+- Çalışma saatleri: Pazartesi–Cumartesi 11:00–22:30, Pazar kapalı.
+
+Eski sürümlerin dört yer tutucu hizmeti (Saç Kesimi, Sakal, Saç + Sakal,
+Örgü / Twist) seed tarafından temizlenir: satır hâlâ eski seed varsayılanıysa
+ve hiç randevusu yoksa silinir, randevusu varsa yalnızca pasife alınır; adı
+panelden değiştirilmiş hizmete dokunulmaz. Çalışma saatleri de yalnızca
+berberin yedi satırı da hâlâ eski varsayılansa (09:00–19:00, Pazar kapalı)
+taşınır; bir satırı bile düzenlenmişse o berberin saatleri olduğu gibi kalır.
 
 ## Rotalar
 

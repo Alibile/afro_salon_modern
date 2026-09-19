@@ -71,16 +71,15 @@ test.describe("müşteri yüzü çevirileri", () => {
   test("İngilizce ana sayfa hizmet adlarını ve içeriği İngilizce basar", async ({ page }) => {
     await page.goto("/en");
     const services = page.locator("#hizmetler");
-    await expect(services.getByText("Haircut", { exact: true })).toBeVisible();
-    await expect(services.getByText("Braids / Twists", { exact: true })).toBeVisible();
+    await expect(services.getByText("Wash, cut & beard", { exact: true })).toBeVisible();
     // Türkçe kaynak metin İngilizce sayfada görünmemeli.
-    await expect(services.getByText("Saç Kesimi")).toHaveCount(0);
+    await expect(services.getByText("Yıkama + Kesim + Sakal")).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "An experience of its own" })).toBeVisible();
   });
 
   test("Fransızca ana sayfa hizmet adlarını Fransızca basar", async ({ page }) => {
     await page.goto("/fr");
-    await expect(page.locator("#hizmetler").getByText("Coupe de cheveux", { exact: true })).toBeVisible();
+    await expect(page.locator("#hizmetler").getByText("Shampoing, coupe et barbe", { exact: true })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Une expérience à part" })).toBeVisible();
     await expect(page.locator("#ekip").getByText("Tresses, twists et line-up", { exact: true })).toBeVisible();
   });
@@ -97,7 +96,7 @@ test.describe("müşteri yüzü çevirileri", () => {
 
   test("İngilizce randevu sihirbazı hizmetleri İngilizce listeler", async ({ page }) => {
     await page.goto("/en/randevu");
-    await expect(page.getByRole("button", { name: /Haircut \+ beard/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Wash, cut & beard/ })).toBeVisible();
   });
 
   test("İngilizce giriş formu İngilizce etiketler taşır", async ({ page }) => {
@@ -115,7 +114,7 @@ test.describe.serial("İngilizce randevu akışı", () => {
   test("İngilizce kayıt olup bugün için randevu alır", async ({ page }) => {
     await page.goto("/en/randevu");
     // Hizmet adı artık İngilizce: aynı hizmet, ziyaretçinin dilinde.
-    await page.getByRole("button", { name: /Haircut/ }).first().click();
+    await page.getByRole("button", { name: /Wash, cut & beard/ }).first().click();
     await page.getByRole("button", { name: /Kwame Mensah/ }).click();
 
     const slots = page.locator('section:has(h2:text("3. Choose a time")) button');

@@ -68,6 +68,21 @@ describe("computeSlots", () => {
     expect(s).toEqual(["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "13:00", "13:30"]);
   });
 
+  it("11:00-22:30 shift with the 45-minute package: last slot ends exactly at closing", () => {
+    // Salonun gerçek vardiyası + tek paketin süresi; adım Ayarlar'dan gelir (15 dk).
+    const s = times(
+      computeSlots({
+        ...base,
+        workingIntervals: [{ startMinutes: 11 * 60, endMinutes: 22 * 60 + 30 }],
+        durationMinutes: 45,
+        slotStepMinutes: 15,
+      }),
+    );
+    expect(s[0]).toBe("11:00");
+    expect(s.at(-1)).toBe("21:45"); // 21:45 + 45 dk = 22:30, kapanışı aşmaz
+    expect(s).toHaveLength(44);
+  });
+
   it("no working intervals (closed day) → empty", () => {
     expect(computeSlots({ ...base, workingIntervals: [] })).toEqual([]);
   });

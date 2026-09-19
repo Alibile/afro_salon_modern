@@ -13,7 +13,7 @@ test.describe.serial("randevu akışı", () => {
     await page.getByRole("link", { name: "Bugün randevu al" }).click();
     await expect(page).toHaveURL(/\/randevu/);
 
-    await page.getByRole("button", { name: /Saç Kesimi/ }).click();
+    await page.getByRole("button", { name: /Yıkama \+ Kesim \+ Sakal/ }).click();
     await page.getByRole("button", { name: /Kwame Mensah/ }).click();
 
     const slots = page.locator('section:has(h2:text("3. Saat seç")) button');
@@ -120,7 +120,7 @@ test.describe("landing", () => {
     await page.goto("/");
     await page.getByLabel("Adınız").fill("E2E Ziyaretçi");
     await page.getByLabel("Telefon (isteğe bağlı)").fill("05550000000");
-    await page.locator("label", { has: page.locator('input[value="Saç Kesimi"]') }).click();
+    await page.locator("label", { has: page.locator('input[value="Yıkama + Kesim + Sakal"]') }).click();
     await page.getByLabel("Mesajınız").fill("Cumartesi günü örgü için yer var mı acaba?");
     await page.getByRole("button", { name: "Mesajı gönder" }).click();
     await expect(page.getByText("Mesajınız alındı, en kısa sürede dönüş yapacağız")).toBeVisible();

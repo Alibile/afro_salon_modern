@@ -9,6 +9,8 @@ import {
   LEGACY_GALLERY_DEFAULTS,
   LEGACY_ABOUT_TEXT,
   LEGACY_NADIA_TEXT,
+  LEGACY_SERVICES,
+  LEGACY_HOURS,
   SEED_BARBERS,
 } from "../../prisma/seed";
 import { GALLERY_TAGS } from "@/lib/gallery-tags";
@@ -53,7 +55,7 @@ describe("runSeed", () => {
     const serviceCount = await prisma.service.count();
     const testimonialCount = await prisma.testimonial.count();
     expect(barberCount).toBe(2);
-    expect(serviceCount).toBe(4);
+    expect(serviceCount).toBe(1);
     expect(testimonialCount).toBe(3);
     expect(await prisma.galleryPhoto.count()).toBe(DEFAULT_GALLERY.length);
   });
@@ -161,21 +163,147 @@ describe("runSeed", () => {
     expect(settings.whyUs1TitleI18n).toEqual({ tr: "Bizim ekip" });
   });
 
-  it("hizmetlerin çevirilerini de doldurur, yeniden adlandırılmış hizmete dokunmaz", async () => {
-    await prisma.service.create({ data: { nameI18n: { tr: "Saç Kesimi" }, durationMinutes: 30, priceKurus: 40000, sortOrder: 1 } });
-    await prisma.service.create({ data: { nameI18n: { tr: "Sakal", en: "Beard" }, durationMinutes: 15, priceKurus: 20000, sortOrder: 2 } });
+  it("tek paketi 700 ₺ / 45 dk olarak kurar", async () => {
+    await runSeed(prisma);
+
+    const rows = await prisma.service.findMany();
+    expect(rows).toHaveLength(1);
+    expect(rows[0].nameI18n).toEqual({ tr: "Yıkama + Kesim + Sakal", en: "Wash, cut & beard", fr: "Shampoing, coupe et barbe" });
+    expect(rows[0].priceKurus).toBe(70000);
+    expect(rows[0].durationMinutes).toBe(45);
+    expect(rows[0].sortOrder).toBe(1);
+    expect(rows[0].isActive).toBe(true);
+  });
+
+  it("paket hâlâ çevirisiz varsayılansa çevirileri doldurur", async () => {
+    await prisma.service.create({ data: { nameI18n: { tr: "Yıkama + Kesim + Sakal" }, durationMinutes: 45, priceKurus: 70000, sortOrder: 1 } });
 
     await runSeed(prisma);
 
     const rows = await prisma.service.findMany();
-    expect(rows).toHaveLength(4);
-    expect(rows.find((r) => (r.nameI18n as { tr: string }).tr === "Saç Kesimi")!.nameI18n).toEqual({
-      tr: "Saç Kesimi",
-      en: "Haircut",
-      fr: "Coupe de cheveux",
+    expect(rows).toHaveLength(1);
+    expect(rows[0].nameI18n).toEqual({ tr: "Yıkama + Kesim + Sakal", en: "Wash, cut & beard", fr: "Shampoing, coupe et barbe" });
+  });
+
+  it("randevusu olmayan eski varsayılan hizmetleri siler", async () => {
+    // Eski seed'in bıraktığı iki hâl: üç dilli tam varsayılan ve göçten kalan tek dilli satır.
+    await prisma.service.create({ data: { nameI18n: LEGACY_SERVICES[0], durationMinutes: 30, priceKurus: 40000, sortOrder: 1 } });
+    await prisma.service.create({ data: { nameI18n: { tr: LEGACY_SERVICES[3].tr }, durationMinutes: 90, priceKurus: 120000, sortOrder: 4 } });
+
+    await runSeed(prisma);
+
+    const rows = await prisma.service.findMany();
+    expect(rows).toHaveLength(1);
+    expect(asI18nText(rows[0].nameI18n).tr).toBe("Yıkama + Kesim + Sakal");
+  });
+
+  it("randevusu olan eski varsayılan hizmeti silmez, yalnızca pasife alır", async () => {
+    const legacy = LEGACY_SERVICES[2];
+    const service = await prisma.service.create({ data: { nameI18n: legacy, durationMinutes: 45, priceKurus: 55000, sortOrder: 3 } });
+    const barberUser = await prisma.user.create({
+      data: { name: "Eski Berber", email: "eski-berber@test.local", passwordHash: "x", role: Role.BARBER },
     });
-    // Admin EN adını kendisi girmiş: seed üzerine yazmaz.
-    expect(rows.find((r) => (r.nameI18n as { tr: string }).tr === "Sakal")!.nameI18n).toEqual({ tr: "Sakal", en: "Beard" });
+    const barber = await prisma.barber.create({ data: { userId: barberUser.id, photoKey: "barbers/test.jpg" } });
+    const customer = await prisma.user.create({
+      data: { name: "Eski Müşteri", email: "eski-musteri@test.local", passwordHash: "x", role: Role.CUSTOMER },
+    });
+    const appointment = await prisma.appointment.create({
+      data: {
+        customerId: customer.id,
+        barberId: barber.id,
+        startsAt: new Date("2026-09-17T09:00:00Z"),
+        endsAt: new Date("2026-09-17T09:45:00Z"),
+      },
+    });
+    await prisma.appointmentService.create({
+      data: { appointmentId: appointment.id, serviceId: service.id, nameSnapshot: legacy.tr, durationSnapshot: 45, priceSnapshot: 55000 },
+    });
+
+    await runSeed(prisma);
+
+    const after = await prisma.service.findUniqueOrThrow({ where: { id: service.id } });
+    expect(after.isActive).toBe(false);
+    // Geçmiş randevunun anlık görüntüsü ve bağı yerinde kalır.
+    expect(await prisma.appointmentService.count({ where: { serviceId: service.id } })).toBe(1);
+  });
+
+  it("adı panelden değiştirilmiş eski hizmete dokunmaz", async () => {
+    const renamed = await prisma.service.create({
+      data: { nameI18n: { tr: LEGACY_SERVICES[0].tr, en: "Men's haircut" }, durationMinutes: 30, priceKurus: 45000, sortOrder: 1 },
+    });
+
+    await runSeed(prisma);
+
+    const after = await prisma.service.findUniqueOrThrow({ where: { id: renamed.id } });
+    expect(after.nameI18n).toEqual({ tr: LEGACY_SERVICES[0].tr, en: "Men's haircut" });
+    expect(after.isActive).toBe(true);
+    expect(after.priceKurus).toBe(45000);
+  });
+
+  it("yeni kurulumda berberler 11:00–22:30 çalışır, Pazar kapalıdır", async () => {
+    await runSeed(prisma);
+
+    const rows = await prisma.workingHours.findMany({ orderBy: [{ barberId: "asc" }, { dayOfWeek: "asc" }] });
+    expect(rows).toHaveLength(SEED_BARBERS.length * 7);
+    for (const row of rows) {
+      expect(row.startTime).toBe("11:00");
+      expect(row.endTime).toBe("22:30");
+      expect(row.isOff).toBe(row.dayOfWeek === 0);
+    }
+  });
+
+  it("hiç dokunulmamış eski çalışma saatlerini yeni varsayılana taşır", async () => {
+    const user = await prisma.user.create({
+      data: { name: SEED_BARBERS[0].name, email: SEED_BARBERS[0].email, passwordHash: "x", role: Role.BARBER },
+    });
+    const barber = await prisma.barber.create({ data: { userId: user.id, photoKey: SEED_BARBERS[0].photoKey } });
+    await prisma.workingHours.createMany({ data: LEGACY_HOURS.map((h) => ({ ...h, barberId: barber.id })) });
+
+    await runSeed(prisma);
+
+    const rows = await prisma.workingHours.findMany({ where: { barberId: barber.id }, orderBy: { dayOfWeek: "asc" } });
+    expect(rows).toHaveLength(7);
+    expect(rows.map((r) => `${r.startTime}-${r.endTime}`)).toEqual(Array(7).fill("11:00-22:30"));
+    expect(rows.map((r) => r.isOff)).toEqual([true, false, false, false, false, false, false]);
+  });
+
+  it("bir satırı bile düzenlenmiş berberin çalışma saatlerine dokunmaz", async () => {
+    const user = await prisma.user.create({
+      data: { name: SEED_BARBERS[1].name, email: SEED_BARBERS[1].email, passwordHash: "x", role: Role.BARBER },
+    });
+    const barber = await prisma.barber.create({ data: { userId: user.id, photoKey: SEED_BARBERS[1].photoKey } });
+    // Admin yalnızca Çarşamba'yı kısaltmış: berberin bütün satırları olduğu gibi kalmalı.
+    await prisma.workingHours.createMany({
+      data: LEGACY_HOURS.map((h) => ({ ...h, barberId: barber.id, ...(h.dayOfWeek === 3 ? { endTime: "18:00" } : {}) })),
+    });
+
+    await runSeed(prisma);
+
+    const rows = await prisma.workingHours.findMany({ where: { barberId: barber.id }, orderBy: { dayOfWeek: "asc" } });
+    expect(rows.map((r) => `${r.startTime}-${r.endTime}`)).toEqual([
+      "09:00-19:00",
+      "09:00-19:00",
+      "09:00-19:00",
+      "09:00-18:00",
+      "09:00-19:00",
+      "09:00-19:00",
+      "09:00-19:00",
+    ]);
+  });
+
+  it("saat taşıması idempotenttir: ikinci çalıştırma taşınmış satırları bozmaz", async () => {
+    const user = await prisma.user.create({
+      data: { name: SEED_BARBERS[0].name, email: SEED_BARBERS[0].email, passwordHash: "x", role: Role.BARBER },
+    });
+    const barber = await prisma.barber.create({ data: { userId: user.id, photoKey: SEED_BARBERS[0].photoKey } });
+    await prisma.workingHours.createMany({ data: LEGACY_HOURS.map((h) => ({ ...h, barberId: barber.id })) });
+
+    await runSeed(prisma);
+    await runSeed(prisma);
+
+    const rows = await prisma.workingHours.findMany({ where: { barberId: barber.id } });
+    expect(rows).toHaveLength(7);
+    expect(rows.every((r) => r.startTime === "11:00" && r.endTime === "22:30")).toBe(true);
   });
 
   it("berber biyografisinin çevirilerini doldurur, elle yazılmış metne dokunmaz", async () => {
@@ -262,9 +390,9 @@ describe("runSeed", () => {
   it("hizmet adları /en ve /fr'de kendi dillerinde görünür", async () => {
     await runSeed(prisma);
 
-    expect((await getActiveServices("en")).map((s) => s.name)).toContain("Haircut");
-    expect((await getActiveServices("fr")).map((s) => s.name)).toContain("Coupe de cheveux");
-    expect((await getActiveServices("tr")).map((s) => s.name)).toContain("Saç Kesimi");
+    expect((await getActiveServices("en")).map((s) => s.name)).toEqual(["Wash, cut & beard"]);
+    expect((await getActiveServices("fr")).map((s) => s.name)).toEqual(["Shampoing, coupe et barbe"]);
+    expect((await getActiveServices("tr")).map((s) => s.name)).toEqual(["Yıkama + Kesim + Sakal"]);
   });
 
   it("her seed fotoğrafı sabit kategori listesinden 1–3 etiket taşır", () => {

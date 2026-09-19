@@ -8,7 +8,8 @@ import { asAdminActor } from "@/lib/staff-scope";
 import { createBarberSchema, updateBarberSchema, workingHoursSchema, type CreateBarberInput, type UpdateBarberInput, type WorkingHoursInput } from "@/schemas/barber";
 import { deleteObject } from "@/lib/storage";
 
-const DEFAULT_HOURS = [0, 1, 2, 3, 4, 5, 6].map((d) => ({ dayOfWeek: d, startTime: "09:00", endTime: "19:00", isOff: d === 0 }));
+/** Yeni berberin başlangıç saatleri: salonun varsayılanı (Pzt–Cmt 11:00–22:30, Pazar kapalı). */
+const DEFAULT_HOURS = [0, 1, 2, 3, 4, 5, 6].map((d) => ({ dayOfWeek: d, startTime: "11:00", endTime: "22:30", isOff: d === 0 }));
 
 export async function createBarberAs(actor: SessionUser | null, input: CreateBarberInput): Promise<ActionResult<{ barberId: string }>> {
   if (!asAdminActor(actor)) return fail("errors.notAllowed");

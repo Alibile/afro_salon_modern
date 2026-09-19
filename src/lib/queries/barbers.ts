@@ -23,7 +23,8 @@ export async function getBarberDetail(barberId: string) {
   if (!b) return null;
   const hours = [0, 1, 2, 3, 4, 5, 6].map((d) => {
     const row = b.workingHours.find((h) => h.dayOfWeek === d);
-    return { dayOfWeek: d, isOff: row?.isOff ?? true, startTime: row?.startTime ?? "09:00", endTime: row?.endTime ?? "19:00" };
+    // Satırı olmayan gün formda salonun varsayılan saatleriyle (kapalı olarak) açılır.
+    return { dayOfWeek: d, isOff: row?.isOff ?? true, startTime: row?.startTime ?? "11:00", endTime: row?.endTime ?? "22:30" };
   });
   return {
     id: b.id,

@@ -6,7 +6,22 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { asI18nText, pick, sameI18nText, type I18nText } from "../src/lib/i18n-content";
 
+/** Salonun gerçek çalışma saatleri: Pazartesi–Cumartesi 11:00–22:30, Pazar kapalı. */
 const DEFAULT_HOURS = [0, 1, 2, 3, 4, 5, 6].map((d) => ({
+  dayOfWeek: d,
+  startTime: "11:00",
+  endTime: "22:30",
+  isOff: d === 0,
+}));
+
+/**
+ * Bu turdan önceki seed'in yazdığı çalışma saatleri (Pzt–Cmt 09:00–19:00,
+ * Pazar kapalı). Bir berberin **bütün** satırları hâlâ birebir buysa saatlere
+ * panelden hiç dokunulmamış demektir; seed o berberi yeni varsayılana taşır.
+ * Tek bir satır bile farklıysa (saat değiştirilmiş, gün kapatılmış, öğle arası
+ * için ikinci satır eklenmiş…) o berberin satırlarına hiç dokunulmaz.
+ */
+export const LEGACY_HOURS = [0, 1, 2, 3, 4, 5, 6].map((d) => ({
   dayOfWeek: d,
   startTime: "09:00",
   endTime: "19:00",
@@ -155,6 +170,20 @@ function isBlank(current: unknown): boolean {
 }
 
 /**
+ * Tek pakete geçmeden önceki dört yer tutucu hizmet — seed'in o zamanki tam
+ * varsayılanları. Bir kurulumda bu satırlar hâlâ birebir bu değerleri taşıyorsa
+ * (ya da göçten kalan tek dilli `{tr: <ad>}` hâlindeyse) admin onlara hiç
+ * dokunmamış demektir ve seed onları temizler: randevusu olmayan satır silinir,
+ * randevusu olan yalnızca pasife alınır. Adı değiştirilmiş satıra dokunulmaz.
+ */
+export const LEGACY_SERVICES: I18nText[] = [
+  { tr: "Saç Kesimi", en: "Haircut", fr: "Coupe de cheveux" },
+  { tr: "Sakal", en: "Beard trim", fr: "Taille de barbe" },
+  { tr: "Saç + Sakal", en: "Haircut + beard", fr: "Coupe + barbe" },
+  { tr: "Örgü / Twist", en: "Braids / Twists", fr: "Tresses / Twists" },
+];
+
+/**
  * Seed berberleri. Tanıtım üç dilde gelir (Tur 5, Task 6): Türkçe kaynak
  * metindir, İngilizce ve Fransızcası aynı kısa salon tonunu taşır.
  */
@@ -292,15 +321,58 @@ export async function runSeed(client: PrismaClient) {
     }
   }
 
+  // Çalışma saatleri bu turda 11:00–22:30'a geçti. Var olan kurulumlarda
+  // yalnızca **hiç dokunulmamış** berberler taşınır: yedi satırı da eski
+  // varsayılansa (bkz. LEGACY_HOURS) hepsi yenisiyle değiştirilir; bir satırı
+  // bile panelden düzenlenmişse o berberin saatlerine hiç dokunulmaz.
+  for (const barberRow of await client.barber.findMany({ select: { id: true } })) {
+    const rows = await client.workingHours.findMany({ where: { barberId: barberRow.id } });
+    const untouched =
+      rows.length === LEGACY_HOURS.length &&
+      LEGACY_HOURS.every((legacy) =>
+        rows.some(
+          (r) =>
+            r.dayOfWeek === legacy.dayOfWeek &&
+            r.startTime === legacy.startTime &&
+            r.endTime === legacy.endTime &&
+            r.isOff === legacy.isOff,
+        ),
+      );
+    if (!untouched) continue;
+    for (const h of DEFAULT_HOURS) {
+      await client.workingHours.updateMany({
+        where: { barberId: barberRow.id, dayOfWeek: h.dayOfWeek },
+        data: { startTime: h.startTime, endTime: h.endTime, isOff: h.isOff },
+      });
+    }
+  }
+
+  // Salonun fiyat listesi tek bir paketten ibaret: yıkama + kesim + sakal,
+  // 700 ₺ / 45 dk. Ayrı kesim, sakal ya da örgü kalemi yok.
   const services: { nameI18n: I18nText; durationMinutes: number; priceKurus: number; sortOrder: number }[] = [
-    { nameI18n: { tr: "Saç Kesimi", en: "Haircut", fr: "Coupe de cheveux" }, durationMinutes: 30, priceKurus: 40000, sortOrder: 1 },
-    { nameI18n: { tr: "Sakal", en: "Beard trim", fr: "Taille de barbe" }, durationMinutes: 15, priceKurus: 20000, sortOrder: 2 },
-    { nameI18n: { tr: "Saç + Sakal", en: "Haircut + beard", fr: "Coupe + barbe" }, durationMinutes: 45, priceKurus: 55000, sortOrder: 3 },
-    { nameI18n: { tr: "Örgü / Twist", en: "Braids / Twists", fr: "Tresses / Twists" }, durationMinutes: 90, priceKurus: 120000, sortOrder: 4 },
+    { nameI18n: { tr: "Yıkama + Kesim + Sakal", en: "Wash, cut & beard", fr: "Shampoing, coupe et barbe" }, durationMinutes: 45, priceKurus: 70000, sortOrder: 1 },
   ];
+  const existingServices = await client.service.findMany();
+
+  // Eski dört yer tutucu hizmetin temizliği (bkz. LEGACY_SERVICES). Satır hâlâ
+  // eski seed varsayılanıysa: randevusu yoksa silinir (fiyat listesinde hiç
+  // durmamalı), randevusu varsa geçmiş kayıtların bağı kopmasın diye yalnızca
+  // pasife alınır. Adı panelden değiştirilmişse hiç dokunulmaz.
+  for (const legacy of LEGACY_SERVICES) {
+    const row = existingServices.find((s) => pick(s.nameI18n, "tr") === legacy.tr);
+    if (!row) continue;
+    const untouched = sameI18nText(row.nameI18n, legacy) || untranslatedDefault(row.nameI18n, legacy);
+    if (!untouched) continue;
+    const used = await client.appointmentService.count({ where: { serviceId: row.id } });
+    if (used === 0) {
+      await client.service.delete({ where: { id: row.id } });
+    } else if (row.isActive) {
+      await client.service.update({ where: { id: row.id }, data: { isActive: false } });
+    }
+  }
+
   // Hizmet adı artık `Json`: kimlik hâlâ Türkçe addır (eşleştirme onun üzerinden
   // yapılır), ama satır hâlâ çevirisiz varsayılansa çeviriler doldurulur.
-  const existingServices = await client.service.findMany();
   for (const s of services) {
     const exists = existingServices.find((row) => pick(row.nameI18n, "tr") === s.nameI18n.tr);
     if (!exists) {
