@@ -1,4 +1,10 @@
 import { useTranslations } from "next-intl";
+import { noIndex } from "@/lib/seo";
+
+/**
+ * Yetki hatası sayfası: dizine girmez.
+ */
+export const metadata = noIndex;
 
 export default function Forbidden() {
   const t = useTranslations("auth");

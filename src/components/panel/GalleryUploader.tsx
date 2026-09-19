@@ -5,7 +5,7 @@ import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { addGalleryPhotos } from "@/actions/gallery";
 import { MAX_UPLOAD_BYTES } from "@/lib/upload-limits";
-import { MAX_GALLERY_BATCH } from "@/schemas/gallery";
+import { MAX_GALLERY_BATCH } from "@/lib/gallery-utils";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useActionError } from "@/lib/use-action-error";

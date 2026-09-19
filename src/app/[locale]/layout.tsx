@@ -5,7 +5,9 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
-import { routing } from "@/i18n/routing";
+import { routing, toAppLocale } from "@/i18n/routing";
+import { pageAlternates } from "@/lib/seo";
+import { siteUrl } from "@/lib/site-url";
 import "../globals.css";
 
 /**
@@ -61,10 +63,26 @@ const frauncesItalic = Fraunces({
  */
 const bebas = Bebas_Neue({ weight: "400", subsets: ["latin", "latin-ext"], variable: "--font-label", display: "swap" });
 
-/** Sekme başlığı ve arama sonucu açıklaması da ziyaretçinin dilinde gelir. */
-export async function generateMetadata(): Promise<Metadata> {
+/**
+ * Sekme başlığı ve arama sonucu açıklaması ziyaretçinin dilinde gelir; aynı
+ * yerde sayfanın üç dildeki adresleri de duyurulur.
+ *
+ * `metadataBase` tek kez burada verilir: altındaki her sayfa göreli bir yol
+ * yazıp (`/en/randevu`) mutlak adresi ondan alır. Dil bağlantıları kök sayfaya
+ * (`/`, `/en`, `/fr`) işaret eder; kendi çevirileri olan alt sayfalar
+ * (`/randevu`) `alternates` alanını kendileri ezer.
+ */
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  // Segment bilinmeyen yollarla da eşleşir (`/de`); metadata sayfanın 404'ünden
+  // önce üretildiği için gelen değer burada da bir kez indirgenir.
+  const locale = toAppLocale((await params).locale);
   const t = await getTranslations("meta");
-  return { title: t("title"), description: t("description") };
+  return {
+    metadataBase: new URL(siteUrl()),
+    title: t("title"),
+    description: t("description"),
+    alternates: pageAlternates("/", locale),
+  };
 }
 
 /**

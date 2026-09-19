@@ -1,4 +1,7 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { toAppLocale } from "@/i18n/routing";
+import { pageAlternates } from "@/lib/seo";
 import { getActiveBarbers, getActiveServices } from "@/lib/queries/booking";
 import { getTodayShopStatus } from "@/lib/queries/landing";
 import { getSettings } from "@/lib/settings";
@@ -7,6 +10,17 @@ import { BookingWizard } from "@/components/booking/BookingWizard";
 import { shopStatusText } from "@/lib/shop-status";
 
 export const dynamic = "force-dynamic";
+
+/**
+ * Randevu sayfası kendi başlığını, açıklamasını ve kendi dil bağlantılarını
+ * taşır: yerleşimden gelen `alternates` ana sayfayı gösterirdi, oysa
+ * `/randevu`nun İngilizcesi `/en/randevu`dur.
+ */
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const locale = toAppLocale((await params).locale);
+  const t = await getTranslations("meta.booking");
+  return { title: t("title"), description: t("description"), alternates: pageAlternates("/randevu", locale) };
+}
 
 export default async function RandevuPage(props: {
   params: Promise<{ locale: string }>;

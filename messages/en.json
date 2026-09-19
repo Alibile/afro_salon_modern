@@ -29,7 +29,15 @@
   },
   "meta": {
     "title": "Afro Salon Modern",
-    "description": "Men's afro haircuts, braids and styling. Same-day booking."
+    "description": "Men's afro haircuts, braids and styling. Same-day booking.",
+    "home": {
+      "title": "Afro Salon Modern — Afro barbering, booked the same day",
+      "description": "Afro haircuts, braids, twists and beard work. Meet the barbers, look through the gallery and take today's slot in a few taps."
+    },
+    "booking": {
+      "title": "Book an appointment — Afro Salon Modern",
+      "description": "Pick your service and your barber, see the times still open today and confirm your appointment in seconds."
+    }
   },
   "nav": {
     "mainMenu": "Main menu",

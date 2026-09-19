@@ -5,6 +5,13 @@ import { MotionProvider } from "@/components/motion/MotionProvider";
 import { Parallax } from "@/components/motion/Parallax";
 import { Reveal } from "@/components/motion/Reveal";
 import { getSettings } from "@/lib/settings";
+import { noIndex } from "@/lib/seo";
+
+/**
+ * Giriş ve kayıt sayfaları dizine girmez: arama sonucundan gelen ziyaretçinin
+ * göreceği sayfa ana sayfadır, form değil.
+ */
+export const metadata = noIndex;
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   const [settings, t] = await Promise.all([getSettings(), getTranslations("auth")]);

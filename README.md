@@ -33,21 +33,85 @@ idempotenttir, panelden düzenlenmiş kayıtlara dokunmaz).
 - `/randevularim` — müşterinin bugünkü ve geçmiş randevuları
 - `/panel` — berber ve admin paneli
 
+Yollar üç dilde de aynıdır, yalnızca önek değişir: Türkçe öneksiz (`/`,
+`/randevu`), İngilizce `/en` ve Fransızca `/fr` önekiyle (`/en/randevu`,
+`/fr/panel`). Ayrıntı için [Diller (TR/EN/FR)](#diller-trenfr).
+
+## Diller (TR/EN/FR)
+
+Site üç dilde yayınlanır: Türkçe (varsayılan), İngilizce, Fransızca.
+
+**Adresler.** Türkçe öneksizdir (`/`, `/randevu`, `/panel`), İngilizce ve
+Fransızca `/en` / `/fr` önekiyle gelir (`localePrefix: "as-needed"`,
+`src/i18n/routing.ts`). İlk ziyarette dil `NEXT_LOCALE` çerezinden, çerez
+yoksa tarayıcının `Accept-Language` başlığından seçilir; üst çubuktaki (ve
+paneldeki) dil anahtarı seçimi aynı çereze yazar, böylece tercih sonraki
+ziyaretlerde korunur. Uygulama içi bağlantılar `src/i18n/navigation.ts`
+sarmalayıcılarından geçer (`Link`, `redirect`, `useRouter`, `usePathname`);
+`next/link` doğrudan kullanılırsa bağlantı dili düşürür.
+
+**Arayüz metinleri.** `messages/tr.json`, `messages/en.json`,
+`messages/fr.json`. Üç dosya aynı anahtar ağacını **aynı sırayla** taşır ve
+bunu `tests/unit/messages.test.ts` bağlar: eksik, fazla ya da kaymış anahtar,
+boş değer ve çeviride düşmüş `{yer_tutucu}` testte yakalanır. Yeni bir metin
+eklerken anahtar **üç dosyaya birden**, aynı konuma yazılır; TypeScript tipleri
+`messages/tr.json`'dan türetildiği için Türkçe dosya kaynaktır.
+
+**Kullanıcının dili.** `User.locale` (`tr` | `en` | `fr`) `/panel/profil`
+formundan seçilir. Panelin gösterdiği dil adresten gelir; kayıtlı tercih
+e-postalarda kullanılır — müşteriye giden e-posta müşterinin, berbere giden
+berberin dilinde yazılır (`src/lib/email/i18n.ts`).
+
+**Panelden girilen içerik.** Hizmet adı, "Hakkımızda", "Neden biz" maddeleri,
+galeri başlıkları gibi alanlar veritabanında `*I18n` adlı `Json` sütunlarda
+`{ tr, en?, fr? }` biçiminde durur. Panel formlarında her alanın üç sekmesi
+vardır: **TR zorunludur**, EN/FR boş bırakılabilir. Boş bırakılan çeviri
+kaydedilmez; ziyaretçi o dilde sayfayı açtığında Türkçe kaynak metni görür
+(`pick`, `src/lib/i18n-content.ts`).
+
+**Galeri etiketleri.** Etiketler veritabanında ve `?etiket=` parametresinde
+**anahtar** olarak durur (`braids`, `skin-fade` …; liste
+`src/lib/gallery-tags.ts`), görünen adları `messages/*.json` içinde
+`gallery.tags.*` altındadır. Panelde "Diğer" alanına serbest yazılan bir
+etiket üç dilden birindeki kategori adına eşitse anahtarına indirilir — hem
+panel formunda hem şemada (`src/schemas/gallery.ts`), yani eylem doğrudan
+çağrılsa bile. Böylece "Braids", "Örgü" ve "Tresses" tek çipe düşer. Listede
+olmayan serbest etiketler yazıldıkları gibi yaşar ve çevrilmez.
+
+**SEO.** Her sayfa üç dile `hreflang` bağlantısı ve kendi dilindeki
+`canonical` adresini basar; `x-default` Türkçeye (öneksiz adrese) gider.
+`/sitemap.xml` herkese açık sayfaları üç dilde listeler (`/`, `/en`, `/fr`,
+`/randevu`, `/en/randevu`, `/fr/randevu`) ve her kaydı öbür dillere bağlar;
+`/robots.txt` `/api` ile panel, hesap ve giriş/kayıt yollarını üç dilde de
+kapatır. Oturum ardındaki sayfalar ayrıca `robots: { index: false }` taşır.
+İkisi de `[locale]` ağacının dışında, `src/app/` kökünde durur. Mutlak
+adresler `NEXT_PUBLIC_SITE_URL`'den gelir (boşsa `http://localhost:3000`);
+canlıya çıkarken gerçek alan adına ayarlanmalı, yoksa arama motorlarına
+localhost adresleri bildirilir.
+
+**Mevcut kurulumu güncellerken.** Bu sürüme yükselen mevcut bir kurulumda
+EN/FR seed içeriğini almak için `npm run db:seed` yeniden çalıştırılır;
+yalnızca hâlâ seed varsayılanına eşit alanlar doldurulur, admin düzenlemeleri
+korunur.
+
 ## Panel Sayfaları
 
 - `/panel/randevular` — tüm randevular (berber zamanlaması)
 - `/panel/izinler` — berber izinleri (barber)
 - `/panel/musteriler` — tüm müşteriler (admin)
-- `/panel/hizmetler` — hizmet listesi, fiyat ve süre (sıralamadan sil/düzenle; hard delete kuralı: geçmiş randevusu olan hizmetler sadece pasifleştirilebilir). Fiyat için satır içi düzenleme: listede fiyata tıklayıp yeni değeri yazıp Enter'a basmak yeterli; Esc vazgeçer, alan boş bırakılırsa kayıt yapılmaz
+- `/panel/hizmetler` — hizmet listesi (adı üç dilli), fiyat ve süre (sıralamadan sil/düzenle; hard delete kuralı: geçmiş randevusu olan hizmetler sadece pasifleştirilebilir). Fiyat için satır içi düzenleme: listede fiyata tıklayıp yeni değeri yazıp Enter'a basmak yeterli; Esc vazgeçer, alan boş bırakılırsa kayıt yapılmaz
 - `/panel/berberler` — berber listesi (sıralamadan sil/düzenle; hard delete kuralı: geçmiş randevusu olan berberler sadece pasifleştirilebilir)
-- `/panel/galeri` — galeri fotoğrafları (admin): çoklu dosya yükleme, başlık/etiket yönetimi, sıralama (yukarı/aşağı), aktif/pasif geçişi, silme
+- `/panel/galeri` — galeri fotoğrafları (admin): çoklu dosya yükleme, başlık (üç dilli) ve etiket yönetimi, sıralama (yukarı/aşağı), aktif/pasif geçişi, silme
 - `/panel/profil` — kendi profil bilgileri ve şifre değişimi (tüm personel)
 - `/panel/yorumlar` — müşteri yorumları yönetimi: ekle/düzenle/aktif-pasif geçişi (admin)
 - `/panel/ayarlar` — salon ve site içeriği ayarları (admin)
 
 ## İçerik yönetimi (Site ayarları)
 
-Panelden `/panel/ayarlar` sayfasında aşağıdaki bilgiler düzenlenebilir:
+Panelden `/panel/ayarlar` sayfasında aşağıdaki bilgiler düzenlenebilir.
+Ziyaretçiye görünen metin alanları (aşağıda **üç dilli** işaretli olanlar)
+TR/EN/FR sekmeleriyle girilir: Türkçesi zorunlu, çeviriler isteğe bağlı, boş
+bırakılan çeviri yerine Türkçesi gösterilir (bkz. [Diller](#diller-trenfr)).
 
 **Salon bilgileri:**
 - Salon adı, adres, telefon
@@ -60,8 +124,8 @@ Panelden `/panel/ayarlar` sayfasında aşağıdaki bilgiler düzenlenebilir:
 **Site içeriği:**
 - E-posta (iletişim formu gönderimler için; boşsa `EMAIL_FROM` kullanılır)
 - İnstagram, Facebook, WhatsApp (sosyal medya bağlantıları; boşsa gösterilmez)
-- "Hakkımızda" başlığı ve metni (wysiwyg-style textarea)
-- "Neden biz" — 3 madde (başlık + metin)
+- "Hakkımızda" başlığı ve metni (wysiwyg-style textarea) — **üç dilli**
+- "Neden biz" — 3 madde (başlık + metin) — **üç dilli**
 - Müşteri memnuniyet yüzdesi (istatistik)
 - İşletme deneyim yılı (istatistik)
 - Google Harita URL'si
@@ -89,6 +153,7 @@ Landing page'deki iletişim formundan (`#iletisim`) gelen mesajlar:
 | DATABASE_URL | Postgres bağlantısı |
 | AUTH_SECRET, AUTH_URL | Auth.js |
 | RESEND_API_KEY, EMAIL_FROM | E-posta; boşsa gönderim atlanır ve loglanır |
+| NEXT_PUBLIC_SITE_URL | Sitenin mutlak kök adresi; `hreflang`, `canonical`, `sitemap.xml` ve `robots.txt` bunu kullanır. Tarayıcıya giden kodda da gömüldüğü için NEXT_PUBLIC_ önekli. Boşsa `http://localhost:3000` varsayılır — canlıda mutlaka gerçek alan adı |
 | SEED_PASSWORD | Seed kullanıcılarının şifresi (admin, berber); boşsa `Sifre123!` kullanılır. `NODE_ENV=production` iken boşsa seed hata verir |
 | R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET | Cloudflare R2; bucket public erişim açık ve CORS'ta PUT izinli olmalı |
 | NEXT_PUBLIC_R2_PUBLIC_URL | R2 public alan adı; tarayıcıda da okunduğu için NEXT_PUBLIC_ önekli. `next.config.ts` içindeki `remotePatterns` ile uyumlu olmalı. Boşsa yalnızca `landing/` ve `seed/` anahtarları yerelden servis edilir; panelden yüklenen fotoğraflar için R2 gerekir |
@@ -115,7 +180,7 @@ Cloudflare R2 bucket ayarlarında CORS örneği:
 
 ## Tipografi ve hareket
 
-Üç yüz, üç iş (`src/app/layout.tsx`, ölçek `src/app/globals.css`):
+Üç yüz, üç iş (`src/app/[locale]/layout.tsx`, ölçek `src/app/globals.css`):
 
 | Değişken | Yüz | Nerede |
 |---|---|---|
@@ -127,7 +192,7 @@ Cloudflare R2 bucket ayarlarında CORS örneği:
 `.display-md`, `.display-sm`, `.label`, `.editorial-note`, `.measure`.
 
 Hareket `motion` (v13, `motion/react`) ile yapılır ve **yalnızca ana sayfa
-ağacını** (`src/app/(musteri)/page.tsx`) ve giriş/kayıt sayfalarının sol marka
+ağacını** (`src/app/[locale]/(musteri)/page.tsx`) ve giriş/kayıt sayfalarının sol marka
 panelini sarar — panel ve `/randevu` akışı hareketsizdir. Bileşenler
 `src/components/motion/` altında:
 
@@ -207,6 +272,16 @@ Ana sayfanın Lighthouse mobil performans puanı **85** (varsayılan simülasyon
 kaynağı; LCP 4.4 sn'den **4.3 sn**'ye indi. CSS satır içi optimizasyonu
 (`next.config.ts`'de `experimental.inlineCss: true`) etkindir. Devre dışı
 bırakmak için `false` yapıp rebuild edin; Lighthouse puanı 2–3 puan düşebilir.
+
+Üç dilli yayın bu puanı düşürmedi: Türkçe tarayıcıyla `/` ölçümü yine **85**
+(3 koşunun medyanı — 85 / 86 / 85; FCP 1.5 sn, LCP 4.1–4.4 sn). Tarayıcısı
+Türkçe olmayan bir ziyaretçi `/` adresinde bir kez 307 ile kendi diline
+yönlenir (dil algılama, bkz. [Diller (TR/EN/FR)](#diller-trenfr)); o fazladan
+gidiş dönüş ölçümde **83**e denk geliyor (81 / 83 / 83). Aynı sayfa doğrudan
+açıldığında (`/en`) puan **86**. Yani kayıp sayfanın kendisinde değil, tek
+seferlik dil yönlendirmesinde — doğru dili göstermenin bedeli olarak kabul
+edildi. `hreflang`/`canonical` etiketleri ve `sitemap.xml` ölçülebilir bir yük
+getirmiyor (birkaç yüz bayt `<link>`).
 
 LCP için üç ayar:
 

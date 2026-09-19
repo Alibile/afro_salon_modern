@@ -6,6 +6,13 @@ import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { LocaleSwitcher } from "@/components/brand/LocaleSwitcher";
 import { logoutAction } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
+import { noIndex } from "@/lib/seo";
+
+/**
+ * Panelin tamamı dizin dışı. Yerleşime konduğu için altındaki her sayfa
+ * (`/panel/randevular`, `/panel/musteriler` …) aynı etiketi devralır.
+ */
+export const metadata = noIndex;
 
 /**
  * Panelin görsel dili Tur 2'de donduruldu: gövde Inter, başlıklar Bebas.

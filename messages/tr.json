@@ -29,7 +29,15 @@
   },
   "meta": {
     "title": "Afro Salon Modern",
-    "description": "Afro saç kesimi, örgü ve şekillendirme. Aynı gün randevu."
+    "description": "Afro saç kesimi, örgü ve şekillendirme. Aynı gün randevu.",
+    "home": {
+      "title": "Afro Salon Modern — Afro berber, aynı gün randevu",
+      "description": "Afro saç kesimi, örgü, twist ve sakal tıraşı. Ekibi tanıyın, galeriye göz atın, bugüne randevunuzu birkaç dokunuşla alın."
+    },
+    "booking": {
+      "title": "Randevu al — Afro Salon Modern",
+      "description": "Hizmetinizi ve berberinizi seçin, bugünün boş saatlerini görün, randevunuzu saniyeler içinde onaylayın."
+    }
   },
   "nav": {
     "mainMenu": "Ana menü",

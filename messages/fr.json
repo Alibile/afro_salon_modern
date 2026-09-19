@@ -29,7 +29,15 @@
   },
   "meta": {
     "title": "Afro Salon Modern",
-    "description": "Coupes afro, tresses et coiffage pour hommes. Rendez-vous le jour même."
+    "description": "Coupes afro, tresses et coiffage pour hommes. Rendez-vous le jour même.",
+    "home": {
+      "title": "Afro Salon Modern — Coiffeur afro, rendez-vous le jour même",
+      "description": "Coupes afro, tresses, twists et taille de barbe. Découvrez l'équipe, parcourez la galerie et prenez votre créneau du jour en quelques gestes."
+    },
+    "booking": {
+      "title": "Prendre rendez-vous — Afro Salon Modern",
+      "description": "Choisissez votre prestation et votre coiffeur, voyez les créneaux encore libres aujourd'hui et confirmez en quelques secondes."
+    }
   },
   "nav": {
     "mainMenu": "Menu principal",

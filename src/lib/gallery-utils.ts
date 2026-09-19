@@ -20,6 +20,13 @@ export const TAG_MIN_LENGTH = 2;
 export const TAG_MAX_LENGTH = 20;
 /** Landing galeride bir sayfada gösterilen fotoğraf sayısı. */
 export const GALLERY_PAGE_SIZE = 12;
+/**
+ * Tek yüklemede kabul edilen en fazla fotoğraf; panel yükleyicisi de bunu
+ * kullanır. Sınır şemadan buraya taşındı: şema artık üç dilin etiket adlarını
+ * okuyor (`gallery-tag-labels.ts`) ve yalnızca sunucuda çalışıyor — yükleyici
+ * bir istemci bileşeni, sayıyı buradan alıyor.
+ */
+export const MAX_GALLERY_BATCH = 24;
 
 /** Etiket filtresi: `tag` boş/`null` ise liste olduğu gibi döner. */
 export function filterByTag<T extends { tags: string[] }>(photos: T[], tag: string | null | undefined): T[] {

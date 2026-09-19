@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { getLandingData } from "@/lib/queries/landing";
 import { getSessionUser } from "@/lib/auth-helpers";
 import { preloadHero } from "@/lib/hero-image";
@@ -15,6 +17,16 @@ import { ContactSection } from "@/components/landing/ContactSection";
 import { SiteFooter } from "@/components/landing/SiteFooter";
 
 export const dynamic = "force-dynamic";
+
+/**
+ * Ana sayfanın kendi başlığı ve açıklaması: kök yerleşimdeki genel site metni
+ * arama sonucunda salonun ne yaptığını anlatmıyordu. Dil bağlantıları
+ * (`alternates`) yerleşimden gelir — orada zaten `/`, `/en`, `/fr` yazılı.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("meta.home");
+  return { title: t("title"), description: t("description") };
+}
 
 export default async function LandingPage({ params }: { params: Promise<{ locale: string }> }) {
   // Veri beklenmeden önce: LCP fotoğrafının duyurusu `<head>`in en başına,

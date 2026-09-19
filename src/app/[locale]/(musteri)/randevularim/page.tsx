@@ -7,6 +7,12 @@ import { getSettings } from "@/lib/settings";
 import { AppointmentCard } from "@/components/booking/AppointmentCard";
 import { publicUrl } from "@/lib/storage-public";
 import { formatShopDate } from "@/lib/time";
+import { noIndex } from "@/lib/seo";
+
+/**
+ * Müşterinin kendi randevuları: oturum ardında, dizine girmez.
+ */
+export const metadata = noIndex;
 
 export const dynamic = "force-dynamic";
 

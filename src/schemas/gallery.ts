@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { normalizeTags, MAX_TAGS, TAG_MIN_LENGTH, TAG_MAX_LENGTH } from "@/lib/gallery-utils";
+import { normalizeTags, MAX_GALLERY_BATCH, MAX_TAGS, TAG_MIN_LENGTH, TAG_MAX_LENGTH } from "@/lib/gallery-utils";
+import { canonicalTagAnyLocale } from "@/lib/gallery-tag-labels";
 import { i18nText } from "@/lib/i18n-content";
 
 /**
@@ -15,8 +16,12 @@ export const galleryItemSchema = z.object({
 });
 export type GalleryItemInput = z.infer<typeof galleryItemSchema>;
 
-/** Tek yüklemede kabul edilen en fazla fotoğraf; panel yükleyicisi de bunu kullanır. */
-export const MAX_GALLERY_BATCH = 24;
+/**
+ * Sınır artık `gallery-utils.ts`'te durur (istemci yükleyicisi de oradan okur);
+ * şemayı kullanan kod alışkanlığını bozmasın diye buradan da dışa verilir.
+ */
+export { MAX_GALLERY_BATCH };
+
 /**
  * Masonry, gelen oranı olduğu gibi kullanır: 1×5000 gibi bir görsel sütunu
  * tek başına metrelerce uzatırdı. Sınır geniş tutuldu (panorama ve uzun dikey
@@ -35,10 +40,23 @@ export const addGalleryPhotosSchema = z
   .min(1, "errors.selectPhoto")
   .max(MAX_GALLERY_BATCH, "errors.tooManyPhotos");
 
-/** Virgüllü metin ya da dizi kabul eder; kırpma/tekilleştirme `normalizeTags` ile yapılır. */
+/**
+ * Virgüllü metin ya da dizi kabul eder; kırpma/tekilleştirme `normalizeTags`
+ * ile yapılır.
+ *
+ * Serbest yazılan etiket, üç dilden birinde bir kategori adıysa anahtarına
+ * indirilir: İngilizce panelde yazılan "Braids" ile Türkçe panelde seçilen
+ * `braids` aynı çipe düşer, landing'de iki ayrı filtre görünmez. Aynı
+ * indirgemeyi panel formu da yapıyor (`GalleryCard`), ama orada yalnızca
+ * kullanıcının o anki dili var ve eylem doğrudan da çağrılabilir — şema son
+ * söz olduğu için burada tekrar edilir.
+ *
+ * Eşleme sonrası ikinci bir `normalizeTags`: "Örgü" ile "Braids" birlikte
+ * gelirse ikisi de `braids` olur, tekilleştirme ondan sonra anlam kazanır.
+ */
 const tagsField = z
   .union([z.string(), z.array(z.string())])
-  .transform(normalizeTags)
+  .transform((input) => normalizeTags(normalizeTags(input).map(canonicalTagAnyLocale)))
   .refine((tags) => tags.length > 0, "errors.tagRequired")
   .refine(
     (tags) => tags.length <= MAX_TAGS && tags.every((t) => t.length >= TAG_MIN_LENGTH && t.length <= TAG_MAX_LENGTH),
