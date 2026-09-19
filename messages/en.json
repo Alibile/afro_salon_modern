@@ -323,7 +323,6 @@
       }
     },
     "i18nField": {
-      "tab": "{language} text",
       "hint": "Every text is entered in three languages. Turkish is the source; leave English or French empty and visitors see the Turkish version of that field."
     },
     "today": {

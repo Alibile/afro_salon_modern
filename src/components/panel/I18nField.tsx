@@ -23,8 +23,11 @@ import { cn } from "@/lib/utils";
  * kullanmayan yerler içindir; ikisinden biri verilir.
  */
 type BaseProps = {
-  /** Girdi adlarının öneki; `FormData` anahtarları bundan türer. */
-  name: string;
+  /**
+   * Girdi adlarının öneki; `FormData` anahtarları bundan türer. Kontrollü
+   * kullanımda (galeri kartı) form gönderimi yok, bu yüzden verilmeyebilir.
+   */
+  name?: string;
   label: string;
   /** Kontrollü kullanım. */
   value?: I18nText;
@@ -41,7 +44,6 @@ const LOCALES = routing.locales;
 const HIDDEN = { display: "none" } as const;
 
 function useTabState(props: BaseProps) {
-  const t = useTranslations("panel.i18nField");
   const tLanguage = useTranslations("common.endonyms");
   const id = useId();
   const [active, setActive] = useState<AppLocale>(routing.defaultLocale);
@@ -64,7 +66,6 @@ function useTabState(props: BaseProps) {
             key={locale}
             type="button"
             aria-pressed={on}
-            aria-label={t("tab", { language: tLanguage(locale) })}
             onClick={() => setActive(locale)}
             className={cn(
               "label rounded-full border px-2.5 py-0.5 text-[0.65rem] transition-colors",
@@ -78,6 +79,9 @@ function useTabState(props: BaseProps) {
             )}
           >
             {locale.toUpperCase()}
+            {/* Erişilebilir ad görünen kodu da taşır ("TR – Türkçe"): ekran
+                okuyucu kullanıcısı düğmeyi gördüğü etiketle arayabilsin. */}
+            <span className="sr-only"> – {tLanguage(locale)}</span>
           </button>
         );
       })}
@@ -117,7 +121,7 @@ export function I18nTextField(props: BaseProps) {
         <Input
           key={locale}
           id={`${id}-${locale}`}
-          name={`${props.name}.${locale}`}
+          name={props.name ? `${props.name}.${locale}` : undefined}
           style={locale === active ? undefined : HIDDEN}
           value={current[locale] ?? ""}
           maxLength={props.maxLength}
@@ -141,7 +145,7 @@ export function I18nTextarea(props: BaseProps & { rows?: number }) {
         <Textarea
           key={locale}
           id={`${id}-${locale}`}
-          name={`${props.name}.${locale}`}
+          name={props.name ? `${props.name}.${locale}` : undefined}
           style={locale === active ? undefined : HIDDEN}
           rows={props.rows ?? 3}
           value={current[locale] ?? ""}

@@ -10,13 +10,27 @@ import { intlLocale } from "@/lib/intl";
  * sütunda durduğu için ikincil sıralama veritabanında yapılamaz: aynı
  * `sortOrder`'ı paylaşan hizmetler burada, o dilin kendi alfabetik sırasıyla
  * ayrılır (`Saç` ile `Sakal` Türkçede, `Beard` ile `Braids` İngilizcede).
- * Ham `nameI18n` de dönülür — panel formu üç sekmeyi ondan doldurur.
+ *
+ * Yalnızca seçilmiş ad döner: bu liste müşteri yüzüne (istemci paketine) kadar
+ * gider, ziyaretçinin okumayacağı öbür iki dilin metinlerini taşımasına gerek
+ * yok. Ham `nameI18n`'e ihtiyaç duyan tek yer panel formu — onu
+ * `listServicesForAdmin` verir.
  */
 export async function getActiveServices(locale: string) {
-  const rows = await prisma.service.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" } });
+  const rows = await prisma.service.findMany({
+    where: { isActive: true },
+    orderBy: { sortOrder: "asc" },
+    select: { id: true, nameI18n: true, durationMinutes: true, priceKurus: true, sortOrder: true },
+  });
   const tag = intlLocale(locale);
   return rows
-    .map((s) => ({ ...s, name: pick(s.nameI18n, locale) }))
+    .map((s) => ({
+      id: s.id,
+      name: pick(s.nameI18n, locale),
+      durationMinutes: s.durationMinutes,
+      priceKurus: s.priceKurus,
+      sortOrder: s.sortOrder,
+    }))
     .sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name, tag));
 }
 

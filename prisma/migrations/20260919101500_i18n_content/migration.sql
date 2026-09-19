@@ -46,8 +46,11 @@ ALTER TABLE "GalleryPhoto" DROP COLUMN "caption";
 -- GalleryPhoto.tags: Türkçe görünen adlar sabit anahtarlara çevrilir. Sabit
 -- listede olmayan (panelden serbest yazılmış) etiketler olduğu gibi kalır —
 -- onların çevirisi yok, her dilde yazıldığı gibi görünürler.
+--
+-- `WITH ORDINALITY` + `ORDER BY`: dizi sırası panelde verilen sıradır ve
+-- korunmalı. `unnest` sırayı pratikte koruyor olsa da garanti etmiyor.
 UPDATE "GalleryPhoto" SET "tags" = ARRAY(
-  SELECT CASE tag
+  SELECT CASE u.tag
     WHEN 'Low Taper Fade'  THEN 'low-taper-fade'
     WHEN 'Taper Fade'      THEN 'taper-fade'
     WHEN 'Skin Fade'       THEN 'skin-fade'
@@ -61,7 +64,8 @@ UPDATE "GalleryPhoto" SET "tags" = ARRAY(
     WHEN 'Örgü'            THEN 'braids'
     WHEN 'Twist'           THEN 'twist'
     WHEN 'Sakal'           THEN 'beard'
-    ELSE tag
+    ELSE u.tag
   END
-  FROM unnest("tags") AS tag
+  FROM unnest("tags") WITH ORDINALITY AS u(tag, ord)
+  ORDER BY u.ord
 );

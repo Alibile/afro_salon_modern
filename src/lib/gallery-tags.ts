@@ -50,6 +50,28 @@ export function tagLabel(tag: string, t: (key: GalleryTag) => string): string {
 }
 
 /**
+ * Serbest yazılmış bir etiketi, aslında bir kategori adıysa anahtarına geri
+ * çevirir. İngilizce panelde "Diğer etiketler" alanına "Braids" yazan admin
+ * ikinci bir çip yaratmasın diye: aynı fotoğraf hem `braids` hem "Braids"
+ * taşısaydı landing'de iki ayrı filtre görünürdü.
+ *
+ * Anahtarın kendisi de kabul edilir ("skin-fade"). Tanınmayan etiket olduğu
+ * gibi döner — serbest etiketler yazıldıkları gibi yaşar.
+ *
+ * Karşılaştırma Türkçeye özgü değil düz `toLowerCase` ile yapılır: Türkçe
+ * kuralı büyük "I"yı "ı"ya çevirir ve "SKIN FADE" ile "Skin Fade" birbirini
+ * tutmaz olurdu. Listedeki Türkçe adların hiçbiri bu farktan etkilenmiyor.
+ */
+export function canonicalTag(tag: string, t: (key: GalleryTag) => string): string {
+  const needle = tag.trim().toLowerCase();
+  if (isGalleryTag(needle)) return needle;
+  for (const key of GALLERY_TAGS) {
+    if (t(key).trim().toLowerCase() === needle) return key;
+  }
+  return tag;
+}
+
+/**
  * Etiketleri çip sırasına dizer: `GALLERY_TAGS` içindekiler liste sırasıyla,
  * listede olmayan (panelden serbest yazılmış) etiketler sonda Türkçe
  * alfabetik. Girdi dizisi değiştirilmez.

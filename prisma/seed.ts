@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
-import { pick, sameI18nText, type I18nText } from "../src/lib/i18n-content";
+import { asI18nText, pick, sameI18nText, type I18nText } from "../src/lib/i18n-content";
 
 const DEFAULT_HOURS = [0, 1, 2, 3, 4, 5, 6].map((d) => ({
   dayOfWeek: d,
@@ -68,6 +68,9 @@ const CONTENT_FIELDS = [
   "whyUs3TitleI18n",
   "whyUs3TextI18n",
 ] as const;
+
+/** Boş bırakılabilen düz metin alanları; bunlar da alan alan doldurulur. */
+const LINK_FIELDS = ["email", "instagram", "facebook", "whatsapp", "mapsUrl"] as const;
 
 /**
  * Galerinin başlangıç içeriği: `public/landing/` altındaki stok fotoğraflar.
@@ -145,6 +148,12 @@ function untranslatedDefault(current: unknown, target: I18nText): boolean {
   return sameI18nText(current, { tr: target.tr });
 }
 
+/** Üç dilde de hiçbir şey yazılmamış bir içerik alanı. */
+function isBlank(current: unknown): boolean {
+  const text = asI18nText(current);
+  return text.tr.trim() === "" && (text.en ?? "").trim() === "" && (text.fr ?? "").trim() === "";
+}
+
 const DEFAULT_TESTIMONIALS = [
   { name: "Emre K.", text: "Fade kesim tam istediğim gibi oldu, ekip çok ilgili. Kesinlikle tekrar geleceğim.", rating: 5, sortOrder: 1 },
   { name: "Derrick B.", text: "Örgü konusunda gerçekten usta bir ekip. Randevu almak da çok kolaydı.", rating: 5, sortOrder: 2 },
@@ -182,24 +191,33 @@ export async function runSeed(client: PrismaClient) {
     update: {},
     create: { id: 1, shopName: "Afro Salon Modern", address: "İstanbul", phone: "+90 555 000 00 00", ...DEFAULT_LANDING_CONTENT },
   });
-  // Var olan geliştirme veritabanlarında içerik alanları boşsa varsayılanlarla doldur (idempotent).
-  const aboutText = pick(settings.aboutTextI18n, "tr");
-  if (aboutText.trim() === "") {
-    await client.settings.update({ where: { id: 1 }, data: DEFAULT_LANDING_CONTENT });
-  } else {
-    // Tur 5 göçü alanları `{tr: <eski>}` yaptı: hâlâ birebir seed varsayılanı
-    // olan (yani admin hiç düzenlememiş) alanlara çevirileri ekle. Tek harfi
-    // bile değişmiş bir alana dokunulmaz.
-    const fill: Record<string, I18nText> = {};
-    for (const field of CONTENT_FIELDS) {
-      const target = DEFAULT_LANDING_CONTENT[field];
-      if (untranslatedDefault(settings[field], target)) fill[field] = target;
-    }
-    // Metin hâlâ Tur 3 öncesi varsayılansa (admin hiç değiştirmemiş) yeni erkek
-    // odaklı varsayılana taşı; öbür içerik alanları yukarıdaki kurala tabidir.
-    if (aboutText.trim() === LEGACY_ABOUT_TEXT.trim()) fill.aboutTextI18n = DEFAULT_LANDING_CONTENT.aboutTextI18n;
-    if (Object.keys(fill).length > 0) await client.settings.update({ where: { id: 1 }, data: fill });
+  // Var olan kurulumlarda içerik **alan alan** değerlendirilir. Tek bir alanın
+  // boş olması öbürlerini ezmemeli: admin "hakkımızda" metnini bilerek silmiş
+  // olabilir ve bu, onun elle girdiği İngilizce "neden biz" başlığını
+  // götürmemeli (seed bir zamanlar bütün bloğu birden yazıyordu).
+  const fill: Record<string, I18nText | string> = {};
+  for (const field of CONTENT_FIELDS) {
+    const target = DEFAULT_LANDING_CONTENT[field];
+    // Hiç yazılmamış alan varsayılanla dolar; hâlâ çevirisiz seed varsayılanı
+    // olan alana yalnızca çeviriler eklenir. Arası (admin yazmış) dokunulmaz.
+    if (isBlank(settings[field]) || untranslatedDefault(settings[field], target)) fill[field] = target;
   }
+  // Metin hâlâ Tur 3 öncesi varsayılansa (admin Türkçesini hiç değiştirmemiş)
+  // yeni erkek odaklı metne taşınır. Adminin o alana yazdığı çeviri varsa
+  // korunur; yazmadığı diller seed'in çevirisiyle dolar.
+  if (pick(settings.aboutTextI18n, "tr").trim() === LEGACY_ABOUT_TEXT.trim()) {
+    const current = asI18nText(settings.aboutTextI18n);
+    fill.aboutTextI18n = {
+      ...DEFAULT_LANDING_CONTENT.aboutTextI18n,
+      ...(current.en?.trim() ? { en: current.en } : {}),
+      ...(current.fr?.trim() ? { fr: current.fr } : {}),
+      tr: DEFAULT_LANDING_CONTENT.aboutTextI18n.tr,
+    };
+  }
+  for (const field of LINK_FIELDS) {
+    if (settings[field].trim() === "") fill[field] = DEFAULT_LANDING_CONTENT[field];
+  }
+  if (Object.keys(fill).length > 0) await client.settings.update({ where: { id: 1 }, data: fill });
 
   await client.user.upsert({
     where: { email: "admin@afrosalon.local" },

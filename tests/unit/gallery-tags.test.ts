@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { GALLERY_TAGS, isGalleryTag, orderTags, splitTags, tagLabel } from "@/lib/gallery-tags";
+import { canonicalTag, GALLERY_TAGS, isGalleryTag, orderTags, splitTags, tagLabel } from "@/lib/gallery-tags";
 import tr from "../../messages/tr.json";
 import en from "../../messages/en.json";
 import fr from "../../messages/fr.json";
@@ -120,6 +120,38 @@ describe("tagLabel", () => {
   it("serbest etiketi her dilde yazıldığı gibi bırakır", () => {
     expect(tagLabel("Dalga", translator(en))).toBe("Dalga");
     expect(tagLabel("Dalga", translator(fr))).toBe("Dalga");
+  });
+});
+
+describe("canonicalTag", () => {
+  const translator = (messages: { gallery: { tags: Record<string, string> } }) =>
+    ((key: string) => messages.gallery.tags[key]) as (key: (typeof GALLERY_TAGS)[number]) => string;
+
+  it("panelin dilinde yazılmış kategori adını anahtarına çevirir", () => {
+    // EN panelinde "Diğer etiketler"e "Braids" yazmak `braids` çipiyle aynı şey.
+    expect(canonicalTag("Braids", translator(en))).toBe("braids");
+    expect(canonicalTag("Örgü", translator(tr))).toBe("braids");
+    expect(canonicalTag("Tresses", translator(fr))).toBe("braids");
+  });
+
+  it("büyük/küçük harf ve boşluk farkını yok sayar", () => {
+    expect(canonicalTag("  braIDS  ", translator(en))).toBe("braids");
+    expect(canonicalTag("SKIN FADE", translator(en))).toBe("skin-fade");
+  });
+
+  it("anahtarın kendisini olduğu gibi kabul eder", () => {
+    expect(canonicalTag("skin-fade", translator(en))).toBe("skin-fade");
+    expect(canonicalTag("Skin-Fade", translator(en))).toBe("skin-fade");
+  });
+
+  it("gerçekten serbest olan etiketi yazıldığı gibi bırakır", () => {
+    expect(canonicalTag("Dalga Deseni", translator(en))).toBe("Dalga Deseni");
+    expect(canonicalTag("Ombre", translator(fr))).toBe("Ombre");
+  });
+
+  it("başka dilin adını da tanır çünkü anahtar tektir (aynı çipe düşer)", () => {
+    // Fransızca panelde "Barbe" yazılırsa `beard`; Türkçede "Sakal" da `beard`.
+    expect(canonicalTag("Barbe", translator(fr))).toBe(canonicalTag("Sakal", translator(tr)));
   });
 });
 

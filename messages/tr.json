@@ -323,7 +323,6 @@
       }
     },
     "i18nField": {
-      "tab": "{language} metni",
       "hint": "Her metin üç dilde girilir. Türkçe kaynak metindir; İngilizce ya da Fransızca boş bırakılırsa ziyaretçi o alanın Türkçesini görür."
     },
     "today": {

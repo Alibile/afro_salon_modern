@@ -38,7 +38,7 @@ model User {
   createdAt    DateTime @default(now()) @db.Timestamptz(3)
 
   barber       Barber?
-  appointments Appointment[] @relation("CustomerAppointments")
+  appointments Appointment[]  @relation("CustomerAppointments")
   photos       HaircutPhoto[] @relation("CustomerPhotos")
 }
 
@@ -182,21 +182,21 @@ model Testimonial {
 
 /// Landing sayfasındaki galeri: panelden yönetilir, kesim fotoğraflarından (HaircutPhoto) bağımsızdır.
 model GalleryPhoto {
-  id         String   @id @default(cuid())
+  id          String   @id @default(cuid())
   /// Aynı dosya iki kez eklenemez: seed zaten anahtar üzerinden upsert eder ve
   /// silme, anahtarı depodan kaldırdığı için ikinci kayıt ölü bağlantı olurdu.
-  storageKey String   @unique
+  storageKey  String   @unique
   /// Başlık üç dilde: `{ tr, en?, fr? }`.
-  captionI18n Json    @default("{\"tr\":\"\"}")
+  captionI18n Json     @default("{\"tr\":\"\"}")
   /// Etiketler **anahtar** olarak saklanır (`skin-fade`, `braids`); görünen
   /// adları `messages/*.json` → `gallery.tags.*`. Listede olmayan serbest
   /// etiketler yazıldığı gibi durur ve her dilde öyle görünür.
-  tags       String[] @default([])
-  width      Int
-  height     Int
-  sortOrder  Int      @default(0)
-  isActive   Boolean  @default(true)
-  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  tags        String[] @default([])
+  width       Int
+  height      Int
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
 
   @@index([isActive, sortOrder])
 }

@@ -102,6 +102,46 @@ describe("runSeed", () => {
     expect(settings.aboutTextI18n).toEqual({ tr: "Özel metin" });
   });
 
+  it("bir içerik alanı boşaltıldı diye öbür alanları ezmez", async () => {
+    // Admin "hakkımızda" metnini bilerek sildi ve "neden biz"in İngilizcesini
+    // kendisi yazdı. Seed bir zamanlar bütün içerik bloğunu birden yazıyordu;
+    // o hâlde bu İngilizce başlık sessizce kaybolurdu.
+    await prisma.settings.update({
+      where: { id: 1 },
+      data: {
+        aboutTextI18n: { tr: "" },
+        whyUs1TitleI18n: { tr: "Usta berberler", en: "Our own wording" },
+        instagram: "https://instagram.com/adminin-hesabi",
+      },
+    });
+
+    await runSeed(prisma);
+
+    const settings = await prisma.settings.findUniqueOrThrow({ where: { id: 1 } });
+    expect(settings.whyUs1TitleI18n).toEqual({ tr: "Usta berberler", en: "Our own wording" });
+    expect(settings.instagram).toBe("https://instagram.com/adminin-hesabi");
+    // Yalnızca gerçekten boş olan alan varsayılanla doldu.
+    expect(settings.aboutTextI18n).toEqual(DEFAULT_LANDING_CONTENT.aboutTextI18n);
+  });
+
+  it("eski Türkçe metni taşırken adminin girdiği çeviriyi korur", async () => {
+    await prisma.settings.update({
+      where: { id: 1 },
+      data: { aboutTextI18n: { tr: LEGACY_ABOUT_TEXT, en: "Our own English about text." } },
+    });
+
+    await runSeed(prisma);
+
+    const settings = await prisma.settings.findUniqueOrThrow({ where: { id: 1 } });
+    // Türkçesi yeni varsayılana taşındı, İngilizcesi yerinde kaldı; hiç
+    // yazılmamış Fransızcası seed'in çevirisiyle doldu.
+    expect(settings.aboutTextI18n).toEqual({
+      tr: DEFAULT_LANDING_CONTENT.aboutTextI18n.tr,
+      en: "Our own English about text.",
+      fr: DEFAULT_LANDING_CONTENT.aboutTextI18n.fr,
+    });
+  });
+
   it("çevirisiz duran varsayılan içerik alanına çevirileri ekler, düzenlenmiş alana dokunmaz", async () => {
     // Tur 5 göçünün bıraktığı hâl: tek dilli, hâlâ birebir seed varsayılanı.
     await prisma.settings.update({

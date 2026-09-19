@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { publicUrl } from "@/lib/storage-public";
 import { updateGalleryPhoto, moveGalleryPhoto, deleteGalleryPhoto } from "@/actions/gallery";
 import { normalizeTags } from "@/lib/gallery-utils";
-import { splitTags } from "@/lib/gallery-tags";
+import { canonicalTag, splitTags } from "@/lib/gallery-tags";
 import { pick, type I18nText } from "@/lib/i18n-content";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +29,8 @@ export type PanelGalleryPhoto = {
 
 export function GalleryCard({ photo, index, total }: { photo: PanelGalleryPhoto; index: number; total: number }) {
   const t = useTranslations("panel");
+  // Serbest etiketleri anahtara geri çevirmek için (bkz. `canonicalTag`).
+  const tTag = useTranslations("gallery.tags");
   const locale = useLocale();
   const showError = useActionError();
   const [caption, setCaption] = useState<I18nText>(photo.captionI18n);
@@ -40,8 +42,13 @@ export function GalleryCard({ photo, index, total }: { photo: PanelGalleryPhoto;
   const [pending, start] = useTransition();
   const router = useRouter();
 
-  /** İki alan tek diziye birleşir; tekilleştirmeyi `normalizeTags` yapar. */
-  const tags = () => normalizeTags([...selectedTags, ...normalizeTags(customTags)]);
+  /**
+   * İki alan tek diziye birleşir; serbest yazılanlar önce kategori adlarıyla
+   * eşleştirilir (panelin dilinde "Braids" yazmak `braids` çipini seçmekle aynı
+   * şeydir), tekilleştirmeyi `normalizeTags` yapar.
+   */
+  const tags = () =>
+    normalizeTags([...selectedTags, ...normalizeTags(customTags).map((tag) => canonicalTag(tag, tTag))]);
 
   function run(action: () => Promise<ActionResult<unknown>>, success: string) {
     start(async () => {
@@ -73,7 +80,6 @@ export function GalleryCard({ photo, index, total }: { photo: PanelGalleryPhoto;
       </div>
 
       <I18nTextField
-        name={`caption-${photo.id}`}
         label={t("gallery.caption")}
         value={caption}
         onChange={setCaption}

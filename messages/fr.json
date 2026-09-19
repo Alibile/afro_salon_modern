@@ -323,7 +323,6 @@
       }
     },
     "i18nField": {
-      "tab": "Texte en {language}",
       "hint": "Chaque texte se saisit en trois langues. Le turc est la version source : si l'anglais ou le français reste vide, les visiteurs voient le turc."
     },
     "today": {
