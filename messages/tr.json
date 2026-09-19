@@ -29,14 +29,14 @@
   },
   "meta": {
     "title": "Afro Salon Modern",
-    "description": "Afro saç kesimi, örgü ve şekillendirme. Aynı gün randevu.",
+    "description": "Afro saç kesimi, örgü ve şekillendirme. Bugün ya da bu hafta randevu.",
     "home": {
-      "title": "Afro Salon Modern — Afro berber, aynı gün randevu",
-      "description": "Afro saç kesimi, örgü, twist ve sakal tıraşı. Ekibi tanıyın, galeriye göz atın, bugüne randevunuzu birkaç dokunuşla alın."
+      "title": "Afro Salon Modern — Afro berber, bugün ya da bu hafta randevu",
+      "description": "Afro saç kesimi, örgü, twist ve sakal tıraşı. Ekibi tanıyın, galeriye göz atın, gününüzü seçip randevunuzu birkaç dokunuşla alın."
     },
     "booking": {
       "title": "Randevu al — Afro Salon Modern",
-      "description": "Hizmetinizi ve berberinizi seçin, bugünün boş saatlerini görün, randevunuzu saniyeler içinde onaylayın."
+      "description": "Hizmetinizi ve berberinizi seçin, bu haftanın boş saatlerini görün, randevunuzu saniyeler içinde onaylayın."
     }
   },
   "nav": {
@@ -65,20 +65,20 @@
       "photoAlt": "Koyu bir stüdyo ışığında, geniş afro saçlı bir adamın portresi",
       "headline1": "KIVRIMIN KENDİ",
       "headline2": "GEOMETRİSİ VAR.",
-      "subtitle": "Erkeklere özel afro kesim, fade, örgü ve twist — hepsi bugünün içinde.",
-      "book": "Bugün randevu al",
+      "subtitle": "Erkeklere özel afro kesim, fade, örgü ve twist — bugün ya da bu hafta.",
+      "book": "Hemen randevu al",
       "services": "Hizmetler ve fiyatlar",
       "scroll": "Kaydır",
       "slotsToday": "{count, plural, other {# boş randevu}}",
-      "slotsFull": "Bugün doluyuz — yarın tekrar bak"
+      "slotsFull": "Bugün doluyuz — bu haftadan gün seç"
     },
     "howItWorks": {
       "title": "NASIL ÇALIŞIR",
       "note": "Üç adım; hepsi birkaç dakika sürer.",
       "step1Title": "Berberini seç",
       "step1Text": "Ekibi tanı, kime oturmak istiyorsan onu işaretle.",
-      "step2Title": "Bugünkü saatini seç",
-      "step2Text": "Takvimde yalnızca o an gerçekten boş olan saatler görünür.",
+      "step2Title": "Gününü ve saatini seç",
+      "step2Text": "Bugünden başlayarak yedi gün açığız, Pazar hariç. Takvimde yalnızca gerçekten boş olan saatler görünür.",
       "step3Title": "Gel, otur",
       "step3Text": "Saatin ayrıldı; kapıda sıra beklemene gerek yok.",
       "cancelNote": "Planın değişirse randevuna en geç {minutes} dakika kala iptal edebilirsin."
@@ -87,7 +87,7 @@
       "photoAlt": "Salonun içinden bir kare",
       "photoSoon": "Fotoğraf yakında",
       "caption": "Koltuk, ayna, tarak: gerisini saçın kendisi söyler.",
-      "cta": "Bugüne yer ayır"
+      "cta": "Yerini ayır"
     },
     "services": {
       "title": "HİZMETLER",
@@ -102,8 +102,8 @@
         "cut": "Kesim ve şekillendirme",
         "beard": "Sakal tıraşı ve düzeltme"
       },
-      "book": "Bugün randevu al",
-      "note": "Tek fiyat, sürpriz yok. Randevu yalnızca bugün için alınır."
+      "book": "Hemen randevu al",
+      "note": "Tek fiyat, sürpriz yok. Bugün ya da hafta içinde, Pazar hariç."
     },
     "whyUs": {
       "title": "NEDEN BİZ",
@@ -143,7 +143,7 @@
       "title": "SIKÇA SORULANLAR",
       "note": "Kısa cevaplar; gerisini koltukta konuşuruz.",
       "q1": "Randevu nasıl alınır?",
-      "a1": "Siteden, birkaç dokunuşla. Randevu yalnızca bugün için açılır: berberini seçersin, o an boş olan saatler karşına gelir.",
+      "a1": "Siteden, birkaç dokunuşla. Takvim bugünden başlayarak yedi gün açık, Pazar hariç: berberini ve gününü seçersin, o gün boş olan saatler karşına gelir.",
       "q2": "Randevumu iptal edebilir miyim?",
       "a2": "Evet. Randevuna en geç {minutes} dakika kala \"Randevularım\" sayfasından iptal edebilirsin; sonrası için salonu ara.",
       "q3": "Ödemeyi nasıl yapıyorum?",
@@ -153,16 +153,16 @@
       "q5": "Sadece erkeklere mi hizmet veriyorsunuz?",
       "a5": "Evet, erkek berberiyiz. Ekibin işi afro saç dokusu: fade, örgü, twist ve sakal.",
       "q6": "Randevusuz gelebilir miyim?",
-      "a6": "Gelebilirsin ama garantisi yok: {open}–{close} arasında sıraya bakarız. Beklememek için saatini önceden ayır."
+      "a6": "Gelebilirsin ama garantisi yok: {open}–{close} arasında sıraya bakarız. Beklememek için bugünden ya da bu hafta içinden saatini önceden ayır."
     },
     "contact": {
       "title": "İLETİŞİM",
-      "note": "Randevusuz geldiğinde sıraya bakarız; garantisi yok. Aynı gün için yer ayırmak birkaç dakika sürer.",
+      "note": "Randevusuz geldiğinde sıraya bakarız; garantisi yok. Bugün ya da bu hafta için yer ayırmak birkaç dakika sürer.",
       "whereTitle": "NEREDEYİZ",
       "emailLabel": "E-posta",
       "whatsappLabel": "WhatsApp",
       "whatsappText": "Mesaj gönder",
-      "whatsappMessage": "Merhaba, bugün için randevu almak istiyorum.",
+      "whatsappMessage": "Merhaba, randevu almak istiyorum.",
       "mapsLabel": "Harita",
       "mapsText": "Haritada aç",
       "mapLoad": "Haritayı yükle",
@@ -172,7 +172,7 @@
       "today": "bugün",
       "closed": "Kapalı",
       "formTitle": "MESAJ BIRAK",
-      "formNote": "Randevu almak için forma gerek yok, doğrudan saat seçebilirsin. Aklına takılan bir şey varsa buradan yaz."
+      "formNote": "Randevu almak için forma gerek yok, doğrudan gün ve saat seçebilirsin. Aklına takılan bir şey varsa buradan yaz."
     },
     "form": {
       "honeypot": "Web siteniz",
@@ -204,13 +204,19 @@
     }
   },
   "booking": {
-    "title": "BUGÜN İÇİN RANDEVU AL",
+    "title": "RANDEVU AL",
     "step1": "1. Hizmet seç",
     "step2": "2. Berber seç",
-    "step3": "3. Saat seç",
+    "step3": "3. Gün ve saat seç",
     "slotsError": "Saatler yüklenemedi",
-    "closedToday": "Bugün kapalıyız.",
-    "noSlots": "Bugün için uygun saat kalmadı.",
+    "dayLabel": "Gün seç",
+    "today": "Bugün",
+    "tomorrow": "Yarın",
+    "dayClosed": "Kapalı",
+    "dayFull": "Dolu",
+    "closedDay": "Bu gün kapalıyız.",
+    "noSlotsDay": "Bu gün için uygun saat kalmadı.",
+    "pickAnotherDay": "Yukarıdan başka bir gün seçebilirsin.",
     "tryTomorrow": "Yarın {time} itibarıyla tekrar deneyin.",
     "saving": "Kaydediliyor…",
     "confirm": "Randevuyu onayla",
@@ -228,16 +234,16 @@
     }
   },
   "account": {
-    "todayTitle": "BUGÜNKÜ RANDEVUM",
-    "noToday": "Bugün için randevun yok.",
-    "bookToday": "Bugüne yer ayır",
+    "upcomingTitle": "YAKLAŞAN RANDEVULARIM",
+    "noUpcoming": "Yaklaşan randevun yok.",
+    "book": "Randevu al",
     "photosTitle": "KESİM FOTOĞRAFLARIN",
     "photoAlt": "{date} tarihli kesim",
     "pastTitle": "GEÇMİŞ",
     "noPast": "Henüz geçmiş randevun yok."
   },
   "auth": {
-    "asideHeadline": "BUGÜNÜN SAATİ SENİ BEKLİYOR.",
+    "asideHeadline": "SAATİN SENİ BEKLİYOR.",
     "asideNote": "Hesabın randevunu, kesim geçmişini ve fotoğraflarını bir arada tutar.",
     "forbidden": "Bu sayfaya erişim yetkin yok",
     "fields": {
@@ -264,7 +270,7 @@
     }
   },
   "footer": {
-    "tagline": "Aynı gün randevu. Yarına değil, bugüne.",
+    "tagline": "Bugün ya da bu hafta. Sıra yok, bekleme yok.",
     "site": "SİTE",
     "quickLinks": "HIZLI BAĞLANTILAR",
     "contact": "İLETİŞİM",
@@ -286,6 +292,7 @@
     "selectedServiceNotFound": "Seçilen hizmet bulunamadı",
     "slotUnavailable": "Bu saat artık uygun değil, lütfen başka bir saat seçin",
     "slotTaken": "Bu saat az önce doldu, lütfen başka bir saat seçin",
+    "dateOutOfRange": "Bu tarih için randevu alınamaz: yalnızca bugünden itibaren 7 gün, Pazar hariç",
     "appointmentNotFound": "Randevu bulunamadı",
     "appointmentNotScheduled": "Bu randevu zaten iptal edilmiş veya tamamlanmış",
     "appointmentStatusChanged": "Bu randevunun durumu zaten değiştirilmiş",

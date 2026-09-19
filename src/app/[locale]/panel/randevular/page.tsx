@@ -2,8 +2,9 @@ import { getTranslations } from "next-intl/server";
 import { requireStaff } from "@/lib/auth-helpers";
 import { listAppointments } from "@/lib/queries/panel";
 import { listBarbersForAdmin } from "@/lib/queries/barbers";
+import { BOOKING_HORIZON_DAYS } from "@/lib/booking-window";
 import { AppointmentsTable } from "@/components/panel/AppointmentsTable";
-import { shopDateTime, addMinutes } from "@/lib/time";
+import { shopDateTime, addMinutes, addDays, shopDateKey } from "@/lib/time";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -16,10 +17,13 @@ export default async function RandevularPage(props: { searchParams: Promise<{ fr
   const user = await requireStaff();
   const sp = await props.searchParams;
   const now = new Date();
-  const todayStr = now.toLocaleDateString("sv-SE", { timeZone: "Europe/Istanbul" });
-  const defaultFrom = new Date(now.getTime() - 30 * 86_400_000).toLocaleDateString("sv-SE", { timeZone: "Europe/Istanbul" });
+  const defaultFrom = shopDateKey(addDays(now, -30));
+  // Müşteri artık bir hafta öncesinden randevu alabiliyor: varsayılan aralık
+  // bugünde bitseydi personel yarının randevusunu ancak tarihi elle yazarak
+  // görürdü. Üst sınır randevu penceresinin sonuna kadar açık.
+  const defaultTo = shopDateKey(addDays(now, BOOKING_HORIZON_DAYS - 1));
   const from = sp.from && DATE_RE.test(sp.from) ? sp.from : defaultFrom;
-  const to = sp.to && DATE_RE.test(sp.to) ? sp.to : todayStr;
+  const to = sp.to && DATE_RE.test(sp.to) ? sp.to : defaultTo;
   const status = STATUSES.find((s) => s === sp.status);
   const t = await getTranslations("panel");
   const [rows, barbers] = await Promise.all([

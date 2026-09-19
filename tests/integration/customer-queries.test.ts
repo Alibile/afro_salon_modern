@@ -24,21 +24,27 @@ async function appt(
 }
 
 describe("getCustomerAppointments", () => {
-  it("partitions appointments into today (Istanbul day) and past, ordered", async () => {
+  /**
+   * Randevu penceresi bir haftaya açıldı: "bugünkü randevum" yerine bugünden
+   * başlayan bütün planlı randevular yaklaşan listede, en yakından uzağa
+   * doğru durur.
+   */
+  it("partitions appointments into upcoming (from the Istanbul day start) and past, ordered", async () => {
     const { barber } = await createBarber();
     const c = await createCustomer();
 
     const midnight = await appt(c.id, barber.id, "2026-09-16T21:00:00Z"); // İstanbul'da tam gece yarısı → bugüne ait
     const at08 = await appt(c.id, barber.id, "2026-09-17T08:00:00Z");
     const at12 = await appt(c.id, barber.id, "2026-09-17T12:00:00Z");
+    const tomorrow = await appt(c.id, barber.id, "2026-09-18T08:00:00Z");
     const completedToday = await appt(c.id, barber.id, "2026-09-17T06:00:00Z", { status: "COMPLETED" });
     const yesterday = await appt(c.id, barber.id, "2026-09-16T10:00:00Z");
 
-    const { today, past } = await getCustomerAppointments(c.id, NOW);
+    const { upcoming, past } = await getCustomerAppointments(c.id, NOW);
 
-    expect(today.map((a) => a.id)).toEqual([midnight.id, at08.id, at12.id]);
+    expect(upcoming.map((a) => a.id)).toEqual([midnight.id, at08.id, at12.id, tomorrow.id]);
     expect(past.map((a) => a.id)).toEqual([completedToday.id, yesterday.id]);
-    expect(today.some((a) => past.some((p) => p.id === a.id))).toBe(false);
+    expect(upcoming.some((a) => past.some((p) => p.id === a.id))).toBe(false);
   });
 
   it("computes canCancel based on the default 120 minute window", async () => {
@@ -50,8 +56,8 @@ describe("getCustomerAppointments", () => {
     const completed = await appt(c.id, barber.id, "2026-09-17T06:00:00Z", { status: "COMPLETED" });
     const boundary = await appt(c.id, barber.id, "2026-09-17T09:00:00Z"); // tam 120 dk sonra
 
-    const { today, past } = await getCustomerAppointments(c.id, NOW);
-    const all = [...today, ...past];
+    const { upcoming, past } = await getCustomerAppointments(c.id, NOW);
+    const all = [...upcoming, ...past];
     const byId = (id: string) => all.find((a) => a.id === id)!;
 
     expect(byId(at12.id).canCancel).toBe(true);
@@ -73,8 +79,8 @@ describe("getCustomerAppointments", () => {
       ],
     });
 
-    const { today } = await getCustomerAppointments(c.id, NOW);
-    const view = today.find((v) => v.id === a.id)!;
+    const { upcoming } = await getCustomerAppointments(c.id, NOW);
+    const view = upcoming.find((v) => v.id === a.id)!;
 
     expect(view.totalKurus).toBe(60000);
     expect(view.services).toEqual(

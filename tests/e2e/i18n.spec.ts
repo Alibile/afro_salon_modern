@@ -52,7 +52,7 @@ test.describe("müşteri yüzü çevirileri", () => {
   test("İngilizce hero düğmesi randevu sayfasına gider", async ({ page }) => {
     await page.goto("/en");
     // Aynı metin paket kartında da var (Tur 6); hero belgede önce gelir.
-    const cta = page.getByRole("link", { name: "Book today" }).first();
+    const cta = page.getByRole("link", { name: "Book your slot" }).first();
     await expect(cta).toBeVisible();
     await expect(cta).toHaveAttribute("href", "/en/randevu");
     await cta.click();
@@ -112,14 +112,17 @@ test.describe.serial("İngilizce randevu akışı", () => {
   const stamp = Date.now();
   const customer = { name: `E2E EN ${stamp}`, email: `e2e-en-${stamp}@test.local`, password: "Sifre123!" };
 
-  test("İngilizce kayıt olup bugün için randevu alır", async ({ page }) => {
+  test("İngilizce kayıt olup pencereden bir güne randevu alır", async ({ page }) => {
     await page.goto("/en/randevu");
     // Hizmet adı artık İngilizce: aynı hizmet, ziyaretçinin dilinde.
     await page.getByRole("button", { name: /Wash, cut & beard/ }).first().click();
     await page.getByRole("button", { name: /Kwame Mensah/ }).click();
 
-    const slots = page.locator('section:has(h2:text("3. Choose a time")) button');
-    const closed = page.getByText(/closed today|No times left/i);
+    const step = page.locator('section:has(h2:text("3. Choose a day and time"))');
+    // Gün çipleri de İngilizce: "Today" / "Tomorrow" / kısa tarih.
+    await expect(step.getByRole("group", { name: "Choose a day" })).toBeVisible();
+    const slots = step.locator("div.grid-cols-4 button");
+    const closed = page.getByText(/closed that day|No times left/i);
     await expect(slots.first().or(closed)).toBeVisible();
     test.skip(await closed.isVisible(), "Dükkan şu an kapalı, slot testi atlandı");
 
@@ -136,7 +139,7 @@ test.describe.serial("İngilizce randevu akışı", () => {
     await expect(page.getByRole("button", { name: "Confirm booking" })).toBeEnabled();
     await page.getByRole("button", { name: "Confirm booking" }).click();
     await expect(page).toHaveURL("/en/randevularim");
-    await expect(page.getByRole("heading", { name: "Today's appointment" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "UPCOMING APPOINTMENTS" })).toBeVisible();
     await expect(page.getByText("Scheduled")).toBeVisible();
   });
 });

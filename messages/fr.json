@@ -29,14 +29,14 @@
   },
   "meta": {
     "title": "Afro Salon Modern",
-    "description": "Coupes afro, tresses et coiffage pour hommes. Rendez-vous le jour même.",
+    "description": "Coupes afro, tresses et coiffage pour hommes. Rendez-vous aujourd'hui ou cette semaine.",
     "home": {
-      "title": "Afro Salon Modern — Barbier afro, rendez-vous le jour même",
-      "description": "Coupes afro, tresses, twists et taille de barbe. Découvrez l'équipe, parcourez la galerie et prenez votre créneau du jour en quelques gestes."
+      "title": "Afro Salon Modern — Barbier afro, aujourd'hui ou cette semaine",
+      "description": "Coupes afro, tresses, twists et taille de barbe. Découvrez l'équipe, parcourez la galerie, choisissez votre jour et prenez votre créneau en quelques gestes."
     },
     "booking": {
       "title": "Prendre rendez-vous — Afro Salon Modern",
-      "description": "Choisissez votre prestation et votre barbier, voyez les créneaux encore libres aujourd'hui et confirmez en quelques secondes."
+      "description": "Choisissez votre prestation et votre barbier, voyez les créneaux encore libres cette semaine et confirmez en quelques secondes."
     }
   },
   "nav": {
@@ -65,20 +65,20 @@
       "photoAlt": "Portrait d'un homme aux cheveux afro sous une lumière de studio sombre",
       "headline1": "CHAQUE BOUCLE A",
       "headline2": "SA PROPRE GÉOMÉTRIE.",
-      "subtitle": "Coupes afro, fades, tresses et twists pour hommes — tout cela dès aujourd'hui.",
-      "book": "Réserver aujourd'hui",
+      "subtitle": "Coupes afro, fades, tresses et twists pour hommes — aujourd'hui ou cette semaine.",
+      "book": "Réserver votre créneau",
       "services": "Prestations et tarifs",
       "scroll": "Défiler",
       "slotsToday": "{count, plural, one {# rendez-vous libre} other {# rendez-vous libres}}",
-      "slotsFull": "Complet aujourd'hui — revenez demain"
+      "slotsFull": "Complet aujourd'hui — choisissez un autre jour cette semaine"
     },
     "howItWorks": {
       "title": "COMMENT ÇA MARCHE",
       "note": "Trois étapes, quelques minutes en tout.",
       "step1Title": "Choisissez votre barbier",
       "step1Text": "Découvrez l'équipe et choisissez les mains entre lesquelles vous asseoir.",
-      "step2Title": "Choisissez votre heure du jour",
-      "step2Text": "Seuls les créneaux réellement libres à cet instant s'affichent.",
+      "step2Title": "Choisissez votre jour et votre heure",
+      "step2Text": "Sept jours à partir d'aujourd'hui, dimanche excepté. Seuls les créneaux réellement libres s'affichent.",
       "step3Title": "Venez vous asseoir",
       "step3Text": "Votre créneau est retenu ; aucune file à l'entrée.",
       "cancelNote": "Si vos plans changent, vous pouvez annuler jusqu'à {minutes} minutes avant votre rendez-vous."
@@ -87,7 +87,7 @@
       "photoAlt": "Un instant dans le salon",
       "photoSoon": "Photo bientôt disponible",
       "caption": "Le fauteuil, le miroir, le peigne : les cheveux disent le reste.",
-      "cta": "Réservez votre créneau du jour"
+      "cta": "Réservez votre place"
     },
     "services": {
       "title": "PRESTATIONS",
@@ -102,8 +102,8 @@
         "cut": "Coupe et coiffage",
         "beard": "Taille et mise en forme de la barbe"
       },
-      "book": "Réserver aujourd'hui",
-      "note": "Un tarif unique, sans surprise. La réservation se fait pour le jour même."
+      "book": "Réserver votre créneau",
+      "note": "Un tarif unique, sans surprise. Aujourd'hui ou dans la semaine, sauf le dimanche."
     },
     "whyUs": {
       "title": "POURQUOI NOUS",
@@ -143,7 +143,7 @@
       "title": "QUESTIONS FRÉQUENTES",
       "note": "Des réponses courtes ; le reste, on en parle dans le fauteuil.",
       "q1": "Comment prendre rendez-vous ?",
-      "a1": "Ici, sur le site, en quelques gestes. La réservation n'ouvre que pour le jour même : choisissez votre barbier et les heures encore libres apparaissent.",
+      "a1": "Ici, sur le site, en quelques gestes. L'agenda est ouvert sept jours à partir d'aujourd'hui, dimanche excepté : choisissez votre barbier et votre jour, et les heures encore libres apparaissent.",
       "q2": "Puis-je annuler ?",
       "a2": "Oui. Depuis « Mes rendez-vous », jusqu'à {minutes} minutes avant l'heure prévue ; passé ce délai, appelez le salon.",
       "q3": "Comment régler ?",
@@ -153,16 +153,16 @@
       "q5": "Coiffez-vous uniquement les hommes ?",
       "a5": "Oui, nous sommes un barbier pour hommes. L'équipe travaille le cheveu afro : dégradés, tresses, twists et barbe.",
       "q6": "Puis-je venir sans rendez-vous ?",
-      "a6": "C'est possible, mais sans garantie : entre {open} et {close} nous regardons la file. Réservez pour ne pas attendre."
+      "a6": "C'est possible, mais sans garantie : entre {open} et {close} nous regardons la file. Réservez à l'avance, aujourd'hui ou plus tard dans la semaine, pour ne pas attendre."
     },
     "contact": {
       "title": "CONTACT",
-      "note": "Sans rendez-vous, nous regardons la file ; rien n'est garanti. Réserver un créneau du jour prend quelques minutes.",
+      "note": "Sans rendez-vous, nous regardons la file ; rien n'est garanti. Réserver un créneau pour aujourd'hui ou cette semaine prend quelques minutes.",
       "whereTitle": "OÙ NOUS TROUVER",
       "emailLabel": "E-mail",
       "whatsappLabel": "WhatsApp",
       "whatsappText": "Envoyer un message",
-      "whatsappMessage": "Bonjour, je souhaite prendre rendez-vous pour aujourd'hui.",
+      "whatsappMessage": "Bonjour, je souhaite prendre rendez-vous.",
       "mapsLabel": "Carte",
       "mapsText": "Ouvrir la carte",
       "mapLoad": "Charger la carte",
@@ -172,7 +172,7 @@
       "today": "aujourd'hui",
       "closed": "Fermé",
       "formTitle": "LAISSER UN MESSAGE",
-      "formNote": "Pas besoin de ce formulaire pour réserver : vous pouvez choisir une heure directement. Pour toute autre question, écrivez-nous ici."
+      "formNote": "Pas besoin de ce formulaire pour réserver : vous pouvez choisir un jour et une heure directement. Pour toute autre question, écrivez-nous ici."
     },
     "form": {
       "honeypot": "Votre site web",
@@ -204,13 +204,19 @@
     }
   },
   "booking": {
-    "title": "RÉSERVER POUR AUJOURD'HUI",
+    "title": "PRENDRE RENDEZ-VOUS",
     "step1": "1. Choisir une prestation",
     "step2": "2. Choisir un barbier",
-    "step3": "3. Choisir une heure",
+    "step3": "3. Choisir un jour et une heure",
     "slotsError": "Impossible de charger les horaires",
-    "closedToday": "Nous sommes fermés aujourd'hui.",
-    "noSlots": "Plus aucun créneau disponible aujourd'hui.",
+    "dayLabel": "Choisir un jour",
+    "today": "Aujourd'hui",
+    "tomorrow": "Demain",
+    "dayClosed": "Fermé",
+    "dayFull": "Complet",
+    "closedDay": "Nous sommes fermés ce jour-là.",
+    "noSlotsDay": "Plus aucun créneau disponible ce jour-là.",
+    "pickAnotherDay": "Choisissez un autre jour ci-dessus.",
     "tryTomorrow": "Réessayez demain à partir de {time}.",
     "saving": "Enregistrement…",
     "confirm": "Confirmer le rendez-vous",
@@ -228,16 +234,16 @@
     }
   },
   "account": {
-    "todayTitle": "MON RENDEZ-VOUS DU JOUR",
-    "noToday": "Vous n'avez pas de rendez-vous aujourd'hui.",
-    "bookToday": "Réservez votre créneau du jour",
+    "upcomingTitle": "MES PROCHAINS RENDEZ-VOUS",
+    "noUpcoming": "Vous n'avez pas de rendez-vous à venir.",
+    "book": "Prendre rendez-vous",
     "photosTitle": "VOS COUPES",
     "photoAlt": "Coupe du {date}",
     "pastTitle": "HISTORIQUE",
     "noPast": "Aucun rendez-vous passé pour l'instant."
   },
   "auth": {
-    "asideHeadline": "LE FAUTEUIL DU JOUR VOUS ATTEND.",
+    "asideHeadline": "VOTRE FAUTEUIL VOUS ATTEND.",
     "asideNote": "Votre compte réunit votre rendez-vous, l'historique de vos coupes et vos photos.",
     "forbidden": "Vous n'avez pas accès à cette page",
     "fields": {
@@ -264,7 +270,7 @@
     }
   },
   "footer": {
-    "tagline": "Rendez-vous le jour même. Pas demain, aujourd'hui.",
+    "tagline": "Aujourd'hui ou dans la semaine. Sans file, sans attente.",
     "site": "SITE",
     "quickLinks": "LIENS RAPIDES",
     "contact": "CONTACT",
@@ -286,6 +292,7 @@
     "selectedServiceNotFound": "La prestation sélectionnée est introuvable",
     "slotUnavailable": "Cette heure n'est plus disponible, choisissez-en une autre",
     "slotTaken": "Cette heure vient d'être prise, choisissez-en une autre",
+    "dateOutOfRange": "Impossible de réserver cette date : uniquement les 7 jours à partir d'aujourd'hui, dimanche excepté",
     "appointmentNotFound": "Rendez-vous introuvable",
     "appointmentNotScheduled": "Ce rendez-vous est déjà annulé ou terminé",
     "appointmentStatusChanged": "Le statut de ce rendez-vous a déjà été modifié",

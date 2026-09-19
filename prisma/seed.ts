@@ -46,9 +46,9 @@ export const DEFAULT_LANDING_CONTENT = {
     fr: "Une expérience à part",
   },
   aboutTextI18n: {
-    tr: "Afro Salon Modern, erkeklere özel afro saç sanatını İstanbul'un kalbine taşıyor. Fade, örgü, twist ve bakımda ustalaşmış ekibimizle her kesim kişiye özel planlanır. Randevu yalnızca bugün için alınır; beklemeden, sırasız.",
-    en: "Afro Salon Modern brings the art of afro hair for men to the heart of Istanbul. Our team knows fades, braids, twists and grooming inside out, and every cut is planned around the man in the chair. Booking is for today only — no queue, no waiting.",
-    fr: "Afro Salon Modern amène l'art du cheveu afro pour homme au cœur d'Istanbul. Notre équipe maîtrise le dégradé, les tresses, les twists et le soin, et chaque coupe est pensée pour celui qui s'assoit dans le fauteuil. La réservation se fait pour le jour même : sans file, sans attente.",
+    tr: "Afro Salon Modern, erkeklere özel afro saç sanatını İstanbul'un kalbine taşıyor. Fade, örgü, twist ve bakımda ustalaşmış ekibimizle her kesim kişiye özel planlanır. Randevu bugün ya da hafta içinde; beklemeden, sırasız.",
+    en: "Afro Salon Modern brings the art of afro hair for men to the heart of Istanbul. Our team knows fades, braids, twists and grooming inside out, and every cut is planned around the man in the chair. Book for today or later in the week — no queue, no waiting.",
+    fr: "Afro Salon Modern amène l'art du cheveu afro pour homme au cœur d'Istanbul. Notre équipe maîtrise le dégradé, les tresses, les twists et le soin, et chaque coupe est pensée pour celui qui s'assoit dans le fauteuil. Réservez pour aujourd'hui ou plus tard dans la semaine : sans file, sans attente.",
   },
   whyUs1TitleI18n: { tr: "Usta berberler", en: "Master barbers", fr: "Des barbiers d'expérience" },
   whyUs1TextI18n: {
@@ -221,6 +221,19 @@ const DEFAULT_TESTIMONIALS = [
 // farklı (admin tarafından girilmiş) bir değere asla dokunulmaz.
 export const LEGACY_ABOUT_TEXT =
   "Afro Salon Modern, afro saç sanatını İstanbul'un kalbine taşıyor. Fade, örgü, twist ve bakımda ustalaşmış ekibimizle her kesim kişiye özel planlanır. Randevu yalnızca bugün için alınır; beklemeden, sırasız.";
+
+/**
+ * Tur 6'nın "randevu yalnızca bugün" metni — üç dilde birden, seed'in o günkü
+ * tam varsayılanı. Randevu penceresi bugün + 6 güne açıldığı için cümle artık
+ * yanlış; kurulumda alan **birebir** bu hâldeyse (ya da çevirileri hiç
+ * yazılmamış tek dilli hâlindeyse) admin ona dokunmamış demektir ve seed yeni
+ * metne taşır. Tek bir harf farklıysa dokunulmaz.
+ */
+export const LEGACY_SAME_DAY_ABOUT_TEXT: I18nText = {
+  tr: "Afro Salon Modern, erkeklere özel afro saç sanatını İstanbul'un kalbine taşıyor. Fade, örgü, twist ve bakımda ustalaşmış ekibimizle her kesim kişiye özel planlanır. Randevu yalnızca bugün için alınır; beklemeden, sırasız.",
+  en: "Afro Salon Modern brings the art of afro hair for men to the heart of Istanbul. Our team knows fades, braids, twists and grooming inside out, and every cut is planned around the man in the chair. Booking is for today only — no queue, no waiting.",
+  fr: "Afro Salon Modern amène l'art du cheveu afro pour homme au cœur d'Istanbul. Notre équipe maîtrise le dégradé, les tresses, les twists et le soin, et chaque coupe est pensée pour celui qui s'assoit dans le fauteuil. La réservation se fait pour le jour même : sans file, sans attente.",
+};
 export const LEGACY_NADIA_TEXT = "Örgü konusunda gerçekten usta bir ekip. Randevu almak da çok kolaydı.";
 
 /** Üretimde şifre her zaman SEED_PASSWORD'dan gelir; geliştirmede varsayılan kullanılır. */
@@ -261,6 +274,14 @@ export async function runSeed(client: PrismaClient) {
   // Metin hâlâ Tur 3 öncesi varsayılansa (admin Türkçesini hiç değiştirmemiş)
   // yeni erkek odaklı metne taşınır. Adminin o alana yazdığı çeviri varsa
   // korunur; yazmadığı diller seed'in çevirisiyle dolar.
+  // Tur 6'nın "yalnızca bugün" metni hâlâ olduğu gibi duruyorsa (çevirileriyle
+  // birlikte ya da hiç çevrilmemiş hâliyle) yeni haftalık metne taşınır.
+  if (
+    sameI18nText(settings.aboutTextI18n, LEGACY_SAME_DAY_ABOUT_TEXT) ||
+    untranslatedDefault(settings.aboutTextI18n, LEGACY_SAME_DAY_ABOUT_TEXT)
+  ) {
+    fill.aboutTextI18n = DEFAULT_LANDING_CONTENT.aboutTextI18n;
+  }
   if (pick(settings.aboutTextI18n, "tr").trim() === LEGACY_ABOUT_TEXT.trim()) {
     const current = asI18nText(settings.aboutTextI18n);
     fill.aboutTextI18n = {

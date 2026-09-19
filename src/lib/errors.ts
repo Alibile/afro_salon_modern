@@ -32,6 +32,7 @@ export const ERROR_CODES = [
   "selectedServiceNotFound",
   "slotUnavailable",
   "slotTaken",
+  "dateOutOfRange",
   "appointmentNotFound",
   "appointmentNotScheduled",
   "appointmentStatusChanged",

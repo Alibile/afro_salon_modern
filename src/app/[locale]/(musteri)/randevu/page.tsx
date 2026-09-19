@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 export default async function RandevuPage(props: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ s?: string; b?: string; t?: string }>;
+  searchParams: Promise<{ s?: string; b?: string; t?: string; gun?: string }>;
 }) {
   const [sp, { locale }] = await Promise.all([props.searchParams, props.params]);
   const [services, barbers, settings, user, status, t, tStatus] = await Promise.all([
@@ -48,7 +48,7 @@ export default async function RandevuPage(props: {
           services={services.map((s) => ({ id: s.id, name: s.name, durationMinutes: s.durationMinutes, priceKurus: s.priceKurus }))}
           barbers={barbers}
           isLoggedIn={!!user}
-          initial={{ serviceIds: sp.s ? sp.s.split(",") : [], barberId: sp.b ?? null, startsAt: sp.t ?? null }}
+          initial={{ serviceIds: sp.s ? sp.s.split(",") : [], barberId: sp.b ?? null, startsAt: sp.t ?? null, day: sp.gun ?? null }}
         />
       </div>
     </div>

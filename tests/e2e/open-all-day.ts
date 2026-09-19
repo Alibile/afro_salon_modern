@@ -7,8 +7,16 @@ const prisma = new PrismaClient({
 });
 
 async function main() {
+  // Pazar kapalı kalır: randevu penceresinin "Pazar hiç seçilemez" kuralı
+  // ancak salon o gün gerçekten kapalıyken sınanabilir. Kalan altı gün gün
+  // boyu açılır ki koşu saatinden bağımsız olarak hep boş saat bulunsun.
   await prisma.workingHours.updateMany({
+    where: { dayOfWeek: { not: 0 } },
     data: { isOff: false, startTime: "00:00", endTime: "23:59" },
+  });
+  await prisma.workingHours.updateMany({
+    where: { dayOfWeek: 0 },
+    data: { isOff: true },
   });
   await prisma.appointment.updateMany({
     where: { status: "SCHEDULED" },
@@ -22,7 +30,7 @@ async function main() {
     where: { id: 1 },
     data: { address: "İstanbul", phone: "+90 555 000 00 00" },
   });
-  console.log("E2E: berberler tüm gün açık, bekleyen randevular iptal edildi, iletişim bilgileri dolduruldu.");
+  console.log("E2E: berberler Pazar dışında tüm gün açık, bekleyen randevular iptal edildi, iletişim bilgileri dolduruldu.");
 }
 
 main().finally(() => prisma.$disconnect());

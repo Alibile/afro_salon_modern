@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 
 export default async function RandevularimPage() {
   const user = await requireUser("/randevularim");
-  const [{ today, past }, photos, settings, t, locale] = await Promise.all([
+  const [{ upcoming, past }, photos, settings, t, locale] = await Promise.all([
     getCustomerAppointments(user.id),
     getCustomerPhotos(user.id),
     getSettings(),
@@ -28,18 +28,19 @@ export default async function RandevularimPage() {
   return (
     <div className="mx-auto w-full max-w-lg space-y-12 px-4 pb-24 pt-8">
       <section>
-        <h1 className="display-lg border-b border-border pb-4">{t("todayTitle")}</h1>
-        <div className="mt-6">
-          {today.length === 0 ? (
+        <h1 className="display-lg border-b border-border pb-4">{t("upcomingTitle")}</h1>
+        <div className="mt-6 space-y-3">
+          {upcoming.length === 0 ? (
             <p className="text-muted-foreground">
-              {t("noToday")}{" "}
+              {t("noUpcoming")}{" "}
               <Link href="/randevu" className="text-foreground underline underline-offset-4">
-                {t("bookToday")}
+                {t("book")}
               </Link>
               .
             </p>
           ) : (
-            today.map((a) => <AppointmentCard key={a.id} a={a} shopPhone={settings.phone} big />)
+            // En yakın randevu büyük kartta durur; arkasındakiler normal kartta.
+            upcoming.map((a, i) => <AppointmentCard key={a.id} a={a} shopPhone={settings.phone} big={i === 0} />)
           )}
         </div>
       </section>

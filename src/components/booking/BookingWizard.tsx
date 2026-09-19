@@ -17,7 +17,7 @@ type Props = {
   services: ServiceItem[];
   barbers: BarberItem[];
   isLoggedIn: boolean;
-  initial: { serviceIds: string[]; barberId: string | null; startsAt: string | null };
+  initial: { serviceIds: string[]; barberId: string | null; startsAt: string | null; day: string | null };
 };
 
 export function BookingWizard({ services, barbers, isLoggedIn, initial }: Props) {
@@ -29,6 +29,12 @@ export function BookingWizard({ services, barbers, isLoggedIn, initial }: Props)
   const [serviceIds, setServiceIds] = useState<string[]>(initial.serviceIds.filter((id) => services.some((s) => s.id === id)));
   const [barberId, setBarberId] = useState<string | null>(initial.barberId);
   const [startsAt, setStartsAt] = useState<string | null>(initial.startsAt);
+  /**
+   * Seçili gün adresten gelebilir (`?gun=2026-09-21`); gelmezse `SlotStep`
+   * pencerenin ilk uygun gününü seçer ve buraya bildirir. Saat seçimi güne
+   * bağlı olduğu için gün değişince saat düşer.
+   */
+  const [day, setDay] = useState<string | null>(initial.day);
   const [pending, startTransition] = useTransition();
 
   const selected = useMemo(() => services.filter((s) => serviceIds.includes(s.id)), [services, serviceIds]);
@@ -41,6 +47,7 @@ export function BookingWizard({ services, barbers, isLoggedIn, initial }: Props)
     const q = new URLSearchParams();
     if (serviceIds.length) q.set("s", serviceIds.join(","));
     if (barberId) q.set("b", barberId);
+    if (day) q.set("gun", day);
     if (startsAt) q.set("t", startsAt);
     return q.toString();
   };
@@ -70,7 +77,14 @@ export function BookingWizard({ services, barbers, isLoggedIn, initial }: Props)
         <BarberStep barbers={barbers} selectedId={barberId} onSelect={(id) => { setBarberId(id); setStartsAt(null); }} />
       )}
       {step >= 3 && barberId && (
-        <SlotStep barberId={barberId} durationMinutes={totalMinutes} selected={startsAt} onSelect={setStartsAt} />
+        <SlotStep
+          barberId={barberId}
+          durationMinutes={totalMinutes}
+          day={day}
+          onSelectDay={(d) => { setDay(d); setStartsAt(null); }}
+          selected={startsAt}
+          onSelect={setStartsAt}
+        />
       )}
       {selected.length > 0 && (
         <div className="sticky bottom-0 -mx-4 border-t border-border bg-background/95 px-4 py-3 backdrop-blur">

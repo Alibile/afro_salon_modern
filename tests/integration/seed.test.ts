@@ -8,6 +8,7 @@ import {
   LEGACY_GALLERY_KEYS,
   LEGACY_GALLERY_DEFAULTS,
   LEGACY_ABOUT_TEXT,
+  LEGACY_SAME_DAY_ABOUT_TEXT,
   LEGACY_NADIA_TEXT,
   LEGACY_SERVICES,
   LEGACY_HOURS,
@@ -96,6 +97,33 @@ describe("runSeed", () => {
     await runSeed(prisma);
     const settings = await prisma.settings.findUniqueOrThrow({ where: { id: 1 } });
     expect(settings.aboutTextI18n).toEqual(DEFAULT_LANDING_CONTENT.aboutTextI18n);
+  });
+
+  /**
+   * Tur 7: randevu penceresi bugün + 6 güne açıldı, "randevu yalnızca bugün"
+   * cümlesi yanlış kaldı. Seed o cümleyi yalnızca **hiç dokunulmamış** kurulumda
+   * değiştirir.
+   */
+  it("Tur 6'nın 'yalnızca bugün' aboutText'ini haftalık metne taşır", async () => {
+    await prisma.settings.update({ where: { id: 1 }, data: { aboutTextI18n: LEGACY_SAME_DAY_ABOUT_TEXT } });
+    await runSeed(prisma);
+    const settings = await prisma.settings.findUniqueOrThrow({ where: { id: 1 } });
+    expect(settings.aboutTextI18n).toEqual(DEFAULT_LANDING_CONTENT.aboutTextI18n);
+  });
+
+  it("aynı metnin çevirisiz (tek dilli) hâlini de taşır", async () => {
+    await prisma.settings.update({ where: { id: 1 }, data: { aboutTextI18n: { tr: LEGACY_SAME_DAY_ABOUT_TEXT.tr } } });
+    await runSeed(prisma);
+    const settings = await prisma.settings.findUniqueOrThrow({ where: { id: 1 } });
+    expect(settings.aboutTextI18n).toEqual(DEFAULT_LANDING_CONTENT.aboutTextI18n);
+  });
+
+  it("aynı metni admin bir harf bile değiştirmişse dokunmaz", async () => {
+    const edited = { ...LEGACY_SAME_DAY_ABOUT_TEXT, en: "Our own English about text." };
+    await prisma.settings.update({ where: { id: 1 }, data: { aboutTextI18n: edited } });
+    await runSeed(prisma);
+    const settings = await prisma.settings.findUniqueOrThrow({ where: { id: 1 } });
+    expect(settings.aboutTextI18n).toEqual(edited);
   });
 
   it("admin tarafından girilmiş özel aboutText'e dokunmaz", async () => {

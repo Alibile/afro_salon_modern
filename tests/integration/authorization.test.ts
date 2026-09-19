@@ -30,6 +30,8 @@ import { addHaircutPhoto, deleteHaircutPhoto } from "@/actions/photos";
 import { updateOwnProfile, changeOwnPassword, updateOwnLocale } from "@/actions/profile";
 import { sendContactMessage } from "@/actions/contact";
 import { resetRateLimit } from "@/lib/rate-limit";
+import { bookableDays } from "@/lib/booking-window";
+import { addMinutes } from "@/lib/time";
 
 const mockedSession = vi.mocked(getSessionUser);
 
@@ -158,7 +160,10 @@ describe("server action wrappers — CUSTOMER oturumu", () => {
 
   it("createAppointment müşterinin kendi oturumunu kullanır, gövdeden kimlik almaz", async () => {
     setSession(customer);
-    const r = await createAppointment({ barberId: "yok", serviceIds: ["s1"], startsAt: "2026-09-17T08:00:00.000Z" });
+    // Tarih randevu penceresinden türetilir: sabit bir gün yazmak testi
+    // koşulduğu güne bağlar ve hata "berber yok" yerine "tarih dışı" olurdu.
+    const startsAt = addMinutes(bookableDays(new Date())[0].dayStart, 12 * 60).toISOString();
+    const r = await createAppointment({ barberId: "yok", serviceIds: ["s1"], startsAt });
     expect(r).toEqual({ ok: false, error: "errors.barberNotFound" });
     expect(mockedSession).toHaveBeenCalled();
   });

@@ -118,7 +118,7 @@ test.describe("sayfa başlıkları", () => {
     await page.goto("/randevu");
     await expect(page).toHaveTitle("Randevu al — Afro Salon Modern");
     await page.goto("/en");
-    await expect(page).toHaveTitle("Afro Salon Modern — Afro barbering, booked the same day");
+    await expect(page).toHaveTitle("Afro Salon Modern — Afro barbering, today or later this week");
     await page.goto("/fr/randevu");
     await expect(page).toHaveTitle("Prendre rendez-vous — Afro Salon Modern");
   });

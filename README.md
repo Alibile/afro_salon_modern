@@ -1,6 +1,6 @@
 # Afro Salon Modern
 
-Tek bir afro berber salonu için aynı gün randevu sistemi. Next.js 16 + Prisma 7 + PostgreSQL.
+Tek bir afro berber salonu için haftalık randevu sistemi — bugün ve sonraki altı gün, Pazar hariç. Next.js 16 + Prisma 7 + PostgreSQL.
 
 ## Başlangıç / Geliştirme
 
@@ -43,13 +43,40 @@ taşınır; bir satırı bile düzenlenmişse o berberin saatleri olduğu gibi k
   - `#galeri` — Galeri bölümü
   - `#yorumlar` — Müşteri yorumları bölümü
   - `#iletisim` — İletişim formu bölümü
-- `/randevu` — 3 adımlı randevu akışı (hizmet → berber → saat)
-- `/randevularim` — müşterinin bugünkü ve geçmiş randevuları
+- `/randevu` — 3 adımlı randevu akışı (hizmet → berber → gün + saat)
+- `/randevularim` — müşterinin yaklaşan ve geçmiş randevuları
 - `/panel` — berber ve admin paneli
 
 Yollar üç dilde de aynıdır, yalnızca önek değişir: Türkçe öneksiz (`/`,
 `/randevu`), İngilizce `/en` ve Fransızca `/fr` önekiyle (`/en/randevu`,
 `/fr/panel`). Ayrıntı için [Diller (TR/EN/FR)](#diller-trenfr).
+
+### Randevu penceresi
+
+Müşteri **bugünden başlayan yedi günlük kayan pencere** içinde randevu alır
+(bugün + 6 gün); Pazar salon kapalı olduğu için pencereden hiç geçmez, yani
+her zaman altı gün seçilebilir. Pencerenin tek tanımı
+`src/lib/booking-window.ts` (`BOOKING_HORIZON_DAYS`, `bookableDays`,
+`parseBookableDate`) ve gün anahtarı (`YYYY-MM-DD`) hep dükkanın saat
+dilimindedir (`Europe/Istanbul`).
+
+Sihirbazın üçüncü adımı gün çipleri (Bugün · Yarın · kısa tarih) ile saat
+ızgarasını birlikte gösterir; seçili gün adres çubuğunda `?gun=YYYY-MM-DD`
+olarak durur. Çipler `GET /api/availability?barberId&duration&summary=1` ile
+gelen özetten beslenir: berberin çalışmadığı ya da tam gün izinli olduğu gün
+"Kapalı", yeri kalmamış gün "Dolu" görünür ve seçilemez. Tek günün saatleri
+`GET /api/availability?barberId&duration&date=YYYY-MM-DD` ile gelir
+(`{ slots, isOpen, opensAt }`).
+
+Kural üç katmanda birden durur: sihirbaz pencere dışını hiç çizmez, uç nokta
+pencere dışı tarihi `errors.dateOutOfRange` ile 400 döner, randevuyu yazan
+server action (`createAppointmentFor`) tarihi `parseBookableDate` ile yeniden
+doğrular. "En erken randevu" payı (`Settings.minLeadMinutes`) yalnızca bugüne
+uygulanır; ileri günlerde çalışma aralığı baştan sona açıktır.
+
+Hero'daki sayaç **bugüne** aittir ve olduğu gibi kalır; panelin "Bugün" panosu
+da yalnızca bugünü gösterir. Panelin randevu listesi varsayılan olarak son 30
+günle birlikte pencerenin sonuna kadar olan günleri kapsar.
 
 ## Diller (TR/EN/FR)
 
@@ -274,7 +301,7 @@ silinmeye çalışılmaz (`landing/` ve `seed/` önekleri korunur).
 
 **Hero:** Tam ekran sinematik hero, arka planda `hero.jpg` (masaüstü) ve
 `hero-mobile.jpg` (mobil), üstünde koyu kahve→şeffaf gradyan ve manşet
-(Fraunces, açık kum rengi). "Bugün randevu al" ve "Hizmetler" bağlantıları.
+(Fraunces, açık kum rengi). "Hemen randevu al" ve "Hizmetler" bağlantıları.
 
 Hero'nun durum satırı, dükkan **o an açıkken** bugün alınabilecek randevu
 sayısını da yazar ("Bugün açık · 11:00–22:30 · 12 boş randevu"). Sayı
@@ -283,7 +310,8 @@ berberlerin bugünkü çalışma satırlarından randevular ve izinler düşül�
 her boş pencere paket süresine bölünür (`computeSlots`, adım = süre), yani
 sayılan şey başlangıç saatleri değil **birbiriyle çakışmayan randevu adedi**.
 Süre en kısa aktif hizmetinkidir; hizmet yoksa slot adımına düşer. Hiç yer
-kalmamışsa "Bugün doluyuz" satırı görünür.
+kalmamışsa "Bugün doluyuz — bu haftadan gün seç" satırı görünür: sayaç bugüne
+aittir, randevu penceresi ise bir haftadır.
 
 **Navbar:** Sayfanın başında şeffaf (hero üzerinde açık metin), kaydırıldığında
 kum zeminli bilinen stil alır. Solda marka logosu (işaret + yazı markası) ana
@@ -299,13 +327,13 @@ her genişlikte çubukta durur, menüde tekrarlanmaz. Marka adı yalnızca `sm`
 altında kısalır ("Afro Salon"), üstünde tam basılır.
 
 **Nasıl çalışır (`#nasil`):** Hero'nun hemen altında üç numaralı adım (berber
-seç → bugünkü saati seç → gel, otur) ve iptal penceresini
+seç → gününü ve saatini seç → gel, otur) ve iptal penceresini
 (`Settings.cancellationWindowMinutes`) yazan bir alt not. Menüde yer almaz.
 
 **Hizmet & Fiyat (`#hizmetler`):** Aktif hizmet **tam olarak bir** taneyse
 bölüm paket kartına döner — büyük hizmet adı, "fiyata dahil" üç satırı
 (yıkama / kesim / sakal; sabit metin, `landing.package.includes`), büyük fiyat,
-süre ve "Bugün randevu al". Panelden ikinci bir hizmet eklendiğinde aynı bölüm
+süre ve "Hemen randevu al". Panelden ikinci bir hizmet eklendiğinde aynı bölüm
 kendiliğinden eski fiyat listesi düzenine geçer.
 
 **SSS (`#sss`):** Altı soru, `<details>/<summary>` ile (JavaScript kapalıyken de

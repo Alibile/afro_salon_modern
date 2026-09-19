@@ -2,8 +2,9 @@ import { hasLocale } from "next-intl";
 import { prisma } from "@/lib/db";
 import { ok, fail, type ActionResult } from "@/lib/action-result";
 import { firstIssueKey } from "@/lib/errors";
-import { addMinutes } from "@/lib/time";
-import { getTodayAvailability } from "@/lib/queries/booking";
+import { addMinutes, shopDateKey } from "@/lib/time";
+import { parseBookableDate } from "@/lib/booking-window";
+import { getAvailability } from "@/lib/queries/booking";
 import { createAppointmentSchema, type CreateAppointmentInput } from "@/schemas/booking";
 import { getSettings } from "@/lib/settings";
 import { pick } from "@/lib/i18n-content";
@@ -39,6 +40,13 @@ export async function createAppointmentFor(
 
   const startsAt = new Date(startsAtIso);
 
+  // Randevu penceresi sunucuda yeniden kurulur: sihirbaz Pazarı hiç göstermez
+  // ve 7 günden ötesini çizmez, ama gövdeye elle yazılan bir tarih de buradan
+  // geçmek zorunda. Gün dükkanın takviminde okunur — müşterinin cihazı başka
+  // bir gündeyse bile salon için hangi gün olduğu değişmez.
+  const dayStart = parseBookableDate(shopDateKey(startsAt), now);
+  if (!dayStart) return fail("errors.dateOutOfRange");
+
   const barber = await prisma.barber.findFirst({ where: { id: barberId, isActive: true } });
   if (!barber) return fail("errors.barberNotFound");
 
@@ -48,7 +56,7 @@ export async function createAppointmentFor(
   const durationMinutes = services.reduce((sum, s) => sum + s.durationMinutes, 0);
   const endsAt = addMinutes(startsAt, durationMinutes);
 
-  const { slots } = await getTodayAvailability(barberId, durationMinutes, now);
+  const { slots } = await getAvailability(barberId, durationMinutes, dayStart, now);
   if (!slots.some((s) => s.getTime() === startsAt.getTime())) return fail("errors.slotUnavailable");
 
   try {

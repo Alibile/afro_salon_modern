@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
-import { shopDayStart, addMinutes } from "@/lib/time";
+import { shopDayStart } from "@/lib/time";
 
 export type AppointmentView = {
   id: string;
@@ -16,7 +16,6 @@ export type AppointmentView = {
 export async function getCustomerAppointments(customerId: string, now: Date = new Date()) {
   const settings = await getSettings();
   const dayStart = shopDayStart(now);
-  const dayEnd = addMinutes(dayStart, 24 * 60);
   const rows = await prisma.appointment.findMany({
     where: { customerId },
     include: { barber: { include: { user: { select: { name: true } } } }, services: true },
@@ -33,9 +32,13 @@ export async function getCustomerAppointments(customerId: string, now: Date = ne
     totalKurus: a.services.reduce((t, s) => t + s.priceSnapshot, 0),
     canCancel: a.status === "SCHEDULED" && a.startsAt.getTime() - now.getTime() >= settings.cancellationWindowMinutes * 60_000,
   }));
-  const today = views.filter((v) => v.status === "SCHEDULED" && v.startsAt >= dayStart && v.startsAt < dayEnd).reverse();
-  const past = views.filter((v) => !today.some((t) => t.id === v.id));
-  return { today, past };
+  // Randevu penceresi bir haftaya açıldığından "bugünkü randevum" artık
+  // müşterinin elindeki tek randevu değil: bugünden başlayan bütün planlı
+  // randevular yaklaşan listede, yakın tarihten uzağa doğru durur. Geçmiş
+  // liste bugünün iptal/tamamlanmış kayıtlarını da kapsar.
+  const upcoming = views.filter((v) => v.status === "SCHEDULED" && v.startsAt >= dayStart).reverse();
+  const past = views.filter((v) => !upcoming.some((u) => u.id === v.id));
+  return { upcoming, past };
 }
 
 export async function getCustomerPhotos(customerId: string) {

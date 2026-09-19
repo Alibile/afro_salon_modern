@@ -1,5 +1,17 @@
 import { describe, it, expect } from "vitest";
-import { parseTime, shopDayStart, shopDayOfWeek, addMinutes, formatShopTime, formatShopDate, shopDateTime } from "@/lib/time";
+import {
+  parseTime,
+  shopDayStart,
+  shopDayOfWeek,
+  addMinutes,
+  addDays,
+  shopDateKey,
+  shopDayDelta,
+  formatShopTime,
+  formatShopDate,
+  formatShopDayShort,
+  shopDateTime,
+} from "@/lib/time";
 
 describe("time", () => {
   it("parseTime converts HH:mm to minutes", () => {
@@ -22,6 +34,36 @@ describe("time", () => {
 
   it("addMinutes", () => {
     expect(addMinutes(new Date("2026-09-17T09:00:00Z"), 45).toISOString()).toBe("2026-09-17T09:45:00.000Z");
+  });
+
+  it("addDays dükkan takviminde ilerler ve gün başına oturur", () => {
+    const thursday = new Date("2026-09-17T07:00:00Z");
+    expect(addDays(thursday, 0).toISOString()).toBe("2026-09-16T21:00:00.000Z");
+    expect(addDays(thursday, 1).toISOString()).toBe("2026-09-17T21:00:00.000Z");
+    expect(addDays(thursday, 6).toISOString()).toBe("2026-09-22T21:00:00.000Z");
+    expect(addDays(thursday, -1).toISOString()).toBe("2026-09-15T21:00:00.000Z");
+  });
+
+  it("shopDateKey günü İstanbul'a göre yazar", () => {
+    expect(shopDateKey(new Date("2026-09-17T07:00:00Z"))).toBe("2026-09-17");
+    // UTC'de hâlâ 16 Eylül; dükkanın takviminde 17 Eylül 00:30.
+    expect(shopDateKey(new Date("2026-09-16T21:30:00Z"))).toBe("2026-09-17");
+  });
+
+  it("shopDayDelta saat farkını değil gün farkını ölçer", () => {
+    const now = new Date("2026-09-17T20:50:00Z"); // 23:50 İstanbul
+    // On dakika sonrası, saat olarak çok yakın ama takvimde ertesi gün.
+    expect(shopDayDelta(new Date("2026-09-17T21:00:00Z"), now)).toBe(1);
+    expect(shopDayDelta(new Date("2026-09-17T18:00:00Z"), now)).toBe(0);
+    expect(shopDayDelta(new Date("2026-09-22T09:00:00Z"), now)).toBe(5);
+    expect(shopDayDelta(new Date("2026-09-16T09:00:00Z"), now)).toBe(-1);
+  });
+
+  it("formatShopDayShort çip etiketini her dilin kısaltmasıyla verir", () => {
+    const d = new Date("2026-09-22T09:00:00Z"); // Salı
+    expect(formatShopDayShort(d, "tr")).toBe("22 Eyl Sal");
+    expect(formatShopDayShort(d, "en")).toBe("Tue 22 Sept");
+    expect(formatShopDayShort(d, "fr")).toBe("mar. 22 sept.");
   });
 
   it("formatShopTime / formatShopDate in Turkish", () => {

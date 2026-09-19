@@ -3,6 +3,11 @@
 Tarih: 2026-09-17
 Durum: Onaylandı
 
+> **Güncelleme 2026-09-19 (Tur 7):** randevu penceresi "yalnızca bugün"den
+> **bugün + 6 güne** açıldı; Pazar salon kapalı olduğu için hiçbir zaman
+> seçilemez. Aşağıdaki "aynı gün" varsayımı bu notla birlikte okunmalı.
+> Pencerenin tanımı `src/lib/booking-window.ts` içindedir.
+
 ## 1. Amaç ve kapsam
 
 Tek bir modern afro berber salonu için web tabanlı randevu sistemi. Müşteriler

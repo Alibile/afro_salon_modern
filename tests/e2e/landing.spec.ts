@@ -18,7 +18,7 @@ test.describe("paket bölümü", () => {
     await expect(services.getByText("Saç yıkama", { exact: true })).toBeVisible();
     await expect(services.getByText("Kesim ve şekillendirme")).toBeVisible();
     await expect(services.getByText("Sakal tıraşı ve düzeltme")).toBeVisible();
-    await expect(services.getByRole("link", { name: "Bugün randevu al" })).toHaveAttribute("href", "/randevu");
+    await expect(services.getByRole("link", { name: "Hemen randevu al" })).toHaveAttribute("href", "/randevu");
   });
 
   test("İngilizce paket kendi dilinde basılır", async ({ page }) => {
@@ -36,7 +36,7 @@ test.describe("nasıl çalışır", () => {
     const steps = page.locator("#nasil ol > li");
     await expect(steps).toHaveCount(3);
     await expect(steps.nth(0)).toContainText("Berberini seç");
-    await expect(steps.nth(1)).toContainText("Bugünkü saatini seç");
+    await expect(steps.nth(1)).toContainText("Gününü ve saatini seç");
     await expect(steps.nth(2)).toContainText("Gel, otur");
     // İptal penceresi ayarlardan gelir; metne gömülü sabit bir sayı değil.
     await expect(page.locator("#nasil")).toContainText(/\d+ dakika kala iptal edebilirsin/);
@@ -51,7 +51,7 @@ test.describe("SSS", () => {
     await expect(answer).toBeHidden();
     await first.getByText("Randevu nasıl alınır?").click();
     await expect(answer).toBeVisible();
-    await expect(answer).toContainText("Randevu yalnızca bugün için açılır");
+    await expect(answer).toContainText("bugünden başlayarak yedi gün açık, Pazar hariç");
   });
 
   test("altı soru var ve İngilizcesi de açılır", async ({ page }) => {

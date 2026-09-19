@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { computeSlots, type Interval, type WorkingInterval } from "@/lib/availability";
 import { addMinutes, parseTime, shopDayOfWeek, shopDayStart } from "@/lib/time";
+import { bookableDays } from "@/lib/booking-window";
 import { getSettings } from "@/lib/settings";
 import { pick } from "@/lib/i18n-content";
 import { intlLocale } from "@/lib/intl";
@@ -76,34 +77,123 @@ async function getWorkingIntervals(barberId: string, dayOfWeek: number): Promise
   return rows.map((r) => ({ startMinutes: parseTime(r.startTime), endMinutes: parseTime(r.endTime) }));
 }
 
-export async function getTodayAvailability(barberId: string, durationMinutes: number, now: Date = new Date()) {
-  const settings = await getSettings();
-  const dayStart = shopDayStart(now);
-  const dayEnd = addMinutes(dayStart, 24 * 60);
-  const dow = shopDayOfWeek(now);
+/**
+ * İleri günlerde "en erken randevu" kuralı (`minLeadMinutes`) çalışmaz: o kural
+ * ziyaretçi kapıdan girmeden önce berbere bırakılan payı anlatır, yarının
+ * 11:00'ini bugünden almanın önünde bir engel yok. Bugün için filtre aynen
+ * durur; ileri günlerde tabanı günün kendi başlangıcına çekmek bütün çalışma
+ * aralığını açar.
+ */
+function leadFilter(dayStart: Date, now: Date, minLeadMinutes: number) {
+  const isToday = dayStart.getTime() === shopDayStart(now).getTime();
+  return isToday ? { now, minLeadMinutes } : { now: dayStart, minLeadMinutes: 0 };
+}
 
-  const working = await getWorkingIntervals(barberId, dow);
-  const busy = await getBarberDayBusy(barberId, dayStart, dayEnd);
+/**
+ * Tek bir günün boş saatleri. `dayStart` dükkan saat diliminde o günün 00:00'ı
+ * olmalı — pencereye girip girmediğini doğrulamak çağıranın işi
+ * (`parseBookableDate`), bu sorgu verilen günü hesaplar.
+ *
+ * `opensAt` **ertesi günün** açılış saatidir: seçili gün kapalıysa ya da dolduysa
+ * sihirbaz "yarın şu saatte" diyebilsin diye durur.
+ */
+export async function getAvailability(
+  barberId: string,
+  durationMinutes: number,
+  dayStart: Date,
+  now: Date = new Date(),
+) {
+  const settings = await getSettings();
+  const dayEnd = addMinutes(dayStart, 24 * 60);
+  const dow = shopDayOfWeek(dayStart);
+
+  const [working, busy, nextDayRows] = await Promise.all([
+    getWorkingIntervals(barberId, dow),
+    getBarberDayBusy(barberId, dayStart, dayEnd),
+    prisma.workingHours.findMany({
+      where: { barberId, dayOfWeek: (dow + 1) % 7, isOff: false },
+      orderBy: { startTime: "asc" },
+      take: 1,
+    }),
+  ]);
+
   const slots = computeSlots({
     dayStart,
     workingIntervals: working,
     busy,
     durationMinutes,
     slotStepMinutes: settings.slotStepMinutes,
-    minLeadMinutes: settings.minLeadMinutes,
-    now,
-  });
-
-  // Yarın açılış saati (kapalıysa mesaj için)
-  const tomorrowRows = await prisma.workingHours.findMany({
-    where: { barberId, dayOfWeek: (dow + 1) % 7, isOff: false },
-    orderBy: { startTime: "asc" },
-    take: 1,
+    ...leadFilter(dayStart, now, settings.minLeadMinutes),
   });
 
   return {
     slots,
-    isOpenToday: working.length > 0,
-    opensAt: tomorrowRows[0]?.startTime ?? null,
+    isOpen: working.length > 0,
+    opensAt: nextDayRows[0]?.startTime ?? null,
   };
+}
+
+/** Gün çiplerinin ihtiyacı: her gün açık mı, kaç saat boş. */
+export type DaySummary = { dateKey: string; open: boolean; slotCount: number };
+
+/**
+ * Pencereye giren her gün için tek bakışta özet. Gün başına ayrı sorgu
+ * atmaz: berberin yedi çalışma satırı ve bütün pencerenin doluluğu birer kez
+ * okunur, gün ayrımı bellekte yapılır.
+ *
+ * `open`, çalışma saati olmayan günü (berber o gün çalışmıyor) **ve** tam gün
+ * izinli günü kapsar: ikisi de ziyaretçiye "Kapalı" olarak görünür. Çalışıyor
+ * ama yeri kalmamış gün `open: true, slotCount: 0` ile "Dolu" der.
+ */
+export async function getDaySummaries(
+  barberId: string,
+  durationMinutes: number,
+  now: Date = new Date(),
+): Promise<DaySummary[]> {
+  const settings = await getSettings();
+  const days = bookableDays(now);
+  if (days.length === 0) return [];
+  const rangeStart = days[0].dayStart;
+  const rangeEnd = addMinutes(days[days.length - 1].dayStart, 24 * 60);
+
+  const [hours, appointments, timeOffs] = await Promise.all([
+    prisma.workingHours.findMany({ where: { barberId, isOff: false } }),
+    prisma.appointment.findMany({
+      where: { barberId, status: "SCHEDULED", startsAt: { lt: rangeEnd }, endsAt: { gt: rangeStart } },
+      select: { startsAt: true, endsAt: true },
+    }),
+    prisma.timeOff.findMany({
+      where: { barberId, startsAt: { lt: rangeEnd }, endsAt: { gt: rangeStart } },
+      select: { startsAt: true, endsAt: true },
+    }),
+  ]);
+
+  const busy: Interval[] = [...appointments, ...timeOffs].map((x) => ({ start: x.startsAt, end: x.endsAt }));
+  const off: Interval[] = timeOffs.map((x) => ({ start: x.startsAt, end: x.endsAt }));
+
+  return days.map((day) => {
+    const working = hours
+      .filter((h) => h.dayOfWeek === day.dayOfWeek)
+      .map((h) => ({ startMinutes: parseTime(h.startTime), endMinutes: parseTime(h.endTime) }));
+    // Tam gün izin: çalışma aralıklarının hepsi tek bir izinle örtülmüşse gün
+    // "dolu" değil "kapalı"dır — berber o gün salonda yok.
+    const fullyOff =
+      working.length > 0 &&
+      working.every((w) =>
+        off.some(
+          (o) =>
+            o.start.getTime() <= addMinutes(day.dayStart, w.startMinutes).getTime() &&
+            o.end.getTime() >= addMinutes(day.dayStart, w.endMinutes).getTime(),
+        ),
+      );
+    const slots = computeSlots({
+      dayStart: day.dayStart,
+      workingIntervals: working,
+      busy,
+      durationMinutes,
+      slotStepMinutes: settings.slotStepMinutes,
+      ...leadFilter(day.dayStart, now, settings.minLeadMinutes),
+    });
+    return { dateKey: day.dateKey, open: working.length > 0 && !fullyOff, slotCount: slots.length };
+  });
 }

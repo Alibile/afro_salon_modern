@@ -1,19 +1,26 @@
 import { describe, it, expect, vi } from "vitest";
 import { prisma } from "@/lib/db";
 import { asActor, createBarber, createCustomer, createService } from "./helpers";
-import { getActiveServices, getTodayAvailability } from "@/lib/queries/booking";
+import { getActiveServices, getAvailability, getDaySummaries } from "@/lib/queries/booking";
 import * as bookingQueries from "@/lib/queries/booking";
 import { createAppointmentFor } from "@/actions/impl/appointments";
+import { shopDayStart } from "@/lib/time";
+import { parseBookableDate } from "@/lib/booking-window";
 
 // Perşembe 2026-09-17 10:00 Istanbul = 07:00Z
 const NOW = new Date("2026-09-17T07:00:00Z");
 const SUNDAY_NOW = new Date("2026-09-20T07:00:00Z");
+/** Yarın (Cuma 18 Eylül) 09:00 İstanbul. */
+const TOMORROW_0900 = "2026-09-18T06:00:00.000Z";
 
-describe("getTodayAvailability", () => {
+const today = (now: Date = NOW) => shopDayStart(now);
+const day = (dateKey: string) => parseBookableDate(dateKey, NOW)!;
+
+describe("getAvailability", () => {
   it("lists slots after now+lead within working hours", async () => {
     const { barber } = await createBarber();
-    const r = await getTodayAvailability(barber.id, 30, NOW);
-    expect(r.isOpenToday).toBe(true);
+    const r = await getAvailability(barber.id, 30, today(), NOW);
+    expect(r.isOpen).toBe(true);
     // 10:00 + 15dk lead = 10:15 → ilk slot 10:15 (15dk adım)
     expect(r.slots[0].toISOString()).toBe("2026-09-17T07:15:00.000Z");
     // son slot 18:30 (19:00 kapanış, 30dk hizmet)
@@ -22,8 +29,8 @@ describe("getTodayAvailability", () => {
 
   it("is closed on Sunday", async () => {
     const { barber } = await createBarber();
-    const r = await getTodayAvailability(barber.id, 30, SUNDAY_NOW);
-    expect(r.isOpenToday).toBe(false);
+    const r = await getAvailability(barber.id, 30, today(SUNDAY_NOW), SUNDAY_NOW);
+    expect(r.isOpen).toBe(false);
     expect(r.slots).toEqual([]);
     expect(r.opensAt).toBe("09:00"); // yarın (Pazartesi) açılış
   });
@@ -37,13 +44,72 @@ describe("getTodayAvailability", () => {
     await prisma.timeOff.create({
       data: { barberId: barber.id, startsAt: new Date("2026-09-17T09:00:00Z"), endsAt: new Date("2026-09-17T10:00:00Z") },
     });
-    const r = await getTodayAvailability(barber.id, 30, NOW);
-    const iso = r.slots.map((d) => d.toISOString());
+    const r = await getAvailability(barber.id, 30, today(), NOW);
+    const iso = r.slots.map((d: Date) => d.toISOString());
     expect(iso).not.toContain("2026-09-17T08:00:00.000Z");
     expect(iso).not.toContain("2026-09-17T07:45:00.000Z"); // 07:45-08:15 çakışır
     expect(iso).not.toContain("2026-09-17T09:30:00.000Z");
     expect(iso).toContain("2026-09-17T08:30:00.000Z");
     expect(iso).toContain("2026-09-17T10:00:00.000Z");
+  });
+
+  /**
+   * "En erken randevu" payı (`minLeadMinutes`) ancak bugün için anlamlı: yarının
+   * açılış saatini bugünden almanın önünde bir engel yok. İleri günlerde
+   * çalışma aralığı baştan sona açıktır.
+   */
+  it("ileri günlerde lead filtresi uygulanmaz", async () => {
+    const { barber } = await createBarber();
+    const r = await getAvailability(barber.id, 30, day("2026-09-18"), NOW);
+    expect(r.isOpen).toBe(true);
+    expect(r.slots[0].toISOString()).toBe(TOMORROW_0900); // 09:00, açılışın ta kendisi
+    expect(r.slots.at(-1)!.toISOString()).toBe("2026-09-18T15:30:00.000Z");
+  });
+
+  it("ileri günün randevusu o günün ızgarasından düşer", async () => {
+    const { barber } = await createBarber();
+    const customer = await createCustomer();
+    await prisma.appointment.create({
+      data: { barberId: barber.id, customerId: customer.id, startsAt: new Date(TOMORROW_0900), endsAt: new Date("2026-09-18T06:30:00.000Z") },
+    });
+    const iso = (await getAvailability(barber.id, 30, day("2026-09-18"), NOW)).slots.map((d: Date) => d.toISOString());
+    expect(iso).not.toContain(TOMORROW_0900);
+    expect(iso).toContain("2026-09-18T06:30:00.000Z");
+    // Bugünün ızgarası ileri günün doluluğundan etkilenmez.
+    expect((await getAvailability(barber.id, 30, today(), NOW)).slots.length).toBeGreaterThan(0);
+  });
+});
+
+describe("getDaySummaries", () => {
+  it("pencerenin altı gününü verir, Pazar hiç geçmez", async () => {
+    const { barber } = await createBarber();
+    const summaries = await getDaySummaries(barber.id, 30, NOW);
+    expect(summaries.map((s) => s.dateKey)).toEqual([
+      "2026-09-17",
+      "2026-09-18",
+      "2026-09-19",
+      "2026-09-21",
+      "2026-09-22",
+      "2026-09-23",
+    ]);
+    expect(summaries.every((s) => s.open)).toBe(true);
+    // Bugün lead yüzünden birkaç saat eksik; ileri günler tam ızgara.
+    expect(summaries[0].slotCount).toBeLessThan(summaries[1].slotCount);
+  });
+
+  it("tam gün izinli günü kapalı, dolan günü açık ama sıfır sayar", async () => {
+    const { barber } = await createBarber();
+    const customer = await createCustomer();
+    await prisma.timeOff.create({
+      data: { barberId: barber.id, startsAt: new Date("2026-09-17T21:00:00Z"), endsAt: new Date("2026-09-18T21:00:00Z") },
+    });
+    await prisma.appointment.create({
+      data: { barberId: barber.id, customerId: customer.id, startsAt: new Date("2026-09-18T21:00:00Z"), endsAt: new Date("2026-09-19T21:00:00Z") },
+    });
+    const byKey = Object.fromEntries((await getDaySummaries(barber.id, 30, NOW)).map((s) => [s.dateKey, s]));
+    expect(byKey["2026-09-18"]).toEqual({ dateKey: "2026-09-18", open: false, slotCount: 0 });
+    expect(byKey["2026-09-19"]).toEqual({ dateKey: "2026-09-19", open: true, slotCount: 0 });
+    expect(byKey["2026-09-21"].slotCount).toBeGreaterThan(0);
   });
 });
 
@@ -251,9 +317,9 @@ describe("createAppointment", () => {
     const s1 = await createService();
     const startsAt = new Date("2026-09-17T08:00:00.000Z");
 
-    const spy = vi.spyOn(bookingQueries, "getTodayAvailability").mockResolvedValueOnce({
+    const spy = vi.spyOn(bookingQueries, "getAvailability").mockResolvedValueOnce({
       slots: [startsAt],
-      isOpenToday: true,
+      isOpen: true,
       opensAt: "09:00",
     });
 
@@ -267,6 +333,58 @@ describe("createAppointment", () => {
 
     spy.mockRestore();
     expect(r).toEqual({ ok: false, error: "errors.slotTaken" });
+  });
+
+  /**
+   * Pencere sunucuda yeniden kurulur: sihirbaz Pazarı ve sekizinci günü hiç
+   * göstermez, ama gövdeye elle yazılan bir tarih de buradan geçmek zorunda.
+   */
+  it("yarın için randevu alınabilir", async () => {
+    const { barber } = await createBarber();
+    const customer = await createCustomer();
+    const s1 = await createService();
+    const r = await createAppointmentFor(asActor(customer), NOW, { barberId: barber.id, serviceIds: [s1.id], startsAt: TOMORROW_0900 });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    const appt = await prisma.appointment.findUniqueOrThrow({ where: { id: r.data.id } });
+    expect(appt.startsAt.toISOString()).toBe(TOMORROW_0900);
+  });
+
+  it("pencerenin sekizinci gününü reddeder", async () => {
+    const { barber } = await createBarber();
+    const customer = await createCustomer();
+    const s1 = await createService();
+    // 24 Eylül Perşembe: bugünden (17 Eylül) tam sekiz gün sonrası.
+    const r = await createAppointmentFor(asActor(customer), NOW, { barberId: barber.id, serviceIds: [s1.id], startsAt: "2026-09-24T06:00:00.000Z" });
+    expect(r).toEqual({ ok: false, error: "errors.dateOutOfRange" });
+  });
+
+  it("Pazar gününü reddeder", async () => {
+    const { barber } = await createBarber();
+    const customer = await createCustomer();
+    const s1 = await createService();
+    const r = await createAppointmentFor(asActor(customer), NOW, { barberId: barber.id, serviceIds: [s1.id], startsAt: "2026-09-20T06:00:00.000Z" });
+    expect(r).toEqual({ ok: false, error: "errors.dateOutOfRange" });
+  });
+
+  it("geçmiş günü reddeder", async () => {
+    const { barber } = await createBarber();
+    const customer = await createCustomer();
+    const s1 = await createService();
+    const r = await createAppointmentFor(asActor(customer), NOW, { barberId: barber.id, serviceIds: [s1.id], startsAt: "2026-09-16T06:00:00.000Z" });
+    expect(r).toEqual({ ok: false, error: "errors.dateOutOfRange" });
+  });
+
+  it("ileri gündeki çakışmayı da yakalar", async () => {
+    const { barber } = await createBarber();
+    const c1 = await createCustomer();
+    const c2 = await createCustomer();
+    const s1 = await createService();
+    const input = { barberId: barber.id, serviceIds: [s1.id], startsAt: TOMORROW_0900 };
+    expect((await createAppointmentFor(asActor(c1), NOW, input)).ok).toBe(true);
+    const second = await createAppointmentFor(asActor(c2), NOW, input);
+    expect(second.ok).toBe(false);
+    expect(!second.ok && second.error).toMatch(/^errors\.(slotTaken|slotUnavailable)$/);
   });
 
   it("rejects inactive service", async () => {
