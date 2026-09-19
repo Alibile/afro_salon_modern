@@ -59,6 +59,14 @@ export const proxy = auth((req) => {
   return intlMiddleware(req);
 });
 
+/**
+ * `api`, `_next` ve uzantılı dosyalar matcher dışında kalır. `apple-icon` de
+ * öyle: Next'in ürettiği ikon rotası uzantısızdır (`/apple-icon?<hash>`) ve
+ * matcher'a girseydi dil katmanı onu `/tr/apple-icon`a yeniden yazar, böyle bir
+ * sayfa olmadığı için de ikon 404 verirdi. `favicon.ico` ve `icon.svg` noktalı
+ * oldukları için zaten dışarıda; `opengraph-image` ise bilerek `[locale]`
+ * ağacının **içinde** durur (kart metni ziyaretçinin dilinde).
+ */
 export const config = {
-  matcher: ["/((?!api|_next|.*\\..*).*)"],
+  matcher: ["/((?!api|_next|apple-icon|.*\\..*).*)"],
 };

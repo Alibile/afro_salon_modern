@@ -1,5 +1,6 @@
 import { useLocale, useTranslations } from "next-intl";
 import { ContactForm } from "./ContactForm";
+import { MapEmbed } from "./MapEmbed";
 import { Reveal } from "@/components/motion/Reveal";
 import { staggerDelay } from "@/lib/motion-utils";
 import { telHref, whatsappUrl } from "@/components/brand/SocialLinks";
@@ -77,6 +78,8 @@ export function ContactSection({
                 </div>
               ))}
             </dl>
+
+            <MapEmbed address={address} />
 
             <h3 className="display-md mt-12">{t("hoursTitle")}</h3>
             <dl className="mt-6 border-t border-border">

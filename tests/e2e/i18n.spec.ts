@@ -51,7 +51,8 @@ test.describe("çok dilli yönlendirme", () => {
 test.describe("müşteri yüzü çevirileri", () => {
   test("İngilizce hero düğmesi randevu sayfasına gider", async ({ page }) => {
     await page.goto("/en");
-    const cta = page.getByRole("link", { name: "Book today" });
+    // Aynı metin paket kartında da var (Tur 6); hero belgede önce gelir.
+    const cta = page.getByRole("link", { name: "Book today" }).first();
     await expect(cta).toBeVisible();
     await expect(cta).toHaveAttribute("href", "/en/randevu");
     await cta.click();

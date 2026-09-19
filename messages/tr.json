@@ -47,11 +47,12 @@
     "quickLinks": "Hızlı bağlantılar",
     "home": "Ana Sayfa",
     "about": "Hakkımızda",
-    "services": "Hizmetler",
+    "services": "Hizmet & Fiyat",
     "team": "Ekip",
     "gallery": "Galeri",
     "testimonials": "Yorumlar",
     "contact": "İletişim",
+    "faq": "SSS",
     "login": "Giriş",
     "register": "Kayıt ol",
     "myAppointments": "Randevularım",
@@ -67,7 +68,20 @@
       "subtitle": "Erkeklere özel afro kesim, fade, örgü ve twist — hepsi bugünün içinde.",
       "book": "Bugün randevu al",
       "services": "Hizmetler ve fiyatlar",
-      "scroll": "Kaydır"
+      "scroll": "Kaydır",
+      "slotsToday": "{count, plural, other {# uygun saat kaldı}}",
+      "slotsFull": "Bugün doluyuz — yarın tekrar bak"
+    },
+    "howItWorks": {
+      "title": "NASIL ÇALIŞIR",
+      "note": "Üç adım; hepsi birkaç dakika sürer.",
+      "step1Title": "Berberini seç",
+      "step1Text": "Ekibi tanı, kime oturmak istiyorsan onu işaretle.",
+      "step2Title": "Bugünkü saatini seç",
+      "step2Text": "Takvimde yalnızca o an gerçekten boş olan saatler görünür.",
+      "step3Title": "Gel, otur",
+      "step3Text": "Saatin ayrıldı; kapıda sıra beklemene gerek yok.",
+      "cancelNote": "Planın değişirse randevuna en geç {minutes} dakika kala iptal edebilirsin."
     },
     "about": {
       "photoAlt": "Salonun içinden bir kare",
@@ -79,6 +93,17 @@
       "title": "HİZMETLER",
       "note": "Süreler yaklaşıktır; birden fazla hizmeti aynı randevuda birleştirebilirsin.",
       "empty": "Fiyat listesi güncelleniyor. Bu arada salonu arayabilirsin:"
+    },
+    "package": {
+      "sectionNote": "Tek paket, tek fiyat: yıkama, kesim ve sakal aynı koltukta biter.",
+      "includesTitle": "Fiyata dahil",
+      "includes": {
+        "wash": "Yıkama ve saç derisi masajı",
+        "cut": "Kesim ve şekillendirme",
+        "beard": "Sakal tıraşı ve düzeltme"
+      },
+      "book": "Bugün randevu al",
+      "note": "Tek fiyat, sürpriz yok. Randevu yalnızca bugün için alınır."
     },
     "whyUs": {
       "title": "NEDEN BİZ",
@@ -114,6 +139,22 @@
       "note": "Koltuktan kalkarken söylenenler; olduğu gibi aktarıyoruz.",
       "rating": "5 üzerinden {value} puan"
     },
+    "faq": {
+      "title": "SIKÇA SORULANLAR",
+      "note": "Kısa cevaplar; gerisini koltukta konuşuruz.",
+      "q1": "Randevu nasıl alınır?",
+      "a1": "Siteden, birkaç dokunuşla. Randevu yalnızca bugün için açılır: berberini seçersin, o an boş olan saatler karşına gelir.",
+      "q2": "Randevumu iptal edebilir miyim?",
+      "a2": "Evet. Randevuna en geç {minutes} dakika kala \"Randevularım\" sayfasından iptal edebilirsin; sonrası için salonu ara.",
+      "q3": "Ödemeyi nasıl yapıyorum?",
+      "a3": "Ödeme salonda: nakit ya da kart. Siteden ön ödeme alınmaz.",
+      "q4": "Ne kadar sürüyor?",
+      "a4": "Yıkama, kesim ve sakal birlikte 45 dakika sürer; fiyat tek: {price}.",
+      "q5": "Sadece erkeklere mi hizmet veriyorsunuz?",
+      "a5": "Evet, erkek berberiyiz. Ekibin işi afro saç dokusu: fade, örgü, twist ve sakal.",
+      "q6": "Randevusuz gelebilir miyim?",
+      "a6": "Gelebilirsin ama garantisi yok: {open}–{close} arasında sıraya bakarız. Beklememek için saatini önceden ayır."
+    },
     "contact": {
       "title": "İLETİŞİM",
       "note": "Randevusuz geldiğinde sıraya bakarız; garantisi yok. Aynı gün için yer ayırmak birkaç dakika sürer.",
@@ -124,6 +165,9 @@
       "whatsappMessage": "Merhaba, bugün için randevu almak istiyorum.",
       "mapsLabel": "Harita",
       "mapsText": "Haritada aç",
+      "mapLoad": "Haritayı yükle",
+      "mapPrivacy": "Harita Google'dan gelir; sen açana kadar hiçbir istek gitmez.",
+      "mapFrameTitle": "{address} konumunun haritası",
       "hoursTitle": "ÇALIŞMA SAATLERİ",
       "today": "bugün",
       "closed": "Kapalı",

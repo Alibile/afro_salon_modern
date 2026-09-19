@@ -47,11 +47,12 @@
     "quickLinks": "Quick links",
     "home": "Home",
     "about": "About",
-    "services": "Services",
+    "services": "Services & pricing",
     "team": "Team",
     "gallery": "Gallery",
     "testimonials": "Reviews",
     "contact": "Contact",
+    "faq": "FAQ",
     "login": "Sign in",
     "register": "Sign up",
     "myAppointments": "My bookings",
@@ -67,7 +68,20 @@
       "subtitle": "Afro cuts, fades, braids and twists for men — all of it, today.",
       "book": "Book today",
       "services": "Services and prices",
-      "scroll": "Scroll"
+      "scroll": "Scroll",
+      "slotsToday": "{count, plural, one {# slot left} other {# slots left}}",
+      "slotsFull": "Fully booked today — try again tomorrow"
+    },
+    "howItWorks": {
+      "title": "HOW IT WORKS",
+      "note": "Three steps, a couple of minutes in all.",
+      "step1Title": "Pick your barber",
+      "step1Text": "Meet the team and choose the hands you want to sit down with.",
+      "step2Title": "Pick a time today",
+      "step2Text": "Only the hours that are genuinely free right now show up.",
+      "step3Title": "Come in and sit down",
+      "step3Text": "Your slot is held; there is no queue to wait in.",
+      "cancelNote": "If your plans change, you can cancel up to {minutes} minutes before your appointment."
     },
     "about": {
       "photoAlt": "A moment inside the shop",
@@ -79,6 +93,17 @@
       "title": "SERVICES",
       "note": "Times are approximate; you can combine several services in one booking.",
       "empty": "The price list is being updated. In the meantime, give the shop a call:"
+    },
+    "package": {
+      "sectionNote": "One package, one price: wash, cut and beard, all in the same chair.",
+      "includesTitle": "Included in the price",
+      "includes": {
+        "wash": "Wash and scalp massage",
+        "cut": "Cut and styling",
+        "beard": "Beard trim and shaping"
+      },
+      "book": "Book today",
+      "note": "One price, no surprises. Bookings are for today only."
     },
     "whyUs": {
       "title": "WHY US",
@@ -114,6 +139,22 @@
       "note": "What people say getting out of the chair; passed on word for word.",
       "rating": "{value} out of 5"
     },
+    "faq": {
+      "title": "FREQUENTLY ASKED",
+      "note": "Short answers; the rest we'll talk through in the chair.",
+      "q1": "How do I book?",
+      "a1": "Here on the site, in a few taps. Bookings open for today only: pick your barber and the hours still free appear.",
+      "q2": "Can I cancel?",
+      "a2": "Yes. You can cancel from \"My bookings\" up to {minutes} minutes before your appointment; after that, give the shop a call.",
+      "q3": "How do I pay?",
+      "a3": "In the shop: cash or card. Nothing is charged online.",
+      "q4": "How long does it take?",
+      "a4": "Wash, cut and beard together take 45 minutes; one price: {price}.",
+      "q5": "Do you only cut men's hair?",
+      "a5": "Yes, we are a men's barbershop. The team works with afro hair texture: fades, braids, twists and beards.",
+      "q6": "Can I walk in?",
+      "a6": "You can, but nothing is promised: between {open} and {close} we'll see where the queue stands. Book ahead to skip it."
+    },
     "contact": {
       "title": "CONTACT",
       "note": "Walk in and we'll see where the queue stands; no promises. Booking a same-day slot takes a couple of minutes.",
@@ -124,6 +165,9 @@
       "whatsappMessage": "Hello, I'd like to book an appointment for today.",
       "mapsLabel": "Map",
       "mapsText": "Open in maps",
+      "mapLoad": "Load the map",
+      "mapPrivacy": "The map comes from Google; nothing is requested until you open it.",
+      "mapFrameTitle": "Map of {address}",
       "hoursTitle": "OPENING HOURS",
       "today": "today",
       "closed": "Closed",

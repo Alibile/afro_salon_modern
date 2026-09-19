@@ -47,11 +47,12 @@
     "quickLinks": "Liens rapides",
     "home": "Accueil",
     "about": "À propos",
-    "services": "Prestations",
+    "services": "Prestations & tarifs",
     "team": "Équipe",
     "gallery": "Galerie",
     "testimonials": "Avis",
     "contact": "Contact",
+    "faq": "Questions fréquentes",
     "login": "Connexion",
     "register": "Créer un compte",
     "myAppointments": "Mes rendez-vous",
@@ -67,7 +68,20 @@
       "subtitle": "Coupes afro, fades, tresses et twists pour hommes — tout cela dès aujourd'hui.",
       "book": "Réserver aujourd'hui",
       "services": "Prestations et tarifs",
-      "scroll": "Défiler"
+      "scroll": "Défiler",
+      "slotsToday": "{count, plural, one {# créneau libre} other {# créneaux libres}}",
+      "slotsFull": "Complet aujourd'hui — revenez demain"
+    },
+    "howItWorks": {
+      "title": "COMMENT ÇA MARCHE",
+      "note": "Trois étapes, quelques minutes en tout.",
+      "step1Title": "Choisissez votre barbier",
+      "step1Text": "Découvrez l'équipe et choisissez les mains entre lesquelles vous asseoir.",
+      "step2Title": "Choisissez votre heure du jour",
+      "step2Text": "Seuls les créneaux réellement libres à cet instant s'affichent.",
+      "step3Title": "Venez vous asseoir",
+      "step3Text": "Votre créneau est retenu ; aucune file à l'entrée.",
+      "cancelNote": "Si vos plans changent, vous pouvez annuler jusqu'à {minutes} minutes avant votre rendez-vous."
     },
     "about": {
       "photoAlt": "Un instant dans le salon",
@@ -79,6 +93,17 @@
       "title": "PRESTATIONS",
       "note": "Les durées sont indicatives ; vous pouvez réunir plusieurs prestations dans un même rendez-vous.",
       "empty": "La liste des tarifs est en cours de mise à jour. En attendant, appelez le salon :"
+    },
+    "package": {
+      "sectionNote": "Un forfait, un tarif : shampoing, coupe et barbe dans le même fauteuil.",
+      "includesTitle": "Compris dans le tarif",
+      "includes": {
+        "wash": "Shampoing et massage du cuir chevelu",
+        "cut": "Coupe et coiffage",
+        "beard": "Taille et mise en forme de la barbe"
+      },
+      "book": "Réserver aujourd'hui",
+      "note": "Un tarif unique, sans surprise. La réservation se fait pour le jour même."
     },
     "whyUs": {
       "title": "POURQUOI NOUS",
@@ -114,6 +139,22 @@
       "note": "Ce qui se dit en quittant le fauteuil ; rapporté tel quel.",
       "rating": "{value} sur 5"
     },
+    "faq": {
+      "title": "QUESTIONS FRÉQUENTES",
+      "note": "Des réponses courtes ; le reste, on en parle dans le fauteuil.",
+      "q1": "Comment prendre rendez-vous ?",
+      "a1": "Ici, sur le site, en quelques gestes. La réservation n'ouvre que pour le jour même : choisissez votre barbier et les heures encore libres apparaissent.",
+      "q2": "Puis-je annuler ?",
+      "a2": "Oui. Depuis « Mes rendez-vous », jusqu'à {minutes} minutes avant l'heure prévue ; passé ce délai, appelez le salon.",
+      "q3": "Comment régler ?",
+      "a3": "Au salon : espèces ou carte. Rien n'est prélevé en ligne.",
+      "q4": "Combien de temps cela prend-il ?",
+      "a4": "Shampoing, coupe et barbe prennent 45 minutes ; un seul tarif : {price}.",
+      "q5": "Coiffez-vous uniquement les hommes ?",
+      "a5": "Oui, nous sommes un barbier pour hommes. L'équipe travaille le cheveu afro : dégradés, tresses, twists et barbe.",
+      "q6": "Puis-je venir sans rendez-vous ?",
+      "a6": "C'est possible, mais sans garantie : entre {open} et {close} nous regardons la file. Réservez pour ne pas attendre."
+    },
     "contact": {
       "title": "CONTACT",
       "note": "Sans rendez-vous, nous regardons la file ; rien n'est garanti. Réserver un créneau du jour prend quelques minutes.",
@@ -124,6 +165,9 @@
       "whatsappMessage": "Bonjour, je souhaite prendre rendez-vous pour aujourd'hui.",
       "mapsLabel": "Carte",
       "mapsText": "Ouvrir la carte",
+      "mapLoad": "Charger la carte",
+      "mapPrivacy": "La carte vient de Google ; aucune requête avant que vous ne l'ouvriez.",
+      "mapFrameTitle": "Carte de {address}",
       "hoursTitle": "HORAIRES D'OUVERTURE",
       "today": "aujourd'hui",
       "closed": "Fermé",

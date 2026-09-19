@@ -276,9 +276,49 @@ silinmeye çalışılmaz (`landing/` ve `seed/` önekleri korunur).
 `hero-mobile.jpg` (mobil), üstünde koyu kahve→şeffaf gradyan ve manşet
 (Fraunces, açık kum rengi). "Bugün randevu al" ve "Hizmetler" bağlantıları.
 
+Hero'nun durum satırı, dükkan **o an açıkken** bugün kalan uygun saat sayısını
+da yazar ("Bugün açık · 11:00–22:30 · 12 uygun saat kaldı"). Sayı
+`countOpenSlotsToday` ile üretilir (`src/lib/queries/today-slots.ts`): aktif
+berberlerin bugünkü çalışma satırları, randevuları ve izinleri randevu
+sihirbazıyla aynı `computeSlots` hesabından geçer; süre en kısa aktif hizmetin
+süresidir. Hiç yer kalmamışsa "Bugün doluyuz" satırı görünür.
+
 **Navbar:** Sayfanın başında şeffaf (hero üzerinde açık metin), kaydırıldığında
-kum zeminli bilinen stil alır. Sosyal medya ikonları navbar'dan kaldırılmış —
-yalnızca iletişim bölümü ve footer'da görülür.
+kum zeminli bilinen stil alır. Solda marka logosu (işaret + yazı markası) ana
+sayfa bağlantısıdır; ayrı bir "Ana Sayfa" maddesi yoktur. Bağlantılar:
+Hakkımızda · Hizmet & Fiyat · Ekip · Galeri · Yorumlar · İletişim. Sosyal medya
+ikonları navbar'dan kaldırılmış — yalnızca iletişim bölümü ve footer'da görülür.
+
+**Nasıl çalışır (`#nasil`):** Hero'nun hemen altında üç numaralı adım (berber
+seç → bugünkü saati seç → gel, otur) ve iptal penceresini
+(`Settings.cancellationWindowMinutes`) yazan bir alt not. Menüde yer almaz.
+
+**Hizmet & Fiyat (`#hizmetler`):** Aktif hizmet **tam olarak bir** taneyse
+bölüm paket kartına döner — büyük hizmet adı, "fiyata dahil" üç satırı
+(yıkama / kesim / sakal; sabit metin, `landing.package.includes`), büyük fiyat,
+süre ve "Bugün randevu al". Panelden ikinci bir hizmet eklendiğinde aynı bölüm
+kendiliğinden eski fiyat listesi düzenine geçer.
+
+**SSS (`#sss`):** Altı soru, `<details>/<summary>` ile (JavaScript kapalıyken de
+açılır). Cevaplardaki iptal süresi, fiyat ve çalışma saatleri veriden gelir;
+aynı metinler sayfaya `FAQPage` JSON-LD olarak da yazılır. Menüde değil,
+altbilginin "Site" sütununda.
+
+**Harita:** İletişim bölümünde "Neredeyiz"in altında tıkla-yükle harita kutusu
+(`MapEmbed`). İlk hâli desenli bir yer tutucudur; `google.com`a hiçbir istek
+gitmez. Düğmeye basılınca `https://www.google.com/maps?q=<adres>&output=embed`
+iframe'i gelir. Adres boşsa kutu hiç basılmaz. "Haritada aç" bağlantısı yerinde
+kalır.
+
+**Logo ve ikonlar:** İşaretin geometrisi `src/components/brand/BrandMark.tsx`
+içinde tek yerde durur (dört eş merkezli üst yay + taban çizgisi, 64'lük kutu,
+`currentColor`); `BrandLogo` bunu üst çubukta (`compact`) ve altbilgide
+(`stacked`) yazı markasıyla birleştirir. Türetilen dosyalar: `src/app/icon.svg`
+(terracotta zemin daire + krem yaylar), `src/app/apple-icon.tsx` (180×180,
+`ImageResponse`) ve `src/app/[locale]/opengraph-image.tsx` (1200×630, kart metni
+ziyaretçinin dilinde). Eski tarayıcılar için `src/app/favicon.ico` korunur.
+`apple-icon` uzantısız servis edildiği için proxy matcher'ında ayrıca dışarıda
+bırakılır (bkz. `src/proxy.ts`).
 
 ## Performans
 
@@ -297,6 +337,14 @@ açıldığında (`/en`) puan **86**. Yani kayıp sayfanın kendisinde değil, t
 seferlik dil yönlendirmesinde — doğru dili göstermenin bedeli olarak kabul
 edildi. `hreflang`/`canonical` etiketleri ve `sitemap.xml` ölçülebilir bir yük
 getirmiyor (birkaç yüz bayt `<link>`).
+
+Tur 6'nın eklediği bölümler (paket, nasıl çalışır, SSS, harita, uygun saat
+sayacı) puanı düşürmedi: Türkçe başlıklı `/` ölçümü **86** (3 koşu — 81 / 86 /
+86; ilk koşu sunucunun hero fotoğrafını ilk kez optimize ettiği koşudur,
+LCP 5.1 sn, sonraki ikisinde 4.1 sn), `/en` doğrudan **85**. Harita tıklanana
+kadar yüklenmediği için `google.com`a hiç istek gitmiyor; paylaşım görseli ayrı
+bir rotadır, sayfayla birlikte indirilmez; sayaç sorgusu ana sayfanın var olan
+veri demetine paralel giriyor (`Promise.all`) ve TBT 0 ms, CLS 0 kalıyor.
 
 LCP için üç ayar:
 

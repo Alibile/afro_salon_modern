@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { prisma } from "@/lib/db";
 import { createBarber, createCustomer, createService } from "./helpers";
 import { getLandingData } from "@/lib/queries/landing";
+import { countOpenSlotsToday } from "@/lib/queries/today-slots";
 
 const NOW = new Date("2026-09-17T07:00:00Z");
 
@@ -81,5 +82,67 @@ describe("getLandingData", () => {
     expect(d.settings.satisfactionPercent).toBe(98);
     expect(d.settings.yearsExperience).toBe(12);
     expect(d.settings.instagram).toBe("https://instagram.com/x");
+  });
+});
+
+/**
+ * Hero'daki "bugün {n} uygun saat" sayacı. Sorgu berber başına randevu
+ * sihirbazının hesabını (`computeSlots`) tekrarlar, bu yüzden burada sınanan
+ * şey aritmetik değil demetin doğru veriyi topladığı: yalnızca aktif berberler,
+ * yalnızca bugünün çalışma satırları, randevular ve izinler.
+ */
+describe("countOpenSlotsToday", () => {
+  // 2026-09-17 10:00 İstanbul, perşembe; yardımcı berber Pzt–Cmt 09:00–19:00 açık.
+  const MORNING = new Date("2026-09-17T07:00:00Z");
+
+  it("tek berber, 45 dakikalık paket: hazırlık payından kapanışa kadar sayar", async () => {
+    await createBarber();
+    await createService({ durationMinutes: 45 });
+    // 10:00 + 15 dk hazırlık → ilk aday 10:15; son aday 18:15 (18:15 + 45 = 19:00).
+    expect(await countOpenSlotsToday(MORNING)).toBe(33);
+  });
+
+  it("ikinci berber sayıyı ikiye katlar, pasif berber hiç sayılmaz", async () => {
+    await createService({ durationMinutes: 45 });
+    await createBarber();
+    const solo = await countOpenSlotsToday(MORNING);
+    await createBarber({ name: "İkinci Berber" });
+    expect(await countOpenSlotsToday(MORNING)).toBe(solo * 2);
+
+    const { barber } = await createBarber({ name: "Pasif Berber" });
+    await prisma.barber.update({ where: { id: barber.id }, data: { isActive: false } });
+    expect(await countOpenSlotsToday(MORNING)).toBe(solo * 2);
+  });
+
+  it("randevu ve izin sayıdan düşer", async () => {
+    const { barber } = await createBarber();
+    const customer = await createCustomer();
+    await createService({ durationMinutes: 45 });
+    const before = await countOpenSlotsToday(MORNING);
+    await prisma.appointment.create({
+      data: {
+        customerId: customer.id,
+        barberId: barber.id,
+        startsAt: new Date("2026-09-17T09:00:00Z"),
+        endsAt: new Date("2026-09-17T09:45:00Z"),
+      },
+    });
+    await prisma.timeOff.create({
+      data: { barberId: barber.id, startsAt: new Date("2026-09-17T13:00:00Z"), endsAt: new Date("2026-09-17T14:00:00Z") },
+    });
+    expect(await countOpenSlotsToday(MORNING)).toBeLessThan(before);
+    expect(await countOpenSlotsToday(MORNING)).toBeGreaterThan(0);
+  });
+
+  it("dükkan kapalıyken (pazar) sıfır", async () => {
+    await createBarber();
+    await createService({ durationMinutes: 45 });
+    // 2026-09-20 pazar: yardımcı berberin o günü `isOff`.
+    expect(await countOpenSlotsToday(new Date("2026-09-20T07:00:00Z"))).toBe(0);
+  });
+
+  it("hiç hizmet yoksa süre slot adımına düşer ve sayaç yine çalışır", async () => {
+    await createBarber();
+    expect(await countOpenSlotsToday(MORNING)).toBeGreaterThan(0);
   });
 });

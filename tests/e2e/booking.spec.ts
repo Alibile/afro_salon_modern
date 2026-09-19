@@ -10,7 +10,8 @@ const customer = { name: `E2E Müşteri ${stamp}`, email: `e2e-${stamp}@test.loc
 test.describe.serial("randevu akışı", () => {
   test("müşteri kayıt olur ve bugün için randevu alır", async ({ page }) => {
     await page.goto("/");
-    await page.getByRole("link", { name: "Bugün randevu al" }).click();
+    // Aynı metin iki yerde: hero ve paket kartı (Tur 6). Akış hero'dan başlar.
+    await page.getByRole("link", { name: "Bugün randevu al" }).first().click();
     await expect(page).toHaveURL(/\/randevu/);
 
     await page.getByRole("button", { name: /Yıkama \+ Kesim \+ Sakal/ }).click();

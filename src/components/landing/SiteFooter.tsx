@@ -1,11 +1,11 @@
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { AfroPattern } from "@/components/brand/AfroPattern";
 import { LocaleSwitcher } from "@/components/brand/LocaleSwitcher";
 import { SocialLinks, telHref, type SocialSettings } from "@/components/brand/SocialLinks";
-import { SECTION_LINKS } from "./sections";
+import { BrandLogo } from "@/components/brand/BrandLogo";
+import { FOOTER_LINKS } from "./sections";
 import { shopStatusText, type ShopStatus } from "@/lib/shop-status";
-import { intlLocale } from "@/lib/intl";
 import { logoutAction } from "@/actions/auth";
 import type { SessionUser } from "@/lib/auth-helpers";
 
@@ -30,11 +30,10 @@ export async function SiteFooter({
   email: string;
   status: ShopStatus;
 }) {
-  const [t, tFooter, tStatus, locale] = await Promise.all([
+  const [t, tFooter, tStatus] = await Promise.all([
     getTranslations("nav"),
     getTranslations("footer"),
     getTranslations("common.status"),
-    getLocale(),
   ]);
   // Yıl dize olarak geçer: ICU sayıyı biçimlendirir ve Türkçede
   // binlik ayracı koyardı ("2.026").
@@ -45,7 +44,9 @@ export async function SiteFooter({
       <div className="relative mx-auto max-w-6xl px-5 py-14">
         <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 sm:gap-10 lg:grid-cols-4">
           <div>
-            <p className="display-lg">{shopName.toLocaleUpperCase(intlLocale(locale))}</p>
+            {/* Altbilgide işaret ve yığılmış ad birlikte: sayfanın en altında
+                markanın tam hâli bir kez daha görünür. */}
+            <BrandLogo name={shopName} variant="stacked" />
             <p className="editorial-note mt-4 text-primary-foreground/90">{tFooter("tagline")}</p>
             <SocialLinks
               settings={social}
@@ -58,7 +59,7 @@ export async function SiteFooter({
           <nav aria-label={t("siteLinks")}>
             <h2 className={HEADING}>{tFooter("site")}</h2>
             <ul className="mt-4 space-y-2.5">
-              {SECTION_LINKS.map((l) => (
+              {FOOTER_LINKS.map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className={LINK}>
                     {t(l.key)}

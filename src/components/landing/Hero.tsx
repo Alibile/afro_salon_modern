@@ -36,7 +36,7 @@ function riseDelay(index: number) {
  * çekerdi. Görsel gövdenin ilk öğesidir, `fetchPriority="high"` ile istenir ve
  * ana sayfada `preloadHero()` ile ayrıca duyurulur: LCP bu fotoğraftır.
  */
-export function Hero({ status }: { status: ShopStatus }) {
+export function Hero({ status, slots }: { status: ShopStatus; slots: number }) {
   const t = useTranslations("landing");
   const tStatus = useTranslations("common.status");
   const heroAlt = t("hero.photoAlt");
@@ -83,9 +83,22 @@ export function Hero({ status }: { status: ShopStatus }) {
       </div>
 
       <div className="relative mx-auto w-full max-w-6xl px-5 pt-32 pb-16 md:pb-20">
-        <p className="rise flex items-center gap-2.5">
+        <p className="rise flex flex-wrap items-center gap-x-2.5 gap-y-1">
           <span className={cn("size-2 shrink-0 rounded-full", open ? "bg-success" : "bg-primary")} />
           <span className="label pt-px">{shopStatusText(tStatus, status)}</span>
+          {/*
+           * Sayaç yalnızca dükkan **şu an** açıkken basılır. `isOpenToday` kapanış
+           * saatinden sonra da doğrudur; o saatte "bugün doluyuz" demek durum
+           * satırındaki "Bugün kapandık" ile çelişirdi.
+           */}
+          {status.state === "open" && (
+            <>
+              <span aria-hidden className="text-hero-sand/45">·</span>
+              <span className="label pt-px text-hero-sand/85">
+                {slots > 0 ? t("hero.slotsToday", { count: slots }) : t("hero.slotsFull")}
+              </span>
+            </>
+          )}
         </p>
 
         <h1 className="display-cinema mt-6 md:mt-8">

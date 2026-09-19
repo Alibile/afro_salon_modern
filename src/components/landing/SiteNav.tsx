@@ -8,6 +8,7 @@ import { useMotionValueEvent, useScroll } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { LocaleSwitcher } from "@/components/brand/LocaleSwitcher";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { SECTION_LINKS } from "./sections";
 import { cn } from "@/lib/utils";
 import type { SessionUser } from "@/lib/auth-helpers";
@@ -96,18 +97,24 @@ export function SiteNav({ shopName, user }: { shopName: string; user: SessionUse
           shrunk ? "h-14" : "h-20",
         )}
       >
+        {/*
+         * Logo menüdeki "Ana Sayfa" maddesinin yerini aldı: erişilebilir ad hem
+         * markayı hem hedefi söyler, böylece ekran okuyucu kullanıcısı bağlantıyı
+         * kaybetmez ve görsel menü bir madde kısalır.
+         */}
         <Link
           href="/"
+          aria-label={`${shopName} — ${t("home")}`}
           className={cn(
             // Fraunces 600 kelime markasını kalınlaştırıp lockup'ı genişletiyordu; 500
             // editoryal ağırlığı korur (gövde `font-variation-settings` kuralı kalkınca
             // yardımcı sınıf ilk kez gerçekten uygulanıyor).
-            "min-w-0 truncate font-display font-medium tracking-[0.02em] transition-all duration-300",
+            "min-w-0 font-display font-medium tracking-[0.02em] transition-all duration-300",
             solid ? "text-primary hover:text-foreground" : "text-hero-sand hover:text-accent",
             shrunk ? "text-base sm:text-xl" : "text-base sm:text-2xl",
           )}
         >
-          {shopName}
+          <BrandLogo name={shopName} markSize={shrunk ? 24 : 28} />
         </Link>
 
         <nav aria-label={t("mainMenu")} className="mx-auto hidden items-center gap-5 lg:flex xl:gap-7">
