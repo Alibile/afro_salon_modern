@@ -25,7 +25,8 @@
   --border: oklch(0.88 0.03 75);
   --input: oklch(0.88 0.03 75);
   --ring: oklch(0.62 0.15 40);
-  --radius: 0.9rem;
+  /* Tek köşe kuralı: müşteri yüzünde 2 px; panel kabuğu (`.panel-typography`) 6 px'e çıkarır. */
+  --radius: 2px;
   /*
    * Hero fotoğrafının üstündeki iki renk temaya bağlı değildir: metin her iki
    * temada da aynı koyu kareyi görür, bu yüzden `.dark` bloğunda yeniden
@@ -86,13 +87,11 @@
   --radius-xl: calc(var(--radius) + 4px);
   --font-display: var(--font-display);
   --font-sans: var(--font-sans);
-  --font-label: var(--font-label);
   /*
    * Editoryal notların italik yüzü manşetlerle aynı aileden gelir; yalnızca
    * ayrı bir `next/font` örneğinden (önden yüklenmeyen italik kesim) okunur.
    */
   --font-serif: var(--font-display-italic);
-  --font-heading: var(--font-display);
 }
 
 @layer base {
@@ -224,7 +223,7 @@
   .display-lg {
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: clamp(2.25rem, 4vw, 3.5rem);
+    font-size: clamp(2rem, 3.2vw, 2.75rem);
     font-variation-settings: "opsz" 120;
     line-height: 1;
     letter-spacing: 0.002em;
@@ -247,14 +246,6 @@
     line-height: 1.15;
     letter-spacing: 0.004em;
   }
-  /* Küçük kapital etiket: sıkışık Bebas, geniş harf aralığıyla. */
-  .label {
-    font-family: var(--font-label);
-    font-size: 0.75rem;
-    line-height: 1;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-  }
   /* Tek serif italik yüz yalnızca editoryal notlarda kullanılır. */
   .editorial-note {
     font-family: var(--font-serif), Georgia, serif;
@@ -273,26 +264,25 @@
     animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
   /*
-   * Panel, ana sayfanın tipografisinin dışında kalır: gövde yeniden Inter,
-   * başlıklar yeniden Bebas. Değişkenleri burada yeniden tanımlamak, panel
-   * içindeki `font-sans` / `font-display` yardımcı sınıflarını da çevirir;
-   * `font-family` ayrıca doğrudan yazılır, çünkü gövde metni `body`'den
-   * miras alır ve miras alınan değer yeniden çözümlenmez.
+   * Panel, ana sayfanın tipografisinin dışında kalır: gövde de başlıklar da
+   * Inter. Değişkenleri burada yeniden tanımlamak panel içindeki `font-sans` /
+   * `font-display` yardımcı sınıflarını da çevirir; `font-family` ayrıca
+   * doğrudan yazılır, çünkü gövde metni `body`'den miras alır ve miras
+   * alınan değer yeniden çözümlenmez. Köşe yarıçapı da burada 6 px'e çıkar:
+   * araç yüzeyi, editoryal sayfadan bir tık daha yumuşak.
    */
   .panel-typography {
     --font-sans: var(--font-panel-sans);
-    --font-display: var(--font-label);
+    --font-display: var(--font-panel-sans);
+    --radius: 6px;
     font-family: var(--font-panel-sans);
   }
   .panel-typography h1,
   .panel-typography h2,
   .panel-typography h3 {
-    font-family: var(--font-label);
-    /* Önceki hâl birebir: Tailwind preflight başlık ağırlığını gövdeden
-       miras aldırıyordu (400) ve temel kural `tracking-wide` (0.025em)
-       veriyordu. `normal` harf aralığı paneli "değişmemiş" bırakmazdı. */
-    font-weight: 400;
-    letter-spacing: 0.025em;
+    font-family: var(--font-panel-sans);
+    font-weight: 600;
+    letter-spacing: -0.01em;
     font-variation-settings: normal;
     text-wrap: initial;
   }
@@ -300,8 +290,6 @@
   .scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
   .scrollbar-none::-webkit-scrollbar { display: none; }
   .measure { max-width: 62ch; }
-  /* Fiyat listesinde adı fiyata bağlayan ince kılavuz çizgi. */
-  .leader { flex: 1 1 auto; height: 1px; background: var(--border); transform: translateY(-0.35em); }
 }
 
 @keyframes rise {

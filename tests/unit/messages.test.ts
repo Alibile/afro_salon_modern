@@ -58,3 +58,25 @@ describe("messages/*.json", () => {
     }
   });
 });
+
+/**
+ * Tur 8: başlıklar cümle düzeninde. Tamamen büyük harf bir değer yalnızca
+ * hero manşetinde ve giriş panelinin manşetinde kalır; kısaltmalar
+ * (`nav.faq`) ve telif satırı (`footer.rights`, "©" ile başlar) sayılmaz.
+ */
+describe("başlıklar cümle düzeninde", () => {
+  const ALLOWED = new Set(["landing.hero.headline1", "landing.hero.headline2", "auth.asideHeadline", "nav.faq"]);
+  const TAGS: Record<string, string> = { tr: "tr-TR", en: "en", fr: "fr" };
+
+  it("üç dilde de tamamen büyük harf başlık kalmadı", () => {
+    for (const [locale, tree] of Object.entries({ tr: tr as Tree, ...LOCALES })) {
+      const shouting = keyPaths(tree).filter((path) => {
+        if (ALLOWED.has(path)) return false;
+        const value = path.split(".").reduce<unknown>((node, key) => (node as Tree)[key], tree) as string;
+        const letters = value.replace(/[^\p{L}]/gu, "");
+        return letters.length >= 3 && /\p{Lu}/u.test(letters) && letters === letters.toLocaleUpperCase(TAGS[locale]);
+      });
+      expect(shouting, `messages/${locale}.json`).toEqual([]);
+    }
+  });
+});

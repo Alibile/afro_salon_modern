@@ -73,7 +73,7 @@
       "slotsFull": "Bugün doluyuz — bu haftadan gün seç"
     },
     "howItWorks": {
-      "title": "NASIL ÇALIŞIR",
+      "title": "Nasıl çalışır",
       "note": "Üç adım; hepsi birkaç dakika sürer.",
       "step1Title": "Berberini seç",
       "step1Text": "Ekibi tanı, kime oturmak istiyorsan onu işaretle.",
@@ -90,7 +90,7 @@
       "cta": "Yerini ayır"
     },
     "services": {
-      "title": "HİZMETLER",
+      "title": "Hizmetler ve fiyat",
       "note": "Süreler yaklaşıktır; birden fazla hizmeti aynı randevuda birleştirebilirsin.",
       "empty": "Fiyat listesi güncelleniyor. Bu arada salonu arayabilirsin:"
     },
@@ -106,20 +106,20 @@
       "note": "Tek fiyat, sürpriz yok. Bugün ya da hafta içinde; Pazar kapalıyız."
     },
     "whyUs": {
-      "title": "NEDEN BİZ",
+      "title": "Neden biz",
       "note": "Sıra beklemeden, dokunu bilen ellere oturmak için üç sebep.",
       "satisfaction": "müşteri memnuniyeti",
       "experience": "deneyim",
       "yearsUnit": "yıl"
     },
     "team": {
-      "title": "EKİP",
+      "title": "Ekip",
       "note": "Berberini seçerek başlayabilir, saatleri doğrudan onun takviminden görebilirsin.",
       "portraitAlt": "{name} portresi",
       "bookWith": "{name} ile randevu al"
     },
     "gallery": {
-      "title": "GALERİ",
+      "title": "Galeri",
       "note": "Salonda çekilmiş son kesimler. İsim paylaşmıyoruz, yalnızca işi gösteriyoruz.",
       "placeholderAlt": "Galeri fotoğrafı için ayrılmış alan",
       "photosSoon": "Fotoğraflar yakında",
@@ -135,12 +135,12 @@
       "nextPhoto": "Sonraki fotoğraf"
     },
     "testimonials": {
-      "title": "YORUMLAR",
+      "title": "Yorumlar",
       "note": "Koltuktan kalkarken söylenenler; olduğu gibi aktarıyoruz.",
       "rating": "5 üzerinden {value} puan"
     },
     "faq": {
-      "title": "SIKÇA SORULANLAR",
+      "title": "Sıkça sorulanlar",
       "note": "Kısa cevaplar; gerisini koltukta konuşuruz.",
       "q1": "Randevu nasıl alınır?",
       "a1": "Siteden, birkaç dokunuşla. Bugünden itibaren bir hafta içinden gün seçebilirsin; Pazar kapalıyız. Berberini ve gününü seç, o gün boş olan saatler karşına gelsin.",
@@ -156,9 +156,9 @@
       "a6": "Gelebilirsin ama garantisi yok: {open}–{close} arasında sıraya bakarız. Beklememek için bugünden ya da bu hafta içinden saatini önceden ayır."
     },
     "contact": {
-      "title": "İLETİŞİM",
+      "title": "İletişim",
       "note": "Randevusuz geldiğinde sıraya bakarız; garantisi yok. Bugün ya da bu hafta için yer ayırmak birkaç dakika sürer.",
-      "whereTitle": "NEREDEYİZ",
+      "whereTitle": "Neredeyiz",
       "emailLabel": "E-posta",
       "whatsappLabel": "WhatsApp",
       "whatsappText": "Mesaj gönder",
@@ -168,10 +168,10 @@
       "mapLoad": "Haritayı yükle",
       "mapPrivacy": "Harita Google'dan gelir; sen açana kadar hiçbir istek gitmez.",
       "mapFrameTitle": "{address} konumunun haritası",
-      "hoursTitle": "ÇALIŞMA SAATLERİ",
+      "hoursTitle": "Çalışma saatleri",
       "today": "bugün",
       "closed": "Kapalı",
-      "formTitle": "MESAJ BIRAK",
+      "formTitle": "Mesaj bırak",
       "formNote": "Randevu almak için forma gerek yok, doğrudan gün ve saat seçebilirsin. Aklına takılan bir şey varsa buradan yaz."
     },
     "form": {
@@ -204,10 +204,14 @@
     }
   },
   "booking": {
-    "title": "RANDEVU AL",
-    "step1": "1. Hizmet seç",
-    "step2": "2. Berber seç",
-    "step3": "3. Gün ve saat seç",
+    "title": "Randevu al",
+    "step1": "Hizmet",
+    "step2": "Berber",
+    "step3": "Gün ve saat",
+    "change": "Değiştir",
+    "summaryTitle": "Randevu özeti",
+    "stepsLabel": "Randevu adımları",
+    "notChosen": "Seçilmedi",
     "slotsError": "Saatler yüklenemedi",
     "dayLabel": "Gün seç",
     "today": "Bugün",
@@ -234,12 +238,12 @@
     }
   },
   "account": {
-    "upcomingTitle": "YAKLAŞAN RANDEVULARIM",
+    "upcomingTitle": "Yaklaşan randevularım",
     "noUpcoming": "Yaklaşan randevun yok.",
     "book": "Randevu al",
-    "photosTitle": "KESİM FOTOĞRAFLARIN",
+    "photosTitle": "Kesim fotoğrafların",
     "photoAlt": "{date} tarihli kesim",
-    "pastTitle": "GEÇMİŞ",
+    "pastTitle": "Geçmiş",
     "noPast": "Henüz geçmiş randevun yok."
   },
   "auth": {
@@ -253,7 +257,7 @@
       "phone": "Telefon (isteğe bağlı)"
     },
     "login": {
-      "title": "GİRİŞ YAP",
+      "title": "Giriş yap",
       "subtitle": "Randevunu onaylamak için hesabına gir.",
       "submit": "Giriş yap",
       "submitting": "Giriş yapılıyor…",
@@ -261,7 +265,7 @@
       "register": "Kayıt ol"
     },
     "register": {
-      "title": "KAYIT OL",
+      "title": "Kayıt ol",
       "subtitle": "Bir dakika sürer; sonrasında randevun iki dokunuş uzakta.",
       "submit": "Kayıt ol",
       "submitting": "Kaydediliyor…",
@@ -271,9 +275,9 @@
   },
   "footer": {
     "tagline": "Bugün ya da bu hafta. Sıra yok, bekleme yok.",
-    "site": "SİTE",
-    "quickLinks": "HIZLI BAĞLANTILAR",
-    "contact": "İLETİŞİM",
+    "site": "Site",
+    "quickLinks": "Hızlı bağlantılar",
+    "contact": "İletişim",
     "rights": "© {year} {shopName}. Tüm hakları saklıdır."
   },
   "errors": {
@@ -361,7 +365,9 @@
       "barbers": "Berberler",
       "testimonials": "Yorumlar",
       "gallery": "Galeri",
-      "settings": "Ayarlar"
+      "settings": "Ayarlar",
+      "groupDaily": "Günlük iş",
+      "groupManage": "Yönetim"
     },
     "common": {
       "save": "Kaydet",
@@ -375,6 +381,9 @@
       "saving": "Kaydediliyor…",
       "updated": "Güncellendi",
       "passwordUpdated": "Şifre güncellendi",
+      "new": "Yeni",
+      "close": "Kapat",
+      "actions": "İşlemler",
       "status": {
         "SCHEDULED": "Planlandı",
         "COMPLETED": "Tamamlandı",
@@ -386,7 +395,7 @@
       "hint": "Her metin üç dilde girilir. Türkçe kaynak metindir; İngilizce ya da Fransızca boş bırakılırsa ziyaretçi o alanın Türkçesini görür."
     },
     "today": {
-      "heading": "Bugün · {date}",
+      "heading": "Bugün, {date}",
       "noBarbers": "Aktif berber yok.",
       "noAppointments": "Bugün randevu yok",
       "complete": "Tamamlandı",

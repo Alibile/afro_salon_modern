@@ -73,7 +73,7 @@
       "slotsFull": "Fully booked today — pick another day this week"
     },
     "howItWorks": {
-      "title": "HOW IT WORKS",
+      "title": "How it works",
       "note": "Three steps, a couple of minutes in all.",
       "step1Title": "Pick your barber",
       "step1Text": "Meet the team and choose the hands you want to sit down with.",
@@ -90,7 +90,7 @@
       "cta": "Take your slot"
     },
     "services": {
-      "title": "SERVICES",
+      "title": "Services and prices",
       "note": "Times are approximate; you can combine several services in one booking.",
       "empty": "The price list is being updated. In the meantime, give the shop a call:"
     },
@@ -106,20 +106,20 @@
       "note": "One price, no surprises. Today or later in the week; we're closed on Sundays."
     },
     "whyUs": {
-      "title": "WHY US",
+      "title": "Why us",
       "note": "Three reasons to skip the queue and sit down with hands that know the texture.",
       "satisfaction": "client satisfaction",
       "experience": "experience",
       "yearsUnit": "years"
     },
     "team": {
-      "title": "THE TEAM",
+      "title": "The team",
       "note": "Start by picking your barber and see the open hours straight from his own diary.",
       "portraitAlt": "Portrait of {name}",
       "bookWith": "Book with {name}"
     },
     "gallery": {
-      "title": "GALLERY",
+      "title": "Gallery",
       "note": "Recent cuts made in the shop. We don't share names, only the work.",
       "placeholderAlt": "Space reserved for a gallery photo",
       "photosSoon": "Photos coming soon",
@@ -135,12 +135,12 @@
       "nextPhoto": "Next photo"
     },
     "testimonials": {
-      "title": "REVIEWS",
+      "title": "Reviews",
       "note": "What people say getting out of the chair; passed on word for word.",
       "rating": "{value} out of 5"
     },
     "faq": {
-      "title": "FREQUENTLY ASKED",
+      "title": "Frequently asked",
       "note": "Short answers; the rest we'll talk through in the chair.",
       "q1": "How do I book?",
       "a1": "Here on the site, in a few taps. You can pick any day within the next week; we're closed on Sundays. Choose your barber and your day, and the hours still free appear.",
@@ -156,9 +156,9 @@
       "a6": "You can, but nothing is promised: between {open} and {close} we'll see where the queue stands. Book ahead — today or later this week — to skip it."
     },
     "contact": {
-      "title": "CONTACT",
+      "title": "Contact",
       "note": "Walk in and we'll see where the queue stands; no promises. Booking a slot for today or later this week takes a couple of minutes.",
-      "whereTitle": "WHERE WE ARE",
+      "whereTitle": "Where we are",
       "emailLabel": "Email",
       "whatsappLabel": "WhatsApp",
       "whatsappText": "Send a message",
@@ -168,10 +168,10 @@
       "mapLoad": "Load the map",
       "mapPrivacy": "The map comes from Google; nothing is requested until you open it.",
       "mapFrameTitle": "Map of {address}",
-      "hoursTitle": "OPENING HOURS",
+      "hoursTitle": "Opening hours",
       "today": "today",
       "closed": "Closed",
-      "formTitle": "LEAVE A MESSAGE",
+      "formTitle": "Leave a message",
       "formNote": "You don't need this form to book — you can pick a day and a time directly. If something else is on your mind, write it here."
     },
     "form": {
@@ -204,10 +204,14 @@
     }
   },
   "booking": {
-    "title": "BOOK AN APPOINTMENT",
-    "step1": "1. Choose a service",
-    "step2": "2. Choose a barber",
-    "step3": "3. Choose a day and time",
+    "title": "Book an appointment",
+    "step1": "Service",
+    "step2": "Barber",
+    "step3": "Day and time",
+    "change": "Change",
+    "summaryTitle": "Your booking",
+    "stepsLabel": "Booking steps",
+    "notChosen": "Not chosen yet",
     "slotsError": "Could not load the times",
     "dayLabel": "Choose a day",
     "today": "Today",
@@ -234,12 +238,12 @@
     }
   },
   "account": {
-    "upcomingTitle": "UPCOMING APPOINTMENTS",
+    "upcomingTitle": "Upcoming appointments",
     "noUpcoming": "You have no upcoming appointments.",
     "book": "Book a slot",
-    "photosTitle": "YOUR CUTS",
+    "photosTitle": "Your cuts",
     "photoAlt": "Cut from {date}",
-    "pastTitle": "PAST",
+    "pastTitle": "Past",
     "noPast": "No past appointments yet."
   },
   "auth": {
@@ -253,7 +257,7 @@
       "phone": "Phone (optional)"
     },
     "login": {
-      "title": "SIGN IN",
+      "title": "Sign in",
       "subtitle": "Sign in to your account to confirm your booking.",
       "submit": "Sign in",
       "submitting": "Signing in…",
@@ -261,7 +265,7 @@
       "register": "Sign up"
     },
     "register": {
-      "title": "SIGN UP",
+      "title": "Sign up",
       "subtitle": "It takes a minute; after that your booking is two taps away.",
       "submit": "Sign up",
       "submitting": "Signing up…",
@@ -271,9 +275,9 @@
   },
   "footer": {
     "tagline": "Today or later this week. No queue, no waiting.",
-    "site": "SITE",
-    "quickLinks": "QUICK LINKS",
-    "contact": "CONTACT",
+    "site": "Site",
+    "quickLinks": "Quick links",
+    "contact": "Contact",
     "rights": "© {year} {shopName}. All rights reserved."
   },
   "errors": {
@@ -361,7 +365,9 @@
       "barbers": "Barbers",
       "testimonials": "Testimonials",
       "gallery": "Gallery",
-      "settings": "Settings"
+      "settings": "Settings",
+      "groupDaily": "Day to day",
+      "groupManage": "Manage"
     },
     "common": {
       "save": "Save",
@@ -375,6 +381,9 @@
       "saving": "Saving…",
       "updated": "Updated",
       "passwordUpdated": "Password updated",
+      "new": "New",
+      "close": "Close",
+      "actions": "Actions",
       "status": {
         "SCHEDULED": "Scheduled",
         "COMPLETED": "Completed",
@@ -386,7 +395,7 @@
       "hint": "Every text is entered in three languages. Turkish is the source; leave English or French empty and visitors see the Turkish version of that field."
     },
     "today": {
-      "heading": "Today · {date}",
+      "heading": "Today, {date}",
       "noBarbers": "No active barbers.",
       "noAppointments": "No appointments today",
       "complete": "Completed",

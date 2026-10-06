@@ -73,7 +73,7 @@
       "slotsFull": "Complet aujourd'hui — choisissez un autre jour cette semaine"
     },
     "howItWorks": {
-      "title": "COMMENT ÇA MARCHE",
+      "title": "Comment ça marche",
       "note": "Trois étapes, quelques minutes en tout.",
       "step1Title": "Choisissez votre barbier",
       "step1Text": "Découvrez l'équipe et choisissez les mains entre lesquelles vous asseoir.",
@@ -90,7 +90,7 @@
       "cta": "Réservez votre place"
     },
     "services": {
-      "title": "PRESTATIONS",
+      "title": "Prestations et tarifs",
       "note": "Les durées sont indicatives ; vous pouvez réunir plusieurs prestations dans un même rendez-vous.",
       "empty": "La liste des tarifs est en cours de mise à jour. En attendant, appelez le salon :"
     },
@@ -106,20 +106,20 @@
       "note": "Un tarif unique, sans surprise. Aujourd'hui ou dans la semaine ; nous sommes fermés le dimanche."
     },
     "whyUs": {
-      "title": "POURQUOI NOUS",
+      "title": "Pourquoi nous",
       "note": "Trois raisons de ne pas faire la queue et de vous asseoir entre des mains qui connaissent la texture.",
       "satisfaction": "clients satisfaits",
       "experience": "expérience",
       "yearsUnit": "ans"
     },
     "team": {
-      "title": "L'ÉQUIPE",
+      "title": "L'équipe",
       "note": "Commencez par choisir votre barbier et voyez ses horaires directement dans son agenda.",
       "portraitAlt": "Portrait de {name}",
       "bookWith": "Réserver avec {name}"
     },
     "gallery": {
-      "title": "GALERIE",
+      "title": "Galerie",
       "note": "Les dernières coupes réalisées au salon. Nous ne donnons pas de noms, seulement le travail.",
       "placeholderAlt": "Espace réservé à une photo de la galerie",
       "photosSoon": "Photos bientôt disponibles",
@@ -135,12 +135,12 @@
       "nextPhoto": "Photo suivante"
     },
     "testimonials": {
-      "title": "AVIS",
+      "title": "Avis",
       "note": "Ce qui se dit en quittant le fauteuil ; rapporté tel quel.",
       "rating": "{value} sur 5"
     },
     "faq": {
-      "title": "QUESTIONS FRÉQUENTES",
+      "title": "Questions fréquentes",
       "note": "Des réponses courtes ; le reste, on en parle dans le fauteuil.",
       "q1": "Comment prendre rendez-vous ?",
       "a1": "Ici, sur le site, en quelques gestes. Vous pouvez choisir un jour dans la semaine à venir ; nous sommes fermés le dimanche. Choisissez votre barbier et votre jour, et les heures encore libres apparaissent.",
@@ -156,9 +156,9 @@
       "a6": "C'est possible, mais sans garantie : entre {open} et {close} nous regardons la file. Réservez à l'avance, aujourd'hui ou plus tard dans la semaine, pour ne pas attendre."
     },
     "contact": {
-      "title": "CONTACT",
+      "title": "Contact",
       "note": "Sans rendez-vous, nous regardons la file ; rien n'est garanti. Réserver un créneau pour aujourd'hui ou cette semaine prend quelques minutes.",
-      "whereTitle": "OÙ NOUS TROUVER",
+      "whereTitle": "Où nous trouver",
       "emailLabel": "E-mail",
       "whatsappLabel": "WhatsApp",
       "whatsappText": "Envoyer un message",
@@ -168,10 +168,10 @@
       "mapLoad": "Charger la carte",
       "mapPrivacy": "La carte vient de Google ; aucune requête avant que vous ne l'ouvriez.",
       "mapFrameTitle": "Carte de {address}",
-      "hoursTitle": "HORAIRES D'OUVERTURE",
+      "hoursTitle": "Horaires d'ouverture",
       "today": "aujourd'hui",
       "closed": "Fermé",
-      "formTitle": "LAISSER UN MESSAGE",
+      "formTitle": "Laisser un message",
       "formNote": "Pas besoin de ce formulaire pour réserver : vous pouvez choisir un jour et une heure directement. Pour toute autre question, écrivez-nous ici."
     },
     "form": {
@@ -204,10 +204,14 @@
     }
   },
   "booking": {
-    "title": "PRENDRE RENDEZ-VOUS",
-    "step1": "1. Choisir une prestation",
-    "step2": "2. Choisir un barbier",
-    "step3": "3. Choisir un jour et une heure",
+    "title": "Prendre rendez-vous",
+    "step1": "Prestation",
+    "step2": "Barbier",
+    "step3": "Jour et heure",
+    "change": "Modifier",
+    "summaryTitle": "Votre rendez-vous",
+    "stepsLabel": "Étapes de la réservation",
+    "notChosen": "Pas encore choisi",
     "slotsError": "Impossible de charger les horaires",
     "dayLabel": "Choisir un jour",
     "today": "Aujourd'hui",
@@ -234,12 +238,12 @@
     }
   },
   "account": {
-    "upcomingTitle": "MES PROCHAINS RENDEZ-VOUS",
+    "upcomingTitle": "Mes prochains rendez-vous",
     "noUpcoming": "Vous n'avez pas de rendez-vous à venir.",
     "book": "Prendre rendez-vous",
-    "photosTitle": "VOS COUPES",
+    "photosTitle": "Vos coupes",
     "photoAlt": "Coupe du {date}",
-    "pastTitle": "HISTORIQUE",
+    "pastTitle": "Historique",
     "noPast": "Aucun rendez-vous passé pour l'instant."
   },
   "auth": {
@@ -253,7 +257,7 @@
       "phone": "Téléphone (facultatif)"
     },
     "login": {
-      "title": "CONNEXION",
+      "title": "Connexion",
       "subtitle": "Connectez-vous à votre compte pour confirmer votre rendez-vous.",
       "submit": "Se connecter",
       "submitting": "Connexion…",
@@ -261,7 +265,7 @@
       "register": "Créer un compte"
     },
     "register": {
-      "title": "CRÉER UN COMPTE",
+      "title": "Créer un compte",
       "subtitle": "Une minute suffit ; ensuite votre rendez-vous est à deux clics.",
       "submit": "Créer un compte",
       "submitting": "Création…",
@@ -271,9 +275,9 @@
   },
   "footer": {
     "tagline": "Aujourd'hui ou dans la semaine. Sans file, sans attente.",
-    "site": "SITE",
-    "quickLinks": "LIENS RAPIDES",
-    "contact": "CONTACT",
+    "site": "Site",
+    "quickLinks": "Liens rapides",
+    "contact": "Contact",
     "rights": "© {year} {shopName}. Tous droits réservés."
   },
   "errors": {
@@ -361,7 +365,9 @@
       "barbers": "Barbiers",
       "testimonials": "Avis",
       "gallery": "Galerie",
-      "settings": "Réglages"
+      "settings": "Réglages",
+      "groupDaily": "Au quotidien",
+      "groupManage": "Gestion"
     },
     "common": {
       "save": "Enregistrer",
@@ -375,6 +381,9 @@
       "saving": "Enregistrement…",
       "updated": "Mis à jour",
       "passwordUpdated": "Mot de passe mis à jour",
+      "new": "Nouveau",
+      "close": "Fermer",
+      "actions": "Actions",
       "status": {
         "SCHEDULED": "Planifié",
         "COMPLETED": "Terminé",
@@ -386,7 +395,7 @@
       "hint": "Chaque texte se saisit en trois langues. Le turc est la version source : si l'anglais ou le français reste vide, les visiteurs voient le turc."
     },
     "today": {
-      "heading": "Aujourd'hui · {date}",
+      "heading": "Aujourd'hui, {date}",
       "noBarbers": "Aucun barbier actif.",
       "noAppointments": "Aucun rendez-vous aujourd'hui",
       "complete": "Terminé",

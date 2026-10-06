@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Manrope, Bebas_Neue, Fraunces } from "next/font/google";
+import { Manrope, Fraunces } from "next/font/google";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
@@ -11,13 +11,14 @@ import { siteUrl } from "@/lib/site-url";
 import "../globals.css";
 
 /**
- * Üç yüz, üç iş: Fraunces manşet ve başlıklarda (yüksek `opsz` ile keskin,
+ * İki yüz, iki iş: Fraunces manşet ve başlıklarda (yüksek `opsz` ile keskin,
  * editoryal kontrast; italiği editoryal notlarda), Manrope gövdede (geniş
- * açıklıklı, küçük puntoda okunaklı, tabular rakamlar fiyat listesinde),
- * Bebas Neue yalnızca küçük kapital etiketlerde. Değişken eksenler bilinçli
- * olarak dar tutuldu (`opsz`): her ek eksen indirilen dosyayı büyütür.
+ * açıklıklı, küçük puntoda okunaklı, tabular rakamlar fiyat listesinde).
+ * Üçüncü bir yüz (aralıklı büyük harf etiketler için Bebas) Tur 8'de kalktı:
+ * etiketler artık cümle düzeninde Manrope ile yazılıyor. Değişken eksenler
+ * bilinçli olarak dar tutuldu (`opsz`): her ek eksen indirilen dosyayı büyütür.
  *
- * Üçü de değişken kalır: `.display-*` ve `.editorial-note` sınıfları
+ * İkisi de değişken kalır: `.display-*` ve `.editorial-note` sınıfları
  * `font-variation-settings: "opsz" …` yazar, gövde ise 400–700 arasında
  * serbestçe ağırlık değiştirir. Sabit ağırlık listesine (`weight: [...]`)
  * inmek dosyaları küçültmez — ağırlık başına ayrı dosya üretir — ve `opsz`
@@ -53,15 +54,6 @@ const frauncesItalic = Fraunces({
   display: "swap",
   preload: false,
 });
-/**
- * Bebas yalnızca `.label` küçük kapitallerinde: hero'daki durum satırı, bölüm
- * üst etiketleri. İki alt kümesi ön yüklenen yüz kuyruğuna ~14 KB ekliyor;
- * `preload: false` denendi ve ölçümde geri alındı: ön yükleme kalkınca dosya
- * ilk turda değil, düzen yüzü isteyince "VeryHigh" öncelikle isteniyor, yani
- * ilk boyamanın zincirine giriyor — Lighthouse'un varsayılan benzetiminde FCP
- * 1.5 sn'den 1.8 sn'ye, puan 85'ten 82'ye düşüyor. Ön yükleme kalıyor.
- */
-const bebas = Bebas_Neue({ weight: "400", subsets: ["latin", "latin-ext"], variable: "--font-label", display: "swap" });
 
 /**
  * Sekme başlığı ve arama sonucu açıklaması ziyaretçinin dilinde gelir; aynı
@@ -115,7 +107,7 @@ export default async function RootLayout({
   if (!hasLocale(routing.locales, locale)) notFound();
 
   return (
-    <html lang={locale} suppressHydrationWarning className={`${manrope.variable} ${fraunces.variable} ${frauncesItalic.variable} ${bebas.variable}`}>
+    <html lang={locale} suppressHydrationWarning className={`${manrope.variable} ${fraunces.variable} ${frauncesItalic.variable}`}>
       <head>
         {/*
          * JavaScript kapalıyken Motion hiç bağlanmaz ve sunucudan gelen satır içi
