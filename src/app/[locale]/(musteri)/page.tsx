@@ -10,7 +10,7 @@ import { serializeJsonLd } from "@/lib/json-ld";
 import { singlePackage } from "@/lib/package";
 import { toAppLocale } from "@/i18n/routing";
 import { MotionProvider } from "@/components/motion/MotionProvider";
-import { SiteNav } from "@/components/landing/SiteNav";
+import { SiteNav } from "@/components/layout/SiteNav";
 import { Hero } from "@/components/landing/Hero";
 import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
 import { AboutSection } from "@/components/landing/AboutSection";
@@ -19,7 +19,12 @@ import { WhyUsSection } from "@/components/landing/WhyUsSection";
 import { TeamSection } from "@/components/landing/TeamSection";
 import { GallerySection } from "@/components/landing/GallerySection";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
-import { FaqSection, faqValueBag, visibleFaqKeys, type FaqValues } from "@/components/landing/FaqSection";
+import {
+  FaqSection,
+  faqValueBag,
+  visibleFaqKeys,
+  type FaqValues,
+} from "@/components/landing/FaqSection";
 import { ContactSection } from "@/components/landing/ContactSection";
 import { SiteFooter } from "@/components/landing/SiteFooter";
 
@@ -36,18 +41,30 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("title"), description: t("description") };
 }
 
-export default async function LandingPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function LandingPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
   // Veri beklenmeden önce: LCP fotoğrafının duyurusu `<head>`in en başına,
   // satır içi stil bloğundan da önce girer (bkz. `preloadHero`).
   preloadHero();
   const now = new Date();
   const { locale } = await params;
-  const [{ settings, status, services, barbers, gallery, testimonials, weeklyHours }, openSlots, user] = await Promise.all([
+  const [
+    { settings, status, services, barbers, gallery, testimonials, weeklyHours },
+    openSlots,
+    user,
+  ] = await Promise.all([
     getLandingData(locale, now),
     countOpenSlotsToday(now),
     getSessionUser(),
   ]);
-  const social = { instagram: settings.instagram, facebook: settings.facebook, whatsapp: settings.whatsapp };
+  const social = {
+    instagram: settings.instagram,
+    facebook: settings.facebook,
+    whatsapp: settings.whatsapp,
+  };
 
   // SSS cevaplarındaki değişkenler: iptal penceresi ayarlardan, açılış–kapanış
   // haftanın ilk açık gününden, fiyat ve süre paketten. Çalışma saati hiç
@@ -61,7 +78,12 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         minutes: settings.cancellationWindowMinutes,
         open: openDay.opensAt!,
         close: openDay.closesAt!,
-        package: pkg ? { price: formatKurus(pkg.priceKurus, toAppLocale(locale)), duration: pkg.durationMinutes } : null,
+        package: pkg
+          ? {
+              price: formatKurus(pkg.priceKurus, toAppLocale(locale)),
+              duration: pkg.durationMinutes,
+            }
+          : null,
       }
     : null;
   const tFaq = faqValues ? await getTranslations("landing.faq") : null;
@@ -76,7 +98,10 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
           mainEntity: visibleFaqKeys(faqValues).map((item) => ({
             "@type": "Question",
             name: tFaq(item.q),
-            acceptedAnswer: { "@type": "Answer", text: tFaq(item.a, faqValueBag(faqValues)) },
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: tFaq(item.a, faqValueBag(faqValues)),
+            },
           })),
         }
       : null;
@@ -84,42 +109,61 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
   return (
     // Hareket yalnızca ana sayfa ağacında: panel ve randevu akışı hareketsiz kalır.
     <MotionProvider>
-      <SiteNav shopName={settings.shopName} user={user} />
-      <Hero status={status} slots={openSlots} />
-      <HowItWorksSection cancellationWindowMinutes={settings.cancellationWindowMinutes} />
-      <AboutSection title={settings.aboutTitle} text={settings.aboutText} />
-      <ServicesSection
-        services={services.map((s) => ({ id: s.id, name: s.name, durationMinutes: s.durationMinutes, priceKurus: s.priceKurus }))}
-        phone={settings.phone}
-      />
-      <WhyUsSection
-        items={[
-          { title: settings.whyUs1Title, text: settings.whyUs1Text },
-          { title: settings.whyUs2Title, text: settings.whyUs2Text },
-          { title: settings.whyUs3Title, text: settings.whyUs3Text },
-        ]}
-        satisfactionPercent={settings.satisfactionPercent}
-        yearsExperience={settings.yearsExperience}
-      />
-      <TeamSection barbers={barbers.map((b) => ({ id: b.id, name: b.name, bio: b.bio, photoKey: b.photoKey }))} />
-      <GallerySection photos={gallery.photos} tags={gallery.tags} />
-      <TestimonialsSection items={testimonials} />
-      {faqValues && <FaqSection values={faqValues} />}
-      {faqJsonLd && (
-        // `serializeJsonLd`: metnin içinden gelebilecek bir `</script>` dizisi
-        // etiketi kapatmasın (veri panelden ve çeviri dosyalarından geliyor).
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqJsonLd) }} />
-      )}
-      <ContactSection
-        address={settings.address}
-        phone={settings.phone}
-        email={settings.email}
-        whatsapp={settings.whatsapp}
-        mapsUrl={settings.mapsUrl}
-        weeklyHours={weeklyHours}
-        todayDayOfWeek={shopDayOfWeek(now)}
-        services={services.map((s) => s.name)}
-      />
+      <SiteNav shopName={settings.shopName} user={user} variant="hero" />
+      <main>
+        <Hero status={status} slots={openSlots} />
+        <HowItWorksSection
+          cancellationWindowMinutes={settings.cancellationWindowMinutes}
+        />
+        <AboutSection title={settings.aboutTitle} text={settings.aboutText} />
+        <ServicesSection
+          services={services.map((s) => ({
+            id: s.id,
+            name: s.name,
+            durationMinutes: s.durationMinutes,
+            priceKurus: s.priceKurus,
+          }))}
+          phone={settings.phone}
+        />
+        <WhyUsSection
+          items={[
+            { title: settings.whyUs1Title, text: settings.whyUs1Text },
+            { title: settings.whyUs2Title, text: settings.whyUs2Text },
+            { title: settings.whyUs3Title, text: settings.whyUs3Text },
+          ]}
+          satisfactionPercent={settings.satisfactionPercent}
+          yearsExperience={settings.yearsExperience}
+        />
+        <TeamSection
+          barbers={barbers.map((b) => ({
+            id: b.id,
+            name: b.name,
+            bio: b.bio,
+            photoKey: b.photoKey,
+          }))}
+        />
+        <GallerySection photos={gallery.photos} tags={gallery.tags} />
+        <TestimonialsSection items={testimonials} />
+        {faqValues && <FaqSection values={faqValues} />}
+        {faqJsonLd && (
+          // `serializeJsonLd`: metnin içinden gelebilecek bir `</script>` dizisi
+          // etiketi kapatmasın (veri panelden ve çeviri dosyalarından geliyor).
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqJsonLd) }}
+          />
+        )}
+        <ContactSection
+          address={settings.address}
+          phone={settings.phone}
+          email={settings.email}
+          whatsapp={settings.whatsapp}
+          mapsUrl={settings.mapsUrl}
+          weeklyHours={weeklyHours}
+          todayDayOfWeek={shopDayOfWeek(now)}
+          services={services.map((s) => s.name)}
+        />
+      </main>
       <SiteFooter
         shopName={settings.shopName}
         user={user}

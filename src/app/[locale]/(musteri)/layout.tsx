@@ -1,13 +1,10 @@
-import { SiteHeader } from "@/components/layout/SiteHeader";
-import { getSessionUser } from "@/lib/auth-helpers";
-import { getSettings } from "@/lib/settings";
-
-export default async function MusteriLayout({ children }: { children: React.ReactNode }) {
-  const [user, settings] = await Promise.all([getSessionUser(), getSettings()]);
-  return (
-    <>
-      <SiteHeader user={user} shopName={settings.shopName} />
-      <main>{children}</main>
-    </>
-  );
+/**
+ * Müşteri yüzünün yerleşimi hiçbir şey çizmez. Üst çubuğu (`SiteNav`) ve
+ * `<main>` sarmalını her sayfa kendisi kurar: ana sayfa fotoğrafın üstünde
+ * şeffaf başlayan `hero` varyantını, randevu ve hesap sayfaları düz `plain`
+ * varyantını ister; çubuk `<main>`in dışında durduğu için `banner` landmark'ı
+ * olarak okunur.
+ */
+export default function MusteriLayout({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
 }

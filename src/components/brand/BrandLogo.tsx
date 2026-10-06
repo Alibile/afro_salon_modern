@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 export type BrandLogoVariant = "compact" | "stacked";
 
 /** Uzun adın ilk iki kelimesi; iki kelimeden kısa adlar olduğu gibi kalır. */
-function shortName(name: string): string {
+export function shortName(name: string): string {
   const words = name.trim().split(/\s+/);
   return words.length > 2 ? words.slice(0, 2).join(" ") : name.trim();
 }

@@ -20,7 +20,7 @@ const shopDay = (offsetDays = 0) =>
 const SUNDAY = new Date().toLocaleDateString("en-US", { timeZone: "Europe/Istanbul", weekday: "short" }) === "Sun";
 
 const bookingStep = (page: import("@playwright/test").Page) =>
-  page.locator('section:has(h2:text("3. Gün ve saat seç"))');
+  page.locator('section:has(h2:text("Gün ve saat"))');
 const dayChips = (page: import("@playwright/test").Page) =>
   bookingStep(page).getByRole("group", { name: "Gün seç" }).locator("button");
 const timeSlots = (page: import("@playwright/test").Page) =>
@@ -61,7 +61,7 @@ test.describe.serial("randevu akışı", () => {
     await expect(page.getByRole("button", { name: "Randevuyu onayla" })).toBeEnabled();
     await page.getByRole("button", { name: "Randevuyu onayla" }).click();
     await expect(page).toHaveURL(/randevularim/);
-    await expect(page.getByRole("heading", { name: "YAKLAŞAN RANDEVULARIM" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Yaklaşan randevularım" })).toBeVisible();
     await expect(page.getByText("Planlandı")).toBeVisible();
     // Bugünkü randevu kartı tarihin önüne "Bugün" yazar.
     await expect(page.getByText("Bugün ·")).toBeVisible();
@@ -84,14 +84,15 @@ test.describe.serial("randevu akışı", () => {
     await expect(card.getByRole("button", { name: "Tamamlandı" })).toBeHidden();
     await expect(card.getByText("Tamamlandı")).toBeVisible();
 
-    // Panelin görsel dili ana sayfanınkinden ayrıdır: başlıklar Bebas, gövde
-    // Inter. Ana sayfa ise editoryal tipografiyi (Fraunces) kullanır. İkisi
-    // aynı kök yerleşimden beslendiği için bu ayrımın testi burada durur.
+    // Panelin görsel dili ana sayfanınkinden ayrıdır: başlık da gövde de
+    // Inter (Tur 8'den beri tek yüz). Ana sayfa ise editoryal tipografiyi
+    // (Fraunces) kullanır. İkisi aynı kök yerleşimden beslendiği için bu
+    // ayrımın testi burada durur.
     const panelHeadingFont = await page
       .getByRole("heading", { level: 1 })
       .first()
       .evaluate((el) => getComputedStyle(el).fontFamily);
-    expect(panelHeadingFont).toContain("Bebas");
+    expect(panelHeadingFont).toContain("Inter");
     const panelBodyFont = await page.evaluate(() => getComputedStyle(document.querySelector("main")!).fontFamily);
     expect(panelBodyFont).toContain("Inter");
 
@@ -119,7 +120,7 @@ test.describe.serial("randevu akışı", () => {
     // (Türkçe olmayan) JS toLowerCase kurallarıyla "i̇" (i + combining dot)
     // yaptığından "Geçmiş" (küçük harf) ile eşleşmiyor; aynı büyük harfli
     // biçimi kullanmak bu tuzağı önler.
-    await expect(page.getByRole("heading", { name: "GEÇMİŞ" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Geçmiş" })).toBeVisible();
     await expect(page.getByText("Tamamlandı")).toBeVisible();
   });
 });

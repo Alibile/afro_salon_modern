@@ -10,8 +10,8 @@ import { logoutAction } from "@/actions/auth";
 import type { SessionUser } from "@/lib/auth-helpers";
 
 const LINK = "border-b border-primary-foreground/40 pb-0.5 transition-colors hover:border-primary-foreground";
-/* Küçük kapital sütun başlıkları Bebas'ın tek işi: sıkışık, geniş aralıklı, gövdeye karışmaz. */
-const HEADING = "label text-primary-foreground/70";
+/* Sütun başlıkları gövdeyle aynı yüz, cümle düzeni; yalnızca ağırlık ve ton ayırır. */
+const HEADING = "text-sm font-medium text-primary-foreground/70";
 
 export async function SiteFooter({
   shopName,

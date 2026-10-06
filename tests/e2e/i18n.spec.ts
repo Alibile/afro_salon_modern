@@ -26,8 +26,9 @@ test.describe("çok dilli yönlendirme", () => {
 
   test("dil anahtarı aynı sayfada dil değiştirir", async ({ page }) => {
     await page.goto("/randevu");
-    // Mobil genişlikte üst çubuk tek satır: anahtar başlıktaki menüde durur.
+    // Telefonda dil anahtarı çubukta değil, menünün içindedir (Tur 8).
     // Erişilebilir ad görünen kodu da taşır ("İngilizce (EN)").
+    await page.getByRole("button", { name: "Menüyü aç" }).click();
     await page.getByRole("navigation", { name: "Ana menü" }).getByRole("link", { name: "İngilizce (EN)" }).click();
     await expect(page).toHaveURL("/en/randevu");
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
@@ -37,6 +38,7 @@ test.describe("çok dilli yönlendirme", () => {
   // düşürürse ziyaretçi öbür dilde boş bir sihirbazla karşılaşır.
   test("dil anahtarı sorgu dizesini korur", async ({ page }) => {
     await page.goto("/randevu?b=test&t=deneme");
+    await page.getByRole("button", { name: "Menüyü aç" }).click();
     await page.getByRole("navigation", { name: "Ana menü" }).getByRole("link", { name: "Fransızca (FR)" }).click();
     await expect(page).toHaveURL("/fr/randevu?b=test&t=deneme");
   });
@@ -57,14 +59,14 @@ test.describe("müşteri yüzü çevirileri", () => {
     await expect(cta).toHaveAttribute("href", "/en/randevu");
     await cta.click();
     await expect(page).toHaveURL("/en/randevu");
-    await expect(page.getByRole("heading", { name: "1. Choose a service" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Service" })).toBeVisible();
   });
 
   test("Fransızca sihirbaz kendi dilinde açılır", async ({ page }) => {
     const response = await page.goto("/fr/randevu");
     expect(response?.status()).toBe(200);
     await expect(page.locator("html")).toHaveAttribute("lang", "fr");
-    await expect(page.getByRole("heading", { name: "1. Choisir une prestation" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Prestation" })).toBeVisible();
   });
 
   // Panelden girilen içerik de üç dilli (Tur 5, Task 4): hizmet adı, hakkımızda
@@ -118,7 +120,7 @@ test.describe.serial("İngilizce randevu akışı", () => {
     await page.getByRole("button", { name: /Wash, cut & beard/ }).first().click();
     await page.getByRole("button", { name: /Kwame Mensah/ }).click();
 
-    const step = page.locator('section:has(h2:text("3. Choose a day and time"))');
+    const step = page.locator('section:has(h2:text("Day and time"))');
     // Gün çipleri de İngilizce: "Today" / "Tomorrow" / kısa tarih.
     await expect(step.getByRole("group", { name: "Choose a day" })).toBeVisible();
     const slots = step.locator("div.grid-cols-4 button");
@@ -158,7 +160,7 @@ test.describe.serial("panel çevirileri ve dil tercihi", () => {
     await page.getByLabel("Password").fill("Sifre123!");
     await page.getByRole("button", { name: "Sign in" }).click();
     await expect(page).toHaveURL("/en/panel");
-    await expect(page.getByRole("heading", { level: 1, name: /^Today · / })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: /^Today, / })).toBeVisible();
     const nav = page.getByRole("navigation").first();
     await expect(nav.getByRole("link", { name: "Appointments" })).toBeVisible();
     await expect(nav.getByRole("link", { name: "Customers" })).toBeVisible();
