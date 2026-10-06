@@ -22,7 +22,7 @@
       "toLight": "Switch to light mode"
     },
     "status": {
-      "open": "Open today · {opensAt}–{closesAt}",
+      "open": "Open today, {opensAt}–{closesAt}",
       "closedToday": "Closed today",
       "closedNow": "Closed for the day"
     }
@@ -65,12 +65,11 @@
       "photoAlt": "Portrait of a man with a full afro under low studio light",
       "headline1": "EVERY CURL HAS",
       "headline2": "ITS OWN GEOMETRY.",
-      "subtitle": "Afro cuts, fades, braids and twists for men — today or later this week.",
+      "subtitle": "Afro cuts, fades, braids and twists for men. Today or later this week.",
       "book": "Book your slot",
       "services": "Services and prices",
-      "scroll": "Scroll",
       "slotsToday": "{count, plural, one {# open appointment} other {# open appointments}}",
-      "slotsFull": "Fully booked today — pick another day this week"
+      "slotsFull": "Fully booked today, pick another day this week"
     },
     "howItWorks": {
       "title": "How it works",
@@ -87,7 +86,10 @@
       "photoAlt": "A moment inside the shop",
       "photoSoon": "Photo coming soon",
       "caption": "Chair, mirror, comb: the hair says the rest.",
-      "cta": "Take your slot"
+      "cta": "Take your slot",
+      "satisfaction": "client satisfaction",
+      "experience": "experience",
+      "yearsUnit": "years"
     },
     "services": {
       "title": "Services and prices",
@@ -107,10 +109,7 @@
     },
     "whyUs": {
       "title": "Why us",
-      "note": "Three reasons to skip the queue and sit down with hands that know the texture.",
-      "satisfaction": "client satisfaction",
-      "experience": "experience",
-      "yearsUnit": "years"
+      "note": "Three reasons to skip the queue and sit down with hands that know the texture."
     },
     "team": {
       "title": "The team",

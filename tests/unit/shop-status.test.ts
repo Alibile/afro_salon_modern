@@ -42,15 +42,15 @@ describe("shopStatusText", () => {
   const closedNow = getShopStatus(rows, new Date("2026-09-17T17:30:00Z"));
 
   it("Türkçe metin Tur 4'teki cümlenin aynısı kalır", () => {
-    expect(shopStatusText(translator(tr), open)).toBe("Bugün açık · 09:00–20:00");
+    expect(shopStatusText(translator(tr), open)).toBe("Bugün açığız, 09:00–20:00");
     expect(shopStatusText(translator(tr), closed)).toBe("Bugün kapalıyız");
     expect(shopStatusText(translator(tr), closedNow)).toBe("Bugün kapandık");
   });
 
   it("İngilizce ve Fransızca aynı veriyi kendi cümlesiyle yazar", () => {
-    expect(shopStatusText(translator(en), open)).toBe("Open today · 09:00–20:00");
+    expect(shopStatusText(translator(en), open)).toBe("Open today, 09:00–20:00");
     expect(shopStatusText(translator(en), closed)).toBe("Closed today");
-    expect(shopStatusText(translator(fr), open)).toBe("Ouvert aujourd'hui · 09:00–20:00");
+    expect(shopStatusText(translator(fr), open)).toBe("Ouvert aujourd'hui, 09:00–20:00");
     expect(shopStatusText(translator(fr), closedNow)).toBe("Fermé pour la journée");
   });
 });

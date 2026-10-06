@@ -107,15 +107,23 @@ export default async function LandingPage({
       : null;
 
   return (
-    // Hareket yalnızca ana sayfa ağacında: panel ve randevu akışı hareketsiz kalır.
-    <MotionProvider>
-      <SiteNav shopName={settings.shopName} user={user} variant="hero" />
+    <>
+      {/* Hareket yalnızca üst çubukta (kaydırma eşiği): bölümler kendiliğinden
+          hareket etmez, hero'nun açılışı CSS ile kurulur. */}
+      <MotionProvider>
+        <SiteNav shopName={settings.shopName} user={user} variant="hero" />
+      </MotionProvider>
       <main>
         <Hero status={status} slots={openSlots} />
         <HowItWorksSection
           cancellationWindowMinutes={settings.cancellationWindowMinutes}
         />
-        <AboutSection title={settings.aboutTitle} text={settings.aboutText} />
+        <AboutSection
+          title={settings.aboutTitle}
+          text={settings.aboutText}
+          satisfactionPercent={settings.satisfactionPercent}
+          yearsExperience={settings.yearsExperience}
+        />
         <ServicesSection
           services={services.map((s) => ({
             id: s.id,
@@ -131,8 +139,6 @@ export default async function LandingPage({
             { title: settings.whyUs2Title, text: settings.whyUs2Text },
             { title: settings.whyUs3Title, text: settings.whyUs3Text },
           ]}
-          satisfactionPercent={settings.satisfactionPercent}
-          yearsExperience={settings.yearsExperience}
         />
         <TeamSection
           barbers={barbers.map((b) => ({
@@ -173,6 +179,6 @@ export default async function LandingPage({
         email={settings.email}
         status={status}
       />
-    </MotionProvider>
+    </>
   );
 }

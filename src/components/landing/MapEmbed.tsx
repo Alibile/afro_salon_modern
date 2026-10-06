@@ -44,7 +44,7 @@ export function MapEmbed({ address }: { address: string }) {
               className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-secondary-foreground transition-colors hover:text-primary"
             >
               <MapPin aria-hidden className="size-7" />
-              <span className="label border-b border-current pb-1">{t("mapLoad")}</span>
+              <span className="text-sm font-medium underline underline-offset-4">{t("mapLoad")}</span>
             </button>
           </>
         )}

@@ -51,7 +51,7 @@ export function GalleryFilters({
             aria-pressed={selected}
             onClick={() => onSelect(item.value)}
             className={cn(
-              "flex h-9 shrink-0 snap-start items-center whitespace-nowrap border px-3.5 text-sm transition-colors",
+              "flex h-11 shrink-0 snap-start items-center rounded-[var(--radius)] border px-4 text-sm whitespace-nowrap transition-colors",
               "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
               selected
                 ? "border-primary bg-primary text-primary-foreground"

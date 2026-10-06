@@ -46,19 +46,44 @@ export function ContactForm({ services }: { services: string[] }) {
       }}
     >
       {/* Bot tuzağı: ekran dışında, klavye ve ekran okuyucu sırasının dışında. */}
-      <div aria-hidden className="pointer-events-none absolute -left-[9999px] top-0 h-0 w-0 overflow-hidden">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -left-[9999px] top-0 h-0 w-0 overflow-hidden"
+      >
         <label htmlFor="website">{t("honeypot")}</label>
-        <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" defaultValue="" />
+        <input
+          id="website"
+          name="website"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          defaultValue=""
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div className="grid gap-2">
           <Label htmlFor="contact-name">{t("name")}</Label>
-          <Input id="contact-name" name="name" required minLength={2} maxLength={60} autoComplete="name" className={`h-10 ${FIELD}`} />
+          <Input
+            id="contact-name"
+            name="name"
+            required
+            minLength={2}
+            maxLength={60}
+            autoComplete="name"
+            className={`h-10 ${FIELD}`}
+          />
         </div>
         <div className="grid gap-2">
           <Label htmlFor="contact-phone">{t("phone")}</Label>
-          <Input id="contact-phone" name="phone" type="tel" maxLength={20} autoComplete="tel" className={`h-10 ${FIELD}`} />
+          <Input
+            id="contact-phone"
+            name="phone"
+            type="tel"
+            maxLength={20}
+            autoComplete="tel"
+            className={`h-10 ${FIELD}`}
+          />
         </div>
       </div>
 
@@ -68,7 +93,12 @@ export function ContactForm({ services }: { services: string[] }) {
           <div className="mt-3 flex flex-wrap gap-2">
             {services.map((s) => (
               <label key={s} className="cursor-pointer">
-                <input type="checkbox" name="services" value={s} className="peer sr-only" />
+                <input
+                  type="checkbox"
+                  name="services"
+                  value={s}
+                  className="peer sr-only"
+                />
                 <span className="inline-block border border-border px-3 py-1.5 text-sm transition-colors peer-checked:border-primary peer-checked:bg-primary peer-checked:text-primary-foreground peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-hover:border-primary">
                   {s}
                 </span>
@@ -98,7 +128,11 @@ export function ContactForm({ services }: { services: string[] }) {
         </p>
       )}
 
-      <Button type="submit" disabled={pending} className="mt-8 h-12 rounded-none px-7 text-base">
+      <Button
+        type="submit"
+        disabled={pending}
+        className="mt-8 h-12 rounded-none px-7 text-base"
+      >
         {pending ? t("sending") : t("submit")}
       </Button>
     </form>

@@ -47,7 +47,7 @@ describe("percentAffix / formatPercent", () => {
     expect(percentAffix("fr").suffix.charCodeAt(0)).toBe(0x202f);
   });
 
-  // `CountUp` ara değerleri de basar; sayaç tam sayı gösterir.
+  // Ayarlardan ondalık gelse de ekranda tam sayı görünür.
   it("ara değerleri tam sayıya yuvarlar", () => {
     expect(formatPercent(94.6, "tr")).toBe("%95");
     expect(formatPercent(0, "en")).toBe("0%");

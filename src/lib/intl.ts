@@ -1,5 +1,4 @@
 import { routing, type AppLocale } from "@/i18n/routing";
-import { formatCount } from "@/lib/motion-utils";
 
 /**
  * Uygulama dili (`tr`) ile biçimlendirme etiketi (`tr-TR`) aynı şey değil.
@@ -13,7 +12,10 @@ export const INTL_LOCALE: Record<AppLocale, string> = {
 };
 
 export function intlLocale(locale: string | undefined): string {
-  return INTL_LOCALE[(locale ?? routing.defaultLocale) as AppLocale] ?? INTL_LOCALE[routing.defaultLocale];
+  return (
+    INTL_LOCALE[(locale ?? routing.defaultLocale) as AppLocale] ??
+    INTL_LOCALE[routing.defaultLocale]
+  );
 }
 
 /**
@@ -25,7 +27,10 @@ export function weekdayName(dayOfWeek: number, locale: string): string {
   // 2024-01-07 Pazar: dizinin 0'ı pazar olduğu için referans o gün.
   const reference = new Date(Date.UTC(2024, 0, 7 + dayOfWeek));
   const tag = intlLocale(locale);
-  const name = new Intl.DateTimeFormat(tag, { weekday: "long", timeZone: "UTC" }).format(reference);
+  const name = new Intl.DateTimeFormat(tag, {
+    weekday: "long",
+    timeZone: "UTC",
+  }).format(reference);
   return name.charAt(0).toLocaleUpperCase(tag) + name.slice(1);
 }
 
@@ -35,8 +40,8 @@ export function weekdayName(dayOfWeek: number, locale: string): string {
  * sonra (`95 %` — U+202F). `money.ts`'deki `SYMBOL_FIRST` ile aynı desen:
  * sayıyı biçimlendiren taraf ayrı, işaretin yerini karara bağlayan taraf ayrı.
  *
- * Önek/sonek olarak döner çünkü tek tüketicisi `CountUp`: sayaç yalnızca
- * *sayıyı* canlandırır, işaret her karede olduğu gibi yanında durur.
+ * Önek/sonek olarak ayrı döner: sayı ile işaretin yeri iki ayrı karardır ve
+ * `formatPercent` ikisini tek yerde birleştirir.
  */
 const PERCENT_AFFIX: Record<AppLocale, { prefix: string; suffix: string }> = {
   tr: { prefix: "%", suffix: "" },
@@ -44,16 +49,20 @@ const PERCENT_AFFIX: Record<AppLocale, { prefix: string; suffix: string }> = {
   fr: { prefix: "", suffix: "\u202F%" },
 };
 
-export function percentAffix(locale: AppLocale): { prefix: string; suffix: string } {
+export function percentAffix(locale: AppLocale): {
+  prefix: string;
+  suffix: string;
+} {
   return PERCENT_AFFIX[locale] ?? PERCENT_AFFIX[routing.defaultLocale];
 }
 
 /**
- * `CountUp`'ın son karede bastığı metnin aynısı. Bileşen sayıyı canlandırırken
- * `formatCount`'u aynı önek/sonekle çağırır; birim testi bu fonksiyonu ölçer ki
- * iki yol tek kaynaktan beslensin.
+ * Yüzde metni: ondalık değer tam sayıya yuvarlanır (ekranda hep tam sayı
+ * görünür), işaret dilin kurallarına göre öne ya da arkaya gelir. Binlik
+ * ayracı kullanılmaz: sayılar iki basamaklı, ayraç gürültü olurdu.
  */
 export function formatPercent(value: number, locale: AppLocale): string {
   const { prefix, suffix } = percentAffix(locale);
-  return formatCount(value, prefix, suffix);
+  const safe = Number.isFinite(value) ? Math.round(value) : 0;
+  return `${prefix}${safe}${suffix}`;
 }

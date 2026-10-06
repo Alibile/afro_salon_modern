@@ -22,7 +22,7 @@
       "toLight": "Passer en mode clair"
     },
     "status": {
-      "open": "Ouvert aujourd'hui · {opensAt}–{closesAt}",
+      "open": "Ouvert aujourd'hui, {opensAt}–{closesAt}",
       "closedToday": "Fermé aujourd'hui",
       "closedNow": "Fermé pour la journée"
     }
@@ -65,12 +65,11 @@
       "photoAlt": "Portrait d'un homme aux cheveux afro sous une lumière de studio sombre",
       "headline1": "CHAQUE BOUCLE A",
       "headline2": "SA PROPRE GÉOMÉTRIE.",
-      "subtitle": "Coupes afro, fades, tresses et twists pour hommes — aujourd'hui ou cette semaine.",
+      "subtitle": "Coupes afro, fades, tresses et twists pour hommes. Aujourd'hui ou cette semaine.",
       "book": "Réserver votre créneau",
       "services": "Prestations et tarifs",
-      "scroll": "Défiler",
       "slotsToday": "{count, plural, one {# rendez-vous libre} other {# rendez-vous libres}}",
-      "slotsFull": "Complet aujourd'hui — choisissez un autre jour cette semaine"
+      "slotsFull": "Complet aujourd'hui, choisissez un autre jour cette semaine"
     },
     "howItWorks": {
       "title": "Comment ça marche",
@@ -87,7 +86,10 @@
       "photoAlt": "Un instant dans le salon",
       "photoSoon": "Photo bientôt disponible",
       "caption": "Le fauteuil, le miroir, le peigne : les cheveux disent le reste.",
-      "cta": "Réservez votre place"
+      "cta": "Réservez votre place",
+      "satisfaction": "clients satisfaits",
+      "experience": "expérience",
+      "yearsUnit": "ans"
     },
     "services": {
       "title": "Prestations et tarifs",
@@ -107,10 +109,7 @@
     },
     "whyUs": {
       "title": "Pourquoi nous",
-      "note": "Trois raisons de ne pas faire la queue et de vous asseoir entre des mains qui connaissent la texture.",
-      "satisfaction": "clients satisfaits",
-      "experience": "expérience",
-      "yearsUnit": "ans"
+      "note": "Trois raisons de ne pas faire la queue et de vous asseoir entre des mains qui connaissent la texture."
     },
     "team": {
       "title": "L'équipe",

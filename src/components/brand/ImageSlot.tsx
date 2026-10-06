@@ -38,7 +38,7 @@ export function ImageSlot({
     <div role="img" aria-label={alt} className={cn("absolute inset-0 flex items-end bg-secondary text-primary", className)}>
       <AfroPattern variant={variant} opacity={0.12} size={72} />
       {label && (
-        <span className="relative m-3 bg-background/80 px-2 py-1 text-[0.7rem] tracking-wide text-muted-foreground">{label}</span>
+        <span className="relative m-3 bg-background/80 px-2 py-1 text-xs text-muted-foreground">{label}</span>
       )}
     </div>
   );

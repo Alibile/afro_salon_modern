@@ -68,12 +68,34 @@ test.describe("harita", () => {
     await page.goto("/#iletisim");
     const map = page.locator("#iletisim iframe");
     await expect(map).toHaveCount(0);
-    // Düğme `.label` sınıfıyla büyük harfe çevriliyor ve erişilebilir ad da
-    // öyle hesaplanıyor: "HARİTAYI YÜKLE". Playwright'ın ada göre eşleşmesi
-    // büyük/küçük harf duyarsızdır ama Türkçe'de "İ"nin küçüğü "i̇"dir, "ı"
-    // değil — ada göre aramak bu tek kelimede tutmaz. Düğme yapıyla bulunur.
-    await page.locator('#iletisim button[type="button"]').click();
+    await page.locator("#iletisim").getByRole("button", { name: "Haritayı yükle" }).click();
     await expect(map).toHaveAttribute("src", /google\.com\/maps/);
+  });
+});
+
+test.describe("bölüm biçimleri (Tur 8)", () => {
+  test("sayaçlar Hakkımızda metninin altında, Neden biz'de bant yok", async ({ page }) => {
+    await page.goto("/");
+    const about = page.locator("#hakkimizda");
+    // E2E seed: memnuniyet %99, deneyim 10 yıl. Sayaç animasyonu yok; metin doğrudan basılır.
+    await expect(about.getByText("%99", { exact: true })).toBeVisible();
+    await expect(about.getByText("10 yıl", { exact: true })).toBeVisible();
+    await expect(page.locator("#neden-biz dl")).toHaveCount(0);
+  });
+
+  test("adımlar tek haneli rakamla numaralanır ve bölüm başlıkları cümle düzeninde", async ({ page }) => {
+    await page.goto("/");
+    const steps = page.locator("#nasil ol > li");
+    await expect(steps.nth(0).locator("p").first()).toHaveText("1");
+    await expect(page.locator("#nasil").getByRole("heading", { level: 2 })).toHaveText("Nasıl çalışır");
+    await expect(page.locator("#sss").getByRole("heading", { level: 2 })).toHaveText("Sıkça sorulanlar");
+  });
+
+  test("hero durum satırı tek düz cümledir, orta nokta yok", async ({ page }) => {
+    await page.goto("/");
+    const status = page.locator("h1").locator("xpath=preceding-sibling::p[1]");
+    await expect(status).not.toContainText("·");
+    await expect(status).toContainText(/Bugün açığız|Bugün kapalıyız|Bugün kapandık/);
   });
 });
 

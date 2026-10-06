@@ -3,7 +3,6 @@ import { useTranslations } from "next-intl";
 import { ImageSlot } from "@/components/brand/ImageSlot";
 import type { PatternVariant } from "@/components/brand/AfroPattern";
 import type { GalleryPhoto } from "@/lib/gallery-utils";
-import { Reveal } from "@/components/motion/Reveal";
 import { GalleryBrowser } from "./gallery/GalleryBrowser";
 
 const VARIANTS: PatternVariant[] = ["kente", "mud", "tarak"];
@@ -13,7 +12,10 @@ function PatternPlaceholder({ alt, label }: { alt: string; label: string }) {
   return (
     <ul className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-4">
       {Array.from({ length: 8 }, (_, i) => (
-        <li key={i} className="relative aspect-square overflow-hidden bg-secondary">
+        <li
+          key={i}
+          className="relative aspect-square overflow-hidden bg-secondary"
+        >
           <ImageSlot
             name={`gallery-${i + 1}.jpg`}
             alt={alt}
@@ -27,17 +29,26 @@ function PatternPlaceholder({ alt, label }: { alt: string; label: string }) {
   );
 }
 
-export function GallerySection({ photos, tags }: { photos: GalleryPhoto[]; tags: string[] }) {
+export function GallerySection({
+  photos,
+  tags,
+}: {
+  photos: GalleryPhoto[];
+  tags: string[];
+}) {
   const t = useTranslations("landing.gallery");
   return (
-    <section id="galeri" className="scroll-mt-20 border-b border-border">
-      <div className="mx-auto max-w-6xl px-5 py-16 md:py-24">
-        <Reveal className="flex flex-wrap items-end justify-between gap-4">
+    <section id="galeri" className="scroll-mt-16 border-b border-border">
+      <div className="mx-auto max-w-6xl px-5 py-14 md:px-10 md:py-24">
+        <div className="max-w-2xl">
           <h2 className="display-lg">{t("title")}</h2>
-          <p className="editorial-note max-w-[38ch] text-muted-foreground">{t("note")}</p>
-        </Reveal>
+          <p className="mt-3 text-muted-foreground">{t("note")}</p>
+        </div>
         {photos.length === 0 ? (
-          <PatternPlaceholder alt={t("placeholderAlt")} label={t("photosSoon")} />
+          <PatternPlaceholder
+            alt={t("placeholderAlt")}
+            label={t("photosSoon")}
+          />
         ) : (
           <Suspense fallback={<div className="mt-8 h-96" aria-hidden />}>
             <GalleryBrowser photos={photos} tags={tags} />

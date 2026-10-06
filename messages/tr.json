@@ -22,7 +22,7 @@
       "toLight": "Açık moda geç"
     },
     "status": {
-      "open": "Bugün açık · {opensAt}–{closesAt}",
+      "open": "Bugün açığız, {opensAt}–{closesAt}",
       "closedToday": "Bugün kapalıyız",
       "closedNow": "Bugün kapandık"
     }
@@ -65,12 +65,11 @@
       "photoAlt": "Koyu bir stüdyo ışığında, geniş afro saçlı bir adamın portresi",
       "headline1": "KIVRIMIN KENDİ",
       "headline2": "GEOMETRİSİ VAR.",
-      "subtitle": "Erkeklere özel afro kesim, fade, örgü ve twist — bugün ya da bu hafta.",
+      "subtitle": "Erkeklere özel afro kesim, fade, örgü ve twist. Bugün ya da bu hafta.",
       "book": "Hemen randevu al",
       "services": "Hizmetler ve fiyatlar",
-      "scroll": "Kaydır",
       "slotsToday": "{count, plural, other {# boş randevu}}",
-      "slotsFull": "Bugün doluyuz — bu haftadan gün seç"
+      "slotsFull": "Bugün doluyuz, bu haftadan gün seç"
     },
     "howItWorks": {
       "title": "Nasıl çalışır",
@@ -87,7 +86,10 @@
       "photoAlt": "Salonun içinden bir kare",
       "photoSoon": "Fotoğraf yakında",
       "caption": "Koltuk, ayna, tarak: gerisini saçın kendisi söyler.",
-      "cta": "Yerini ayır"
+      "cta": "Yerini ayır",
+      "satisfaction": "müşteri memnuniyeti",
+      "experience": "deneyim",
+      "yearsUnit": "yıl"
     },
     "services": {
       "title": "Hizmetler ve fiyat",
@@ -107,10 +109,7 @@
     },
     "whyUs": {
       "title": "Neden biz",
-      "note": "Sıra beklemeden, dokunu bilen ellere oturmak için üç sebep.",
-      "satisfaction": "müşteri memnuniyeti",
-      "experience": "deneyim",
-      "yearsUnit": "yıl"
+      "note": "Sıra beklemeden, dokunu bilen ellere oturmak için üç sebep."
     },
     "team": {
       "title": "Ekip",

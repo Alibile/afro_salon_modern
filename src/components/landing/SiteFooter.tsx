@@ -41,7 +41,7 @@ export async function SiteFooter({
   return (
     <footer className="relative overflow-hidden bg-primary text-primary-foreground">
       <AfroPattern variant="mud" size={80} opacity={0.12} />
-      <div className="relative mx-auto max-w-6xl px-5 py-14">
+      <div className="relative mx-auto max-w-6xl px-5 py-14 md:px-10">
         <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 sm:gap-10 lg:grid-cols-4">
           <div>
             {/* Altbilgide işaret ve yığılmış ad birlikte: sayfanın en altında
