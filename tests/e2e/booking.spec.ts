@@ -19,12 +19,11 @@ const shopDay = (offsetDays = 0) =>
  */
 const SUNDAY = new Date().toLocaleDateString("en-US", { timeZone: "Europe/Istanbul", weekday: "short" }) === "Sun";
 
-const bookingStep = (page: import("@playwright/test").Page) =>
-  page.locator('section:has(h2:text("Gün ve saat"))');
+const bookingStep = (page: import("@playwright/test").Page) => page.locator('[data-step="3"]');
 const dayChips = (page: import("@playwright/test").Page) =>
   bookingStep(page).getByRole("group", { name: "Gün seç" }).locator("button");
 const timeSlots = (page: import("@playwright/test").Page) =>
-  bookingStep(page).locator("div.grid-cols-4 button");
+  bookingStep(page).locator("[data-slots] button");
 
 test.describe.serial("randevu akışı", () => {
   test("müşteri kayıt olur ve bugün için randevu alır", async ({ page }) => {
@@ -64,7 +63,7 @@ test.describe.serial("randevu akışı", () => {
     await expect(page.getByRole("heading", { name: "Yaklaşan randevularım" })).toBeVisible();
     await expect(page.getByText("Planlandı")).toBeVisible();
     // Bugünkü randevu kartı tarihin önüne "Bugün" yazar.
-    await expect(page.getByText("Bugün ·")).toBeVisible();
+    await expect(page.getByText("Bugün,")).toBeVisible();
   });
 
   test("berber panelde randevuyu görür ve tamamlar", async ({ page }) => {
@@ -168,7 +167,41 @@ test.describe.serial("ileri gün randevusu", () => {
       weekday: "long",
     }).format(new Date(`${dateKey}T12:00:00+03:00`));
     await expect(page.getByText(longDate)).toBeVisible();
-    if (dateKey === shopDay(1)) await expect(page.getByText("Yarın ·")).toBeVisible();
+    if (dateKey === shopDay(1)) await expect(page.getByText("Yarın,")).toBeVisible();
+  });
+});
+
+/**
+ * Sihirbazda geri dönüş (Tur 8): tamamlanan adım tek satıra kapanır ve
+ * "Değiştir" ile yeniden açılır; hizmet değişince seçili saat düşer, onay
+ * düğmesi yeniden kilitlenir.
+ */
+test.describe("sihirbazda adım değiştirme", () => {
+  test("hizmete dönülünce saat seçimi düşer ve onay kilitlenir", async ({ page }) => {
+    await page.goto("/randevu");
+    await page.getByRole("button", { name: /Yıkama \+ Kesim \+ Sakal/ }).click();
+    // Hizmet adımı kapandı: özet satırı ve "Değiştir" bağlantısı var, hizmet düğmesi yok.
+    const serviceSummary = page.locator('[data-step="1"]');
+    await expect(serviceSummary).toContainText("Yıkama + Kesim + Sakal");
+    await expect(page.getByRole("button", { name: /Yıkama \+ Kesim \+ Sakal/ })).toHaveCount(0);
+    await page.getByRole("button", { name: /Kwame Mensah/ }).click();
+    await expect(bookingStep(page)).toBeVisible();
+
+    const slots = timeSlots(page);
+    const closed = bookingStep(page).getByText(/kapalıyız|uygun saat kalmadı/);
+    await expect(slots.first().or(closed)).toBeVisible();
+    if (await slots.first().isVisible()) {
+      await slots.first().click();
+      await expect(page.getByRole("button", { name: "Giriş yap ve onayla" })).toBeEnabled();
+    }
+
+    await serviceSummary.getByRole("button", { name: "Değiştir" }).click();
+    await expect(bookingStep(page)).toHaveCount(0);
+    await expect(page.locator('[data-step="2"]')).toHaveCount(0);
+    await page.getByRole("button", { name: /Yıkama \+ Kesim \+ Sakal/ }).click();
+    // Berber adımı yeniden açıldı, saat seçili değil: onay kilitli.
+    await expect(page.getByRole("button", { name: /Kwame Mensah/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Giriş yap ve onayla" })).toBeDisabled();
   });
 });
 

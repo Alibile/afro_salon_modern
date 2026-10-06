@@ -128,11 +128,7 @@ export function ContactForm({ services }: { services: string[] }) {
         </p>
       )}
 
-      <Button
-        type="submit"
-        disabled={pending}
-        className="mt-8 h-12 rounded-none px-7 text-base"
-      >
+      <Button type="submit" size="lg" disabled={pending} className="mt-8">
         {pending ? t("sending") : t("submit")}
       </Button>
     </form>

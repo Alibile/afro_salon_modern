@@ -7,26 +7,40 @@ import type { AppLocale } from "@/i18n/routing";
 
 export type ServiceItem = { id: string; name: string; durationMinutes: number; priceKurus: number };
 
+/**
+ * Hizmet kartları: ad ve süre solda, fiyat sağda; seçili kart sol kenar
+ * çizgisi ve onay işaretiyle. Yükseklik en az 56 px: telefonda rahat hedef.
+ */
 export function ServiceStep({ services, selectedIds, onChange }: { services: ServiceItem[]; selectedIds: string[]; onChange: (ids: string[]) => void }) {
   const t = useTranslations("booking");
   const tCommon = useTranslations("common");
   const locale = useLocale() as AppLocale;
   const toggle = (id: string) => onChange(selectedIds.includes(id) ? selectedIds.filter((x) => x !== id) : [...selectedIds, id]);
   return (
-    <section>
-      <h2 className="display-md mb-4">{t("step1")}</h2>
+    <section data-step={1}>
+      <h2 className="mb-3 text-xl font-medium">{t("step1")}</h2>
       <ul className="grid gap-2">
         {services.map((s) => {
           const on = selectedIds.includes(s.id);
           return (
             <li key={s.id}>
-              <button type="button" onClick={() => toggle(s.id)} aria-pressed={on}
-                className={cn("flex w-full items-center justify-between gap-3 border border-border bg-card px-4 py-3.5 text-left transition-colors", on ? "border-primary bg-primary/5" : "hover:border-foreground/40")}>
+              <button
+                type="button"
+                onClick={() => toggle(s.id)}
+                aria-pressed={on}
+                className={cn(
+                  "grid min-h-14 w-full grid-cols-[1fr_auto] items-center gap-4 rounded-[var(--radius)] border bg-card px-4 py-3 text-left transition-colors",
+                  on ? "border-primary border-l-4 bg-primary/5" : "border-border hover:border-foreground/40",
+                )}
+              >
                 <span className="min-w-0">
-                  <span className="block font-display text-xl tracking-wide">{s.name}</span>
-                  <span className="editorial-note text-sm text-muted-foreground">{tCommon("minutes", { count: s.durationMinutes })}</span>
+                  <span className="block font-display text-lg">{s.name}</span>
+                  <span className="text-sm text-muted-foreground">{tCommon("minutes", { count: s.durationMinutes })}</span>
                 </span>
-                <span className="flex shrink-0 items-center gap-2 tabular-nums">{formatKurus(s.priceKurus, locale)} {on && <Check className="size-4 text-primary" />}</span>
+                <span className="flex shrink-0 items-center gap-2 tabular-nums">
+                  {formatKurus(s.priceKurus, locale)}
+                  {on && <Check aria-hidden className="size-4 text-primary" />}
+                </span>
               </button>
             </li>
           );

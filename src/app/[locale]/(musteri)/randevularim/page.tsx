@@ -32,7 +32,7 @@ export default async function RandevularimPage() {
   return (
     <>
       <SiteNav shopName={settings.shopName} user={user} variant="plain" />
-      <main className="mx-auto w-full max-w-lg space-y-12 px-4 pb-24 pt-8">
+      <main className="mx-auto w-full max-w-3xl space-y-12 px-5 pt-6 pb-24 md:px-10 md:pt-10">
         <section>
           <h1 className="display-lg border-b border-border pb-4">
             {t("upcomingTitle")}
@@ -79,7 +79,7 @@ export default async function RandevularimPage() {
                     height={300}
                     className="aspect-square w-full object-cover"
                   />
-                  <figcaption className="editorial-note mt-2 text-xs text-muted-foreground">
+                  <figcaption className="mt-2 text-xs text-muted-foreground">
                     {formatShopDate(p.createdAt, locale)}, {p.barberName}
                   </figcaption>
                 </figure>

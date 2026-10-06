@@ -10,6 +10,7 @@ import {
   formatShopTime,
   formatShopDate,
   formatShopDayShort,
+  formatShopDayParts,
   shopDateTime,
 } from "@/lib/time";
 
@@ -64,6 +65,15 @@ describe("time", () => {
     expect(formatShopDayShort(d, "tr")).toBe("22 Eyl Sal");
     expect(formatShopDayShort(d, "en")).toBe("Tue 22 Sept");
     expect(formatShopDayShort(d, "fr")).toBe("mar. 22 sept.");
+  });
+
+  it("formatShopDayParts gün adını ve gün numarasını ayrı verir", () => {
+    const d = new Date("2026-09-22T09:00:00Z"); // Salı
+    expect(formatShopDayParts(d, "tr")).toEqual({ weekday: "Sal", day: "22" });
+    expect(formatShopDayParts(d, "en")).toEqual({ weekday: "Tue", day: "22" });
+    expect(formatShopDayParts(d, "fr")).toEqual({ weekday: "mar.", day: "22" });
+    // Ay başı: tek haneli gün, sıfır dolgusu yok.
+    expect(formatShopDayParts(new Date("2026-10-01T09:00:00Z"), "tr")).toEqual({ weekday: "Per", day: "1" });
   });
 
   it("formatShopTime / formatShopDate in Turkish", () => {

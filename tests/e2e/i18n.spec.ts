@@ -120,10 +120,10 @@ test.describe.serial("İngilizce randevu akışı", () => {
     await page.getByRole("button", { name: /Wash, cut & beard/ }).first().click();
     await page.getByRole("button", { name: /Kwame Mensah/ }).click();
 
-    const step = page.locator('section:has(h2:text("Day and time"))');
+    const step = page.locator('[data-step="3"]');
     // Gün çipleri de İngilizce: "Today" / "Tomorrow" / kısa tarih.
     await expect(step.getByRole("group", { name: "Choose a day" })).toBeVisible();
-    const slots = step.locator("div.grid-cols-4 button");
+    const slots = step.locator("[data-slots] button");
     const closed = page.getByText(/closed that day|No times left/i);
     await expect(slots.first().or(closed)).toBeVisible();
     test.skip(await closed.isVisible(), "Dükkan şu an kapalı, slot testi atlandı");

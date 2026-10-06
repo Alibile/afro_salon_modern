@@ -18,22 +18,22 @@ export function RegisterForm({ next }: { next?: string }) {
       <input type="hidden" name="next" value={next ?? ""} />
       <div className="space-y-1.5">
         <Label htmlFor="name">{t("fields.name")}</Label>
-        <Input id="name" name="name" required className="h-11 rounded-none" />
+        <Input id="name" name="name" required className="h-11" />
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="email">{t("fields.email")}</Label>
-        <Input id="email" name="email" type="email" required className="h-11 rounded-none" />
+        <Input id="email" name="email" type="email" required className="h-11" />
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="phone">{t("fields.phone")}</Label>
-        <Input id="phone" name="phone" type="tel" className="h-11 rounded-none" />
+        <Input id="phone" name="phone" type="tel" className="h-11" />
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="password">{t("fields.password")}</Label>
-        <Input id="password" name="password" type="password" required minLength={8} className="h-11 rounded-none" />
+        <Input id="password" name="password" type="password" required minLength={8} className="h-11" />
       </div>
       {state.error && <p className="text-sm text-destructive">{showError({ error: state.error })}</p>}
-      <Button type="submit" disabled={pending} className="h-11 w-full rounded-none text-base">
+      <Button type="submit" disabled={pending} className="h-11 w-full text-base">
         {pending ? t("register.submitting") : t("register.submit")}
       </Button>
       <p className="text-sm text-muted-foreground">

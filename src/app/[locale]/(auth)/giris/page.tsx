@@ -6,7 +6,7 @@ export default async function GirisPage(props: { searchParams: Promise<{ next?: 
   return (
     <>
       <h1 className="display-lg">{t("title")}</h1>
-      <p className="editorial-note mt-2 text-muted-foreground">{t("subtitle")}</p>
+      <p className="mt-2 text-muted-foreground">{t("subtitle")}</p>
       <div className="mt-8">
         <LoginForm next={next} />
       </div>

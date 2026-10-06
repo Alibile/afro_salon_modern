@@ -82,6 +82,17 @@ export function formatShopDayShort(d: Date, locale: AppLocale = routing.defaultL
   }).format(d);
 }
 
+/**
+ * Randevu listesindeki tarih bloğu: gün adı kısaltması üstte, gün numarası
+ * altında ("Sal" / "22"). Parçalar ayrı döner çünkü ikisi ayrı satırda ve ayrı
+ * puntoda basılır; `formatToParts` ile dilin kendi kısaltması ve yazımı korunur.
+ */
+export function formatShopDayParts(d: Date, locale: AppLocale = routing.defaultLocale): { weekday: string; day: string } {
+  const parts = new Intl.DateTimeFormat(intlLocale(locale), { timeZone: SHOP_TZ, weekday: "short", day: "numeric" }).formatToParts(d);
+  const pick = (type: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === type)?.value ?? "";
+  return { weekday: pick("weekday"), day: pick("day") };
+}
+
 /** "2026-09-17" + "13:00" → İstanbul'daki o anın UTC instant'ı */
 export function shopDateTime(date: string, hhmm: string): Date {
   const [y, mo, d] = date.split("-").map(Number);
