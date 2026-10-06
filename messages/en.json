@@ -366,7 +366,8 @@
       "gallery": "Gallery",
       "settings": "Settings",
       "groupDaily": "Day to day",
-      "groupManage": "Manage"
+      "groupManage": "Manage",
+      "menuLabel": "Panel menu"
     },
     "common": {
       "save": "Save",

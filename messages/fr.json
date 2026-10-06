@@ -366,7 +366,8 @@
       "gallery": "Galerie",
       "settings": "Réglages",
       "groupDaily": "Au quotidien",
-      "groupManage": "Gestion"
+      "groupManage": "Gestion",
+      "menuLabel": "Menu du panneau"
     },
     "common": {
       "save": "Enregistrer",

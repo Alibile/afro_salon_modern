@@ -366,7 +366,8 @@
       "gallery": "Galeri",
       "settings": "Ayarlar",
       "groupDaily": "Günlük iş",
-      "groupManage": "Yönetim"
+      "groupManage": "Yönetim",
+      "menuLabel": "Panel menüsü"
     },
     "common": {
       "save": "Kaydet",
