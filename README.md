@@ -222,44 +222,53 @@ Cloudflare R2 bucket ayarlarında CORS örneği:
 - **BARBER:** kendi takvimi, izinleri, müşteri fotoğrafları
 - **ADMIN:** her şey + hizmet/berber/ayar yönetimi
 
-## Tipografi ve hareket
+## Tasarım dili (Tur 8)
 
-Üç yüz, üç iş (`src/app/[locale]/layout.tsx`, ölçek `src/app/globals.css`):
+Tek kural seti üç yüzeyi (ana sayfa, randevu akışı, panel) bağlar; ayrıntı
+`docs/superpowers/specs/2026-10-06-tasarim-yenileme-design.md`.
 
-| Değişken | Yüz | Nerede |
-|---|---|---|
-| `--font-display` | Fraunces (değişken, `opsz`; italiği `--font-serif`) | Manşet, bölüm başlıkları, isimler, editoryal notlar |
-| `--font-sans` | Manrope | Gövde metni, form, fiyatlar (`tabular-nums`) |
-| `--font-label` | Bebas Neue | Yalnızca küçük kapital etiketler (`.label`) |
+- **Telefon önce.** Her bileşen 390 px için kurulur, `md`/`lg` genişletir.
+  Dokunma hedefleri en az 44 px, bölüm boşluğu `py-14 md:py-24`, oluk
+  `px-5 md:px-10`, kap `max-w-6xl`.
+- **İki yazı tipi.** Müşteri yüzünde Fraunces (başlık, `--font-display`) ve
+  Manrope (gövde, `--font-sans`); panelde yalnızca Inter (`--font-panel-sans`,
+  `.panel-typography`). Başlıklar cümle düzeninde; BÜYÜK HARF yalnızca hero
+  manşeti, giriş panelinin manşeti ve altbilgideki yığılmış marka adında.
+  `tests/unit/messages.test.ts` üç dilde başka büyük harf değer kalmadığını
+  denetler.
+- **Tek köşe.** `--radius` müşteri yüzünde 2 px, panelde 6 px; düğme, kutu,
+  rozet, çip hepsi `rounded-[var(--radius)]`. Durum rozeti dolu hap değil,
+  nokta + metin (`StatusDot`).
+- **Ayırıcı yok.** Meta bilgiler orta nokta (`·`) ile birleştirilmez; ayrı
+  satır, ayrı sütun ya da cümle olur. Aralıklı büyük harf etiket kullanılmaz.
+- **Hareket yalnızca cevap verir.** Hero'nun açılış sırası (`.rise`,
+  `.hero-zoom`, CSS) ve kullanıcı eylemine bağlı geçişler (SSS, menü, galeri)
+  kalır; bölüm bölüm giriş, parallax ve sayaç yoktur. `MotionProvider`
+  yalnızca üst çubuğun kaydırma eşiğini sarar.
 
-Ölçek sınıfları: `.display-hero` (manşet), `.display-lg` (bölüm başlığı),
-`.display-md`, `.display-sm`, `.label`, `.editorial-note`, `.measure`.
+Ölçek sınıfları (`src/app/globals.css`): `.display-cinema` (hero),
+`.display-lg` (bölüm başlığı), `.display-md`, `.display-sm`, `.editorial-note`
+(yalnızca gerçekten not olan yerlerde), `.measure`.
 
-Hareket `motion` (v13, `motion/react`) ile yapılır ve **yalnızca ana sayfa
-ağacını** (`src/app/[locale]/(musteri)/page.tsx`) ve giriş/kayıt sayfalarının sol marka
-panelini sarar — panel ve `/randevu` akışı hareketsizdir. Bileşenler
-`src/components/motion/` altında:
+Ortak parçalar:
 
-- `MotionProvider` — `MotionConfig reducedMotion="user"`; hareket kapsamını belirler.
-- `Reveal` — görüş alanına girince bir kez çalışan fade-up (`delay` ile sıralı giriş).
-- `Parallax` — kaydırmaya bağlı dikey kayma; yalnızca `transform`, ±`range` piksel.
-- `CountUp` — görüş alanına girince 0'dan sayan rakam; gerçek değer HTML'de durur.
+- `src/components/layout/SiteNav.tsx` — tek üst çubuk; `variant="hero"`
+  (ana sayfa, fotoğraf üstünde şeffaf başlar) ya da `"plain"` (iç sayfalar).
+  Her sayfa çubuğu ve `<main>`i kendisi çizer.
+- `src/components/ui/field.tsx`, `select.tsx`, `status-dot.tsx` — etiket +
+  kontrol + ipucu, `Input` ile aynı ölçüde yerel select, durum noktası.
+- `src/components/panel/PanelPage.tsx`, `PanelSection.tsx`,
+  `NewRecordPanel.tsx`, `ResponsiveTable.tsx` — sayfa başı, iki sütunlu form
+  bölümü, "Yeni …" paneli (form `useNewRecordClose()` ile kapatır), telefonda
+  kart listesine düşen tablo (`RCell label` → `data-label`).
+- `src/components/booking/StepIndicator.tsx`, `StepSummary.tsx`,
+  `BookingSummary.tsx` — sihirbazın ilerleme göstergesi, kapanan adım özeti ve
+  özet/onay bloğu (telefonda alt çubuk, `md`de sağ sütun).
 
-Saf yardımcılar (`src/lib/motion-utils.ts`: `staggerDelay`, `clampParallax`,
-`parallaxRange`, `formatCount`) birim testlidir (`tests/unit/motion-utils.test.ts`).
-
-Erişilebilirlik: `prefers-reduced-motion: reduce` açıkken Motion animasyonları
-kapatır; ayrıca `globals.css` içindeki `[data-reveal]` / `[data-parallax]`
-kuralları sunucudan gelen başlangıç stilini ilk boyamada geçersiz kılar.
-JavaScript hiç çalışmadığında aynı iki kural `layout.tsx` içindeki `<noscript>`
-bloğundan gelir: animasyon olmaz, ama içerik görünür ve yerindedir. `CountUp`
-gerçek değeri sunucuda basar, sıfırdan sayma yalnızca hidrasyondan sonra
-başlar. Hero'nun açılış sırası bilinçli olarak CSS'tir (`.rise`): sayfanın en
-büyük boyaması hidrasyonu beklemez.
-
-Ölçüm: ana sayfanın Lighthouse mobil performans puanı **96** (`--preset=perf`,
-üretim derlemesi; ham çıktı
-`.superpowers/sdd/2026-09-17-afro-salon-tur3/lighthouse.json`).
+Erişilebilirlik: `prefers-reduced-motion: reduce` açıkken `globals.css` süreyi
+sıfırlar ve `.rise` gecikmesini negatife çeker; JavaScript kapalıyken içerik
+olduğu gibi görünür. Hero kontrastı (kum metin / kutudaki en açık piksel):
+durum satırı 390'da 7.8:1, 1440'ta 7.3:1; manşet 1440'ta 4.0:1.
 
 ## Fotoğraflar
 
@@ -389,6 +398,13 @@ kadar yüklenmediği için `google.com`a hiç istek gitmiyor; paylaşım görsel
 bir rotadır, sayfayla birlikte indirilmez; sayaç sorgusu ana sayfanın var olan
 veri demetine paralel giriyor (`Promise.all`) ve TBT 0 ms, CLS 0 kalıyor.
 
+Tur 8'in tasarım yenilemesi (Bebas kalktı, bölüm bölüm hareket ve sayaç
+kalktı, tek üst çubuk) puanı değiştirmedi: üretim derlemesinde `/en` doğrudan
+**85** (2 koşu, FCP 1.5 sn, LCP 4.3 sn, TBT 0 ms, CLS 0). İngilizce
+tarayıcıyla `/` ölçümü (307 ile `/en`e yönlenir) **77** (3 koşu, LCP 5.8 sn):
+fark yönlendirmeden gelir, sayfanın kendisinden değil. Geliştirme sunucusunda
+alınan sayılar bu ölçümle karşılaştırılamaz.
+
 LCP için üç ayar:
 
 - `images.formats` listesinde **AVIF** WebP'nin önünde: hero'nun mobil kırpımı
@@ -397,7 +413,5 @@ LCP için üç ayar:
   (`src/lib/hero-image.ts`): `ReactDOM.preload()` `<link>`i satır içi stil
   bloğundan **önce**, `<head>`in en başına koyar. `media` ile cihaz başına tek
   dosya indirilir.
-- Yazı tiplerinde ön yükleme **açık** kalır. Bebas'ta `preload: false` denendi
-  ve geri alındı: dosya ilk turda değil, düzen onu isteyince "VeryHigh"
-  önceliğiyle çekiliyor, yani ilk boyamanın zincirine giriyor — FCP 1.5 → 1.8
-  sn, puan 85 → 82. Ölçmeden kapatmayın.
+- Yazı tiplerinde ön yükleme **açık** kalır (Fraunces ve Manrope). Tur 8'de
+  Bebas Neue tamamen kalktı: ilk boyamanın zincirinden bir yüz eksildi.

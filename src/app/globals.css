@@ -187,16 +187,20 @@
   /*
    * Fotoğrafın üstündeki karartma iki katmandır: soldan sağa inen perde metin
    * sütununu, yukarıdan aşağı inen perde alt yarıyı koyultur. İkisi de aynı
-   * mürekkebi kullandığı için sonuç sıralamadan bağımsızdır; ölçülen en düşük
-   * kontrast (kum metin / en açık piksel) 1440'ta 6.3:1, 390'da 5.4:1.
+   * mürekkebi kullandığı için sonuç sıralamadan bağımsızdır. Tur 8 ölçümü
+   * (kum metin / kutudaki en açık piksel): durum satırı 390'da 7.8:1, 1440'ta
+   * 7.3:1; manşet 1440'ta 4.0:1. Geniş ekranda manşet fotoğrafın aydınlık
+   * yüzüne uzandığı için yatay perde ortada 0.26'dan 0.40'a çıkarıldı (önce
+   * 2.8:1 idi; büyük metin için eşik 3:1).
    */
   .hero-scrim {
     background-image:
       linear-gradient(
         to right,
-        oklch(0.2 0.02 50 / 0.62) 0%,
-        oklch(0.2 0.02 50 / 0.26) 42%,
-        oklch(0.2 0.02 50 / 0) 70%
+        oklch(0.2 0.02 50 / 0.66) 0%,
+        oklch(0.2 0.02 50 / 0.4) 45%,
+        oklch(0.2 0.02 50 / 0.12) 78%,
+        oklch(0.2 0.02 50 / 0) 100%
       ),
       linear-gradient(
         to bottom,

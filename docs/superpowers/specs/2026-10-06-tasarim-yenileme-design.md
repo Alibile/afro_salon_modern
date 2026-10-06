@@ -1,7 +1,7 @@
 # Afro Salon Modern: Tasarım Yenileme (Tur 8)
 
 Tarih: 2026-10-06
-Durum: Taslak, kullanıcı incelemesinde
+Durum: Uygulandı (2026-10-06, `tur8-tasarim` dalı)
 
 ## 1. Amaç
 
