@@ -43,21 +43,20 @@ export function DeleteButton({
   const [pending, start] = useTransition();
   const router = useRouter();
 
+  // Devre dışı düğme sebebini `title` ile taşır: satırın içinde uzun bir
+  // açıklama metni tabloyu taşırırdı; üzerine gelince ya da odaklanınca okunur.
   if (disabled) {
     return (
-      <div className="flex flex-col items-end gap-1">
-        <Button size="sm" variant="destructive" disabled title={disabledReason}>
-          {t("delete")}
-        </Button>
-        {disabledReason && <p className="text-xs text-muted-foreground">{disabledReason}</p>}
-      </div>
+      <Button size="sm" variant="ghost" className="text-destructive" disabled title={disabledReason} aria-label={disabledReason ? `${t("delete")}: ${disabledReason}` : undefined}>
+        {t("delete")}
+      </Button>
     );
   }
 
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button size="sm" variant="destructive" disabled={pending}>
+        <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10 hover:text-destructive" disabled={pending}>
           {t("delete")}
         </Button>
       </AlertDialogTrigger>

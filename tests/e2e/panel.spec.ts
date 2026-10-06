@@ -49,4 +49,41 @@ test.describe("panel kabuğu", () => {
     expect(colors.bg).not.toBe("rgba(0, 0, 0, 0)");
     expect(colors.border).not.toBe("rgba(0, 0, 0, 0)");
   });
+
+  test("randevu tablosu telefonda kart listesine düşer", async ({ page }) => {
+    await loginAs(page, "admin@afrosalon.local");
+    await page.goto("/panel/randevular");
+    await expect(page.getByRole("heading", { level: 1, name: "Randevular" })).toBeVisible();
+    // Filtreler etiketli: tarih kutuları etiketleriyle bulunur.
+    await expect(page.getByLabel("Başlangıç")).toBeVisible();
+    await expect(page.getByLabel("Bitiş")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Uygula" })).toBeVisible();
+    const table = page.locator("table");
+    await expect(table).toBeVisible();
+    await expect(table.locator("thead")).toBeHidden();
+    // İlk satırın her hücresi kendi etiketini taşır; durum metni okunur.
+    const firstRow = table.locator("tbody tr").first();
+    await expect(firstRow).toBeVisible();
+    await expect(firstRow.locator('td[data-label="Durum"]')).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(412);
+  });
+
+  test("hizmetler listesi tabloda, yeni kayıt formu başlıktaki düğmeyle açılır", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await loginAs(page, "admin@afrosalon.local");
+    await page.goto("/panel/hizmetler");
+    await expect(page.getByRole("heading", { level: 1, name: "Hizmetler" })).toBeVisible();
+    // Form kapalı: ad alanı yok. Düğme açar, "Kapat" kapatır.
+    await expect(page.getByRole("heading", { name: "Yeni hizmet", level: 2 })).toHaveCount(0);
+    await page.getByRole("button", { name: "Yeni hizmet" }).click();
+    await expect(page.getByRole("heading", { name: "Yeni hizmet", level: 2 })).toBeVisible();
+    await expect(page.getByLabel("Süre (dk)")).toBeVisible();
+    await page.getByRole("button", { name: "Kapat" }).click();
+    await expect(page.getByRole("heading", { name: "Yeni hizmet", level: 2 })).toHaveCount(0);
+    // Liste bir tablo; başlık satırında Ad ve Fiyat sütunları var.
+    const table = page.locator("table");
+    await expect(table.getByRole("columnheader", { name: "Ad" })).toBeVisible();
+    await expect(table.getByRole("columnheader", { name: "Fiyat (₺)" })).toBeVisible();
+    await expect(table.getByRole("cell", { name: "Yıkama + Kesim + Sakal" })).toBeVisible();
+  });
 });

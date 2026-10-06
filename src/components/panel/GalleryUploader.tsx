@@ -108,6 +108,7 @@ export function GalleryUploader() {
         multiple
         accept="image/jpeg,image/png,image/webp"
         disabled={busy}
+        className="py-2"
         aria-label={t("gallery.inputLabel")}
         onChange={(e) => {
           const selected = Array.from(e.target.files ?? []);
@@ -122,7 +123,7 @@ export function GalleryUploader() {
           uploadAll(selected);
         }}
       />
-      <p className="text-xs text-muted-foreground">{t("gallery.uploadHint", { max: MAX_GALLERY_BATCH })}</p>
+      <p className="text-sm text-muted-foreground">{t("gallery.uploadHint", { max: MAX_GALLERY_BATCH })}</p>
       {files.length > 0 && (
         <ul className="space-y-1 text-sm">
           {files.map((f, i) => (

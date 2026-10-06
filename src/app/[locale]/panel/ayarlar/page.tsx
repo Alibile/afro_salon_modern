@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/auth-helpers";
 import { getSettings } from "@/lib/settings";
 import { asI18nText } from "@/lib/i18n-content";
 import { SettingsForm } from "@/components/panel/SettingsForm";
+import { PanelPage } from "@/components/panel/PanelPage";
 
 export const dynamic = "force-dynamic";
 
@@ -11,8 +12,7 @@ export default async function AyarlarPage() {
   const s = await getSettings();
   const t = await getTranslations("panel.settings");
   return (
-    <div className="max-w-2xl space-y-4">
-      <h1 className="text-3xl">{t("title")}</h1>
+    <PanelPage title={t("title")}>
       <SettingsForm
         initial={{
           shopName: s.shopName,
@@ -39,6 +39,6 @@ export default async function AyarlarPage() {
           yearsExperience: s.yearsExperience,
         }}
       />
-    </div>
+    </PanelPage>
   );
 }

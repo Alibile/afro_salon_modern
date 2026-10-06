@@ -90,7 +90,7 @@ export function InlinePrice({ service }: { service: Service }) {
       autoFocus
       disabled={pending}
       defaultValue={service.priceKurus / 100}
-      className="h-8 w-28"
+      className="h-9 w-28"
       onBlur={(e) => save(e.currentTarget.value)}
       onKeyDown={(e) => {
         if (e.key === "Enter") {

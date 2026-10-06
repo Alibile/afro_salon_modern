@@ -5,6 +5,7 @@ import { getCustomerDetail } from "@/lib/queries/customers";
 import { listBarbersForAdmin } from "@/lib/queries/barbers";
 import { getSettings } from "@/lib/settings";
 import { AppointmentCard } from "@/components/booking/AppointmentCard";
+import { PanelPage } from "@/components/panel/PanelPage";
 import { PhotoGrid } from "@/components/panel/PhotoGrid";
 import { PhotoUploadButton } from "@/components/panel/PhotoUploadButton";
 import { MAX_PHOTOS_PER_CUSTOMER } from "@/lib/photos";
@@ -18,22 +19,27 @@ export default async function MusteriDetayPage(props: { params: Promise<{ id: st
   if (!c) notFound();
   const t = await getTranslations("panel.customers");
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl">{c.name}</h1>
-        <p className="text-muted-foreground">{c.phone ?? "-"} · {c.email}</p>
-      </div>
-      <section className="rounded-xl border bg-card p-4">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-xl">{t("photosTitle", { count: c.photos.length, max: MAX_PHOTOS_PER_CUSTOMER })}</h2>
+    <PanelPage
+      title={c.name}
+      description={
+        <span className="flex flex-wrap gap-x-4">
+          {c.phone && <span>{c.phone}</span>}
+          <span>{c.email}</span>
+        </span>
+      }
+      width="narrow"
+    >
+      <section className="rounded-[var(--radius)] border border-border p-5">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-base font-medium">{t("photosTitle", { count: c.photos.length, max: MAX_PHOTOS_PER_CUSTOMER })}</h2>
           <PhotoUploadButton customerId={c.id} barbers={user.role === "ADMIN" ? barbers.filter((b) => b.isActive).map((b) => ({ id: b.id, name: b.name })) : null} />
         </div>
         <PhotoGrid photos={c.photos} deletableIds={c.photos.filter((p) => user.role === "ADMIN" || p.barberId === user.barberId).map((p) => p.id)} />
       </section>
       <section>
-        <h2 className="mb-3 text-xl">{t("appointments")}</h2>
+        <h2 className="mb-3 text-base font-medium">{t("appointments")}</h2>
         <div className="space-y-2">{c.appointments.map((a) => <AppointmentCard key={a.id} a={a} shopPhone={settings.phone} />)}</div>
       </section>
-    </div>
+    </PanelPage>
   );
 }

@@ -18,9 +18,9 @@ export function AppointmentActions({ id }: { id: string }) {
       if (r.ok) { toast.success(t("common.updated")); router.refresh(); } else toast.error(showError(r));
     });
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-2 pt-1">
       <Button size="sm" disabled={pending} onClick={() => run("COMPLETED")}>{t("today.complete")}</Button>
-      <Button size="sm" variant="secondary" disabled={pending} onClick={() => run("NO_SHOW")}>{t("today.noShow")}</Button>
+      <Button size="sm" variant="outline" disabled={pending} onClick={() => run("NO_SHOW")}>{t("today.noShow")}</Button>
       <Button size="sm" variant="outline" disabled={pending} onClick={() => run("CANCELLED")}>{t("today.cancel")}</Button>
     </div>
   );

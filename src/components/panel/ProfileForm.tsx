@@ -5,7 +5,7 @@ import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Field } from "@/components/ui/field";
 import { ImageUploader } from "./ImageUploader";
 import { I18nTextarea } from "./I18nField";
 import { updateOwnProfile } from "@/actions/profile";
@@ -23,7 +23,7 @@ export function ProfileForm({ profile, hasBarber }: { profile: Profile; hasBarbe
 
   return (
     <form
-      className="grid gap-3 sm:grid-cols-2"
+      className="grid gap-4 sm:grid-cols-2"
       onSubmit={(e) => {
         e.preventDefault();
         const fd = new FormData(e.currentTarget);
@@ -39,22 +39,22 @@ export function ProfileForm({ profile, hasBarber }: { profile: Profile; hasBarbe
         });
       }}
     >
-      <div><Label htmlFor="name">{t("profile.name")}</Label><Input id="name" name="name" defaultValue={profile.name} required /></div>
-      <div><Label htmlFor="phone">{t("profile.phone")}</Label><Input id="phone" name="phone" defaultValue={profile.phone} maxLength={20} /></div>
+      <Field id="name" label={t("profile.name")}><Input id="name" name="name" defaultValue={profile.name} required /></Field>
+      <Field id="phone" label={t("profile.phone")}><Input id="phone" name="phone" type="tel" defaultValue={profile.phone} maxLength={20} /></Field>
       {hasBarber && (
         <>
           <div className="sm:col-span-2">
-            <I18nTextarea name="bio" label={t("profile.bio")} defaultValue={profile.bioI18n} maxLength={200} />
-            <p className="mt-1 text-xs text-muted-foreground">{t("i18nField.hint")}</p>
+            <I18nTextarea name="bio" label={t("profile.bio")} defaultValue={profile.bioI18n} maxLength={200} hint={t("i18nField.hint")} />
           </div>
-          <div className="sm:col-span-2">
-            <Label>{t("profile.photo")}</Label>
-            <ImageUploader kind="barber" name="photoKey" defaultKey={profile.photoKey} />
-          </div>
+          <Field id="photoKey-file" label={t("profile.photo")} className="sm:col-span-2">
+            <ImageUploader kind="barber" name="photoKey" defaultKey={profile.photoKey} inputId="photoKey-file" />
+          </Field>
         </>
       )}
       {error && <p className="text-sm text-destructive sm:col-span-2">{error}</p>}
-      <Button type="submit" disabled={pending} className="sm:col-span-2">{t("common.save")}</Button>
+      <div className="flex justify-end sm:col-span-2">
+        <Button type="submit" disabled={pending}>{t("common.save")}</Button>
+      </div>
     </form>
   );
 }

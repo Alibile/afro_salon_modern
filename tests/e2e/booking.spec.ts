@@ -73,7 +73,7 @@ test.describe.serial("randevu akışı", () => {
     await page.getByLabel("Şifre").fill("Sifre123!");
     await page.getByRole("button", { name: "Giriş yap" }).click();
     await expect(page).toHaveURL(/panel/);
-    const card = page.locator("li").filter({ hasText: customer.name }).first();
+    const card = page.locator("[data-appointment]").filter({ hasText: customer.name }).first();
     test.skip(!(await card.isVisible().catch(() => false)), "Önceki test randevu oluşturmadı");
     await card.getByRole("button", { name: "Tamamlandı" }).click();
     // "Tamamlandı" metni işlem düğmesinin kendi etiketi olduğu için, işlem

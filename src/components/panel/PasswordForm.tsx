@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Field } from "@/components/ui/field";
 import { changeOwnPassword } from "@/actions/profile";
 import { useActionError } from "@/lib/use-action-error";
 
@@ -16,7 +16,7 @@ export function PasswordForm() {
 
   return (
     <form
-      className="grid gap-3 sm:max-w-sm"
+      className="grid gap-4 sm:grid-cols-2"
       onSubmit={(e) => {
         e.preventDefault();
         const form = e.currentTarget;
@@ -34,11 +34,13 @@ export function PasswordForm() {
         });
       }}
     >
-      <div><Label htmlFor="currentPassword">{t("profile.currentPassword")}</Label><Input id="currentPassword" name="currentPassword" type="password" required /></div>
-      <div><Label htmlFor="newPassword">{t("profile.newPassword")}</Label><Input id="newPassword" name="newPassword" type="password" minLength={8} required /></div>
-      <div><Label htmlFor="confirmPassword">{t("profile.confirmPassword")}</Label><Input id="confirmPassword" name="confirmPassword" type="password" minLength={8} required /></div>
-      {error && <p className="text-sm text-destructive">{error}</p>}
-      <Button type="submit" disabled={pending}>{t("profile.changePassword")}</Button>
+      <Field id="currentPassword" label={t("profile.currentPassword")} className="sm:col-span-2"><Input id="currentPassword" name="currentPassword" type="password" autoComplete="current-password" required /></Field>
+      <Field id="newPassword" label={t("profile.newPassword")}><Input id="newPassword" name="newPassword" type="password" autoComplete="new-password" minLength={8} required /></Field>
+      <Field id="confirmPassword" label={t("profile.confirmPassword")}><Input id="confirmPassword" name="confirmPassword" type="password" autoComplete="new-password" minLength={8} required /></Field>
+      {error && <p className="text-sm text-destructive sm:col-span-2">{error}</p>}
+      <div className="flex justify-end sm:col-span-2">
+        <Button type="submit" variant="outline" disabled={pending}>{t("profile.changePassword")}</Button>
+      </div>
     </form>
   );
 }

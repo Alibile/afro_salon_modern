@@ -4,6 +4,7 @@ import { listUpcomingTimeOff } from "@/lib/queries/timeoff";
 import { listBarbersForAdmin } from "@/lib/queries/barbers";
 import { TimeOffForm } from "@/components/panel/TimeOffForm";
 import { TimeOffList } from "@/components/panel/TimeOffList";
+import { NewRecordPanel } from "@/components/panel/NewRecordPanel";
 
 export const dynamic = "force-dynamic";
 
@@ -15,13 +16,14 @@ export default async function IzinlerPage() {
     user.role === "ADMIN" ? listBarbersForAdmin() : Promise.resolve([]),
   ]);
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl">{t("title")}</h1>
-      <section className="rounded-xl border bg-card p-4">
-        <h2 className="mb-3 text-xl">{t("newTitle")}</h2>
-        <TimeOffForm barbers={user.role === "ADMIN" ? barbers.filter((b) => b.isActive).map((b) => ({ id: b.id, name: b.name })) : null} ownBarberId={user.barberId} />
-      </section>
+    <NewRecordPanel
+      pageTitle={t("title")}
+      label={t("newTitle")}
+      title={t("newTitle")}
+      width="narrow"
+      form={<TimeOffForm barbers={user.role === "ADMIN" ? barbers.filter((b) => b.isActive).map((b) => ({ id: b.id, name: b.name })) : null} ownBarberId={user.barberId} />}
+    >
       <TimeOffList items={items} />
-    </div>
+    </NewRecordPanel>
   );
 }

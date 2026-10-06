@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
  */
 const ACCEPTED = ["image/jpeg", "image/png", "image/webp"];
 
-export function ImageUploader({ kind, name, defaultKey, onUploaded }: { kind: "barber" | "haircut"; name: string; defaultKey?: string; onUploaded?: (key: string) => void }) {
+export function ImageUploader({ kind, name, defaultKey, onUploaded, inputId }: { kind: "barber" | "haircut"; name: string; defaultKey?: string; onUploaded?: (key: string) => void; /** Dışarıdaki `Field` etiketinin bağlanacağı dosya kutusu kimliği. */ inputId?: string }) {
   const t = useTranslations("panel.upload");
   const [key, setKey] = useState(defaultKey ?? "");
   const [status, setStatus] = useState<string | null>(null);
@@ -38,11 +38,13 @@ export function ImageUploader({ kind, name, defaultKey, onUploaded }: { kind: "b
   }
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-wrap items-start gap-3">
       <input type="hidden" name={name} value={key} />
-      {key && <Image src={publicUrl(key)} alt="" width={96} height={96} className="size-24 rounded-lg object-cover" />}
-      <Input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
-      {status && <p className="text-xs text-muted-foreground">{status}</p>}
+      {key && <Image src={publicUrl(key)} alt="" width={96} height={96} className="size-20 shrink-0 rounded-[var(--radius)] object-cover" />}
+      <div className="min-w-0 flex-1 space-y-1.5">
+        <Input id={inputId} type="file" accept="image/jpeg,image/png,image/webp" className="py-2" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
+        {status && <p className="text-sm text-muted-foreground">{status}</p>}
+      </div>
     </div>
   );
 }

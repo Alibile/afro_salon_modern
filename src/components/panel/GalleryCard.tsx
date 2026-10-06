@@ -9,6 +9,7 @@ import { updateGalleryPhoto, moveGalleryPhoto, deleteGalleryPhoto } from "@/acti
 import { normalizeTags } from "@/lib/gallery-utils";
 import { canonicalTag, splitTags } from "@/lib/gallery-tags";
 import { pick, type I18nText } from "@/lib/i18n-content";
+import { ArrowDown, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { GalleryTagPicker } from "./GalleryTagPicker";
@@ -63,8 +64,8 @@ export function GalleryCard({ photo, index, total }: { photo: PanelGalleryPhoto;
   }
 
   return (
-    <li className="flex flex-col gap-3 rounded-xl border bg-card p-3">
-      <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-muted">
+    <li className="grid gap-3 rounded-[var(--radius)] border border-border p-4">
+      <div className="relative aspect-square w-full overflow-hidden rounded-[var(--radius)] bg-muted">
         <Image
           src={publicUrl(photo.storageKey)}
           alt={alt}
@@ -73,7 +74,7 @@ export function GalleryCard({ photo, index, total }: { photo: PanelGalleryPhoto;
           className="object-cover"
         />
         {!photo.isActive && (
-          <Badge variant="secondary" className="absolute left-2 top-2">
+          <Badge variant="outline" className="absolute top-2 left-2 bg-background">
             {t("common.inactive")}
           </Badge>
         )}
@@ -95,7 +96,7 @@ export function GalleryCard({ photo, index, total }: { photo: PanelGalleryPhoto;
         onCustomChange={setCustomTags}
       />
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-1">
         <Button
           size="sm"
           disabled={pending}
@@ -105,32 +106,30 @@ export function GalleryCard({ photo, index, total }: { photo: PanelGalleryPhoto;
         </Button>
         <Button
           size="sm"
-          variant="secondary"
+          variant="ghost"
           disabled={pending}
           onClick={() => run(() => updateGalleryPhoto(photo.id, { isActive: !photo.isActive }), photo.isActive ? t("gallery.deactivated") : t("gallery.activated"))}
         >
           {photo.isActive ? t("common.deactivate") : t("common.activate")}
         </Button>
-        <div className="flex gap-1">
-          <Button
-            size="sm"
-            variant="outline"
-            aria-label={t("gallery.moveUp")}
-            disabled={pending || index === 0}
-            onClick={() => run(() => moveGalleryPhoto(photo.id, "up"), t("gallery.reordered"))}
-          >
-            ↑
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            aria-label={t("gallery.moveDown")}
-            disabled={pending || index === total - 1}
-            onClick={() => run(() => moveGalleryPhoto(photo.id, "down"), t("gallery.reordered"))}
-          >
-            ↓
-          </Button>
-        </div>
+        <Button
+          size="icon-sm"
+          variant="outline"
+          aria-label={t("gallery.moveUp")}
+          disabled={pending || index === 0}
+          onClick={() => run(() => moveGalleryPhoto(photo.id, "up"), t("gallery.reordered"))}
+        >
+          <ArrowUp aria-hidden />
+        </Button>
+        <Button
+          size="icon-sm"
+          variant="outline"
+          aria-label={t("gallery.moveDown")}
+          disabled={pending || index === total - 1}
+          onClick={() => run(() => moveGalleryPhoto(photo.id, "down"), t("gallery.reordered"))}
+        >
+          <ArrowDown aria-hidden />
+        </Button>
         <div className="ml-auto">
           <DeleteButton
             title={t("gallery.deleteTitle")}

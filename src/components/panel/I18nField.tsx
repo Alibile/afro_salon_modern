@@ -2,7 +2,7 @@
 import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Field } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
 import { routing, type AppLocale } from "@/i18n/routing";
 import type { I18nText } from "@/lib/i18n-content";
@@ -38,6 +38,8 @@ type BaseProps = {
   placeholder?: string;
   /** Türkçe alan boş bırakılamaz. */
   required?: boolean;
+  /** Alanın altında tek satır ipucu. */
+  hint?: React.ReactNode;
 };
 
 const LOCALES = routing.locales;
@@ -68,7 +70,7 @@ function useTabState(props: BaseProps) {
             aria-pressed={on}
             onClick={() => setActive(locale)}
             className={cn(
-              "label rounded-full border px-2.5 py-0.5 text-[0.65rem] transition-colors",
+              "h-7 rounded-[var(--radius)] border px-2.5 text-xs font-medium transition-colors",
               "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
               on
                 ? "border-primary bg-primary text-primary-foreground"
@@ -95,28 +97,26 @@ function FieldShell({
   label,
   htmlFor,
   tabs,
+  hint,
   children,
 }: {
   label: string;
   htmlFor: string;
   tabs: React.ReactNode;
+  hint?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
-    <div className="space-y-1">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <Label htmlFor={htmlFor}>{label}</Label>
-        {tabs}
-      </div>
+    <Field id={htmlFor} label={label} trailing={tabs} hint={hint}>
       {children}
-    </div>
+    </Field>
   );
 }
 
 export function I18nTextField(props: BaseProps) {
   const { id, active, current, set, tabs } = useTabState(props);
   return (
-    <FieldShell label={props.label} htmlFor={`${id}-${active}`} tabs={tabs}>
+    <FieldShell label={props.label} htmlFor={`${id}-${active}`} tabs={tabs} hint={props.hint}>
       {LOCALES.map((locale) => (
         <Input
           key={locale}
@@ -140,7 +140,7 @@ export function I18nTextField(props: BaseProps) {
 export function I18nTextarea(props: BaseProps & { rows?: number }) {
   const { id, active, current, set, tabs } = useTabState(props);
   return (
-    <FieldShell label={props.label} htmlFor={`${id}-${active}`} tabs={tabs}>
+    <FieldShell label={props.label} htmlFor={`${id}-${active}`} tabs={tabs} hint={props.hint}>
       {LOCALES.map((locale) => (
         <Textarea
           key={locale}

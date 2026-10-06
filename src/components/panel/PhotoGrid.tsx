@@ -24,9 +24,12 @@ export function PhotoGrid({ photos, deletableIds }: { photos: P[]; deletableIds:
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       {photos.map((p) => (
         <figure key={p.id} className="space-y-1">
-          <Image src={publicUrl(p.storageKey)} alt="" width={300} height={300} className="aspect-square w-full rounded-lg object-cover" />
-          <figcaption className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>{formatShopDate(p.createdAt, locale)} · {p.barberName}</span>
+          <Image src={publicUrl(p.storageKey)} alt="" width={300} height={300} className="aspect-square w-full rounded-[var(--radius)] object-cover" />
+          <figcaption className="flex items-start justify-between gap-2 text-xs text-muted-foreground">
+            <span>
+              <span className="block">{formatShopDate(p.createdAt, locale)}</span>
+              <span className="block">{p.barberName}</span>
+            </span>
             {deletableIds.includes(p.id) && (
               <Button size="sm" variant="ghost" disabled={pending} onClick={() => start(async () => {
                 const r = await deleteHaircutPhoto(p.id);

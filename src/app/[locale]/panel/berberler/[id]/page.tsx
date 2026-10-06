@@ -5,6 +5,8 @@ import { getBarberDetail } from "@/lib/queries/barbers";
 import { BarberForm } from "@/components/panel/BarberForm";
 import { WorkingHoursForm } from "@/components/panel/WorkingHoursForm";
 import { DeleteButton } from "@/components/panel/DeleteButton";
+import { PanelPage } from "@/components/panel/PanelPage";
+import { PanelSection } from "@/components/panel/PanelSection";
 import { deleteBarber } from "@/actions/barbers";
 
 export const dynamic = "force-dynamic";
@@ -18,9 +20,11 @@ export default async function BerberDetayPage(props: { params: Promise<{ id: str
   const isSelf = actor.barberId === barber.id;
   const t = await getTranslations("panel.barbers");
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-3xl">{barber.name}</h1>
+    <PanelPage
+      title={barber.name}
+      description={barber.email}
+      width="narrow"
+      action={
         <DeleteButton
           title={t("deleteTitle")}
           description={t("deleteDescription", { name: barber.name })}
@@ -30,15 +34,14 @@ export default async function BerberDetayPage(props: { params: Promise<{ id: str
           successMessage={t("deleted")}
           redirectTo="/panel/berberler"
         />
-      </div>
-      <section className="rounded-xl border bg-card p-4">
-        <h2 className="mb-3 text-xl">{t("infoTitle")}</h2>
+      }
+    >
+      <PanelSection title={t("infoTitle")}>
         <BarberForm mode="edit" barber={barber} />
-      </section>
-      <section className="rounded-xl border bg-card p-4">
-        <h2 className="mb-3 text-xl">{t("hoursTitle")}</h2>
+      </PanelSection>
+      <PanelSection title={t("hoursTitle")}>
         <WorkingHoursForm barberId={barber.id} hours={barber.hours} />
-      </section>
-    </div>
+      </PanelSection>
+    </PanelPage>
   );
 }

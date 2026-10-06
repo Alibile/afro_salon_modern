@@ -5,19 +5,22 @@ import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Field } from "@/components/ui/field";
+import { Select } from "@/components/ui/select";
 import { createTimeOff } from "@/actions/timeoff";
 import { useActionError } from "@/lib/use-action-error";
+import { useNewRecordClose } from "./NewRecordPanel";
 
 export function TimeOffForm({ barbers, ownBarberId }: { barbers: { id: string; name: string }[] | null; ownBarberId: string | null }) {
   const t = useTranslations("panel.timeOff");
   const showError = useActionError();
+  const closePanel = useNewRecordClose();
   const [allDay, setAllDay] = useState(true);
   const [pending, start] = useTransition();
   const router = useRouter();
   const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Istanbul" }); // YYYY-MM-DD
   return (
-    <form className="grid gap-3 sm:grid-cols-2" onSubmit={(e) => {
+    <form className="grid gap-4 sm:grid-cols-2" onSubmit={(e) => {
       e.preventDefault();
       const fd = new FormData(e.currentTarget);
       start(async () => {
@@ -32,26 +35,38 @@ export function TimeOffForm({ barbers, ownBarberId }: { barbers: { id: string; n
         if (!r.ok) { toast.error(showError(r)); return; }
         toast.success(r.data.conflicts > 0 ? t("addedWithConflicts", { count: r.data.conflicts }) : t("added"));
         router.refresh();
+        closePanel();
       });
     }}>
       {barbers && (
-        <div className="sm:col-span-2">
-          <Label htmlFor="barberId">{t("barber")}</Label>
-          <select id="barberId" name="barberId" className="mt-1 w-full rounded-md border bg-background px-3 py-2">
+        <Field id="barberId" label={t("barber")} className="sm:col-span-2">
+          <Select id="barberId" name="barberId">
             {barbers.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-          </select>
-        </div>
+          </Select>
+        </Field>
       )}
-      <div><Label htmlFor="date">{t("date")}</Label><Input id="date" name="date" type="date" defaultValue={today} min={today} required /></div>
-      <label className="flex items-center gap-2 self-end text-sm"><input type="checkbox" checked={allDay} onChange={(e) => setAllDay(e.target.checked)} /> {t("allDay")}</label>
+      <Field id="date" label={t("date")}>
+        <Input id="date" name="date" type="date" defaultValue={today} min={today} required />
+      </Field>
+      <label className="flex items-center gap-2 self-end pb-2.5 text-sm">
+        <input type="checkbox" checked={allDay} onChange={(e) => setAllDay(e.target.checked)} className="size-4 accent-primary" /> {t("allDay")}
+      </label>
       {!allDay && (
         <>
-          <div><Label htmlFor="startTime">{t("start")}</Label><Input id="startTime" name="startTime" type="time" required /></div>
-          <div><Label htmlFor="endTime">{t("end")}</Label><Input id="endTime" name="endTime" type="time" required /></div>
+          <Field id="startTime" label={t("start")}>
+            <Input id="startTime" name="startTime" type="time" required />
+          </Field>
+          <Field id="endTime" label={t("end")}>
+            <Input id="endTime" name="endTime" type="time" required />
+          </Field>
         </>
       )}
-      <div className="sm:col-span-2"><Label htmlFor="reason">{t("reason")}</Label><Input id="reason" name="reason" maxLength={100} /></div>
-      <Button type="submit" disabled={pending} className="sm:col-span-2">{t("submit")}</Button>
+      <Field id="reason" label={t("reason")} className="sm:col-span-2">
+        <Input id="reason" name="reason" maxLength={100} />
+      </Field>
+      <div className="flex justify-end sm:col-span-2">
+        <Button type="submit" disabled={pending}>{t("submit")}</Button>
+      </div>
     </form>
   );
 }

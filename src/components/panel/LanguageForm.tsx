@@ -3,7 +3,8 @@ import { useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useRouter, usePathname } from "@/i18n/navigation";
-import { Label } from "@/components/ui/label";
+import { Field } from "@/components/ui/field";
+import { Select } from "@/components/ui/select";
 import { routing, type AppLocale } from "@/i18n/routing";
 import { updateOwnLocale } from "@/actions/profile";
 import { useActionError } from "@/lib/use-action-error";
@@ -40,14 +41,12 @@ export function LanguageForm({ saved }: { saved: AppLocale }) {
   const pathname = usePathname();
 
   return (
-    <div className="grid gap-2 sm:max-w-sm">
-      <Label htmlFor="locale">{t("languageLabel")}</Label>
-      <select
+    <Field id="locale" label={t("languageLabel")} className="sm:max-w-sm">
+      <Select
         id="locale"
         name="locale"
         defaultValue={saved}
         disabled={pending}
-        className="w-full rounded-md border bg-background px-3 py-2"
         onChange={(e) => {
           const next = e.target.value as AppLocale;
           if (next === saved) return;
@@ -67,8 +66,7 @@ export function LanguageForm({ saved }: { saved: AppLocale }) {
             {tc(locale)}
           </option>
         ))}
-      </select>
-      <p className="text-xs text-muted-foreground">{t("languageHint")}</p>
-    </div>
+      </Select>
+    </Field>
   );
 }

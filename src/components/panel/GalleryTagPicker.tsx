@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { GALLERY_TAGS, orderTags, tagLabel } from "@/lib/gallery-tags";
 import { MAX_TAGS, TAG_MIN_LENGTH, TAG_MAX_LENGTH, normalizeTags } from "@/lib/gallery-utils";
 import { Input } from "@/components/ui/input";
+import { Field } from "@/components/ui/field";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
@@ -53,7 +54,7 @@ export function GalleryTagPicker({
               disabled={!on && full}
               onClick={() => toggle(tag)}
               className={cn(
-                "rounded-full border px-3 py-1 text-xs transition-colors",
+                "h-8 rounded-[var(--radius)] border px-3 text-xs transition-colors",
                 "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
                 on
                   ? "border-primary bg-primary text-primary-foreground"
@@ -66,20 +67,14 @@ export function GalleryTagPicker({
           );
         })}
       </div>
-      <div className="space-y-1">
-        <Label htmlFor={`tags-other-${id}`} className="text-xs font-normal text-muted-foreground">
-          {t("otherTags")}
-        </Label>
+      <Field id={`tags-other-${id}`} label={<span className="font-normal text-muted-foreground">{t("otherTags")}</span>} hint={t("tagsHint", { count: total, max: MAX_TAGS, min: TAG_MIN_LENGTH, maxLength: TAG_MAX_LENGTH })}>
         <Input
           id={`tags-other-${id}`}
           value={custom}
           placeholder={t("otherTagsPlaceholder")}
           onChange={(e) => onCustomChange(e.target.value)}
         />
-      </div>
-      <p className="text-xs text-muted-foreground">
-        {t("tagsHint", { count: total, max: MAX_TAGS, min: TAG_MIN_LENGTH, maxLength: TAG_MAX_LENGTH })}
-      </p>
+      </Field>
     </div>
   );
 }

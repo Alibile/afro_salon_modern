@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import { ImageUploader } from "./ImageUploader";
 import { addHaircutPhoto } from "@/actions/photos";
 import { useActionError } from "@/lib/use-action-error";
@@ -17,11 +18,11 @@ export function PhotoUploadButton({ customerId, barbers }: { customerId: string;
   const router = useRouter();
   if (!open) return <Button size="sm" onClick={() => setOpen(true)}>{t("customers.addPhoto")}</Button>;
   return (
-    <div className="space-y-2 rounded-lg border p-3">
+    <div className="w-full space-y-3 rounded-[var(--radius)] border border-border p-3 sm:max-w-sm">
       {barbers && (
-        <select value={barberId} onChange={(e) => setBarberId(e.target.value)} className="w-full rounded-md border bg-background px-2 py-1 text-sm">
+        <Select value={barberId} onChange={(e) => setBarberId(e.target.value)}>
           {barbers.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-        </select>
+        </Select>
       )}
       <ImageUploader kind="haircut" name="storageKey" onUploaded={(key) => start(async () => {
         const r = await addHaircutPhoto({ customerId, storageKey: key, barberId });
@@ -30,7 +31,7 @@ export function PhotoUploadButton({ customerId, barbers }: { customerId: string;
         setOpen(false);
         router.refresh();
       })} />
-      {pending && <p className="text-xs text-muted-foreground">{t("common.saving")}</p>}
+      {pending && <p className="text-sm text-muted-foreground">{t("common.saving")}</p>}
     </div>
   );
 }
