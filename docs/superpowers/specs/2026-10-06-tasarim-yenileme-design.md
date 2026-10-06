@@ -114,7 +114,10 @@ kendi biçimini almasıdır:
   soluk.
 - **Kapanan adımlar.** Tamamlanan adım tek satıra iner: seçimin özeti sol,
   "Değiştir" bağlantısı sağ. Etkin adım açık, sonraki adımlar hiç çizilmez.
-  Durum makinesi aynıdır (`step = 1 | 2 | 3`); yalnızca görünüm değişir.
+  Hizmet adımı seçimle değil **tamamlanmayla** kapanır: birden çok hizmet
+  varsa ziyaretçi istediği kadarını işaretleyip "Devam" der (çoklu seçim
+  korunur); tek hizmette ilk dokunuş yeter. "Değiştir" seçimi düşürmez,
+  yalnızca adımı yeniden açar ve seçili saati sıfırlar (`src/lib/booking-steps.ts`).
 - **Özet.** Telefonda alt yapışkan çubuk kalır (seçim özeti + onay düğmesi).
   `md` ve üstünde iki sütun: solda adımlar (`col-span-7`), sağda yapışkan
   özet kartı (`col-span-5`): seçilen hizmet(ler), berber, gün ve saat,

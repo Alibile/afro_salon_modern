@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { LocaleSwitcher } from "@/components/brand/LocaleSwitcher";
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import { logoutAction } from "@/actions/auth";
 import { SECTION_LINKS } from "@/components/landing/sections";
 import { cn } from "@/lib/utils";
 import type { SessionUser } from "@/lib/auth-helpers";
@@ -169,8 +170,16 @@ function Bar({ shopName, user, variant, hideBook = false, shrunk }: Props & { sh
           <Link href={account.href} className={cn(NAV_LINK, "mx-2 hidden xl:inline-block", !solid && "hover:border-accent hover:text-accent")}>
             {t(account.key)}
           </Link>
+          {user && (
+            <form action={logoutAction} className="hidden xl:block">
+              <Button type="submit" variant="ghost" size="sm" className={cn(!solid && "text-hero-sand hover:text-accent")}>
+                {t("logout")}
+              </Button>
+            </form>
+          )}
           {!hideBook && (
-            <Button asChild size={tall ? "default" : "sm"} className="shrink-0 px-3 sm:px-4">
+            // Telefonda 44 px dokunma hedefi; geniş ekranda çubuğun ölçüsüne iner.
+            <Button asChild size={tall ? "default" : "sm"} className={cn("h-11 shrink-0 px-3 sm:px-4", tall ? "xl:h-10" : "xl:h-9")}>
               <Link href="/randevu">{t("book")}</Link>
             </Button>
           )}
@@ -211,6 +220,13 @@ function Bar({ shopName, user, variant, hideBook = false, shrunk }: Props & { sh
             >
               {t(account.key)}
             </Link>
+            {user && (
+              <form action={logoutAction}>
+                <button type="submit" className="block w-full border-b border-border py-3.5 text-left font-display text-2xl transition-colors hover:text-primary">
+                  {t("logout")}
+                </button>
+              </form>
+            )}
             <div className="flex items-center justify-between pt-4">
               <LocaleSwitcher tone="default" />
               <ThemeToggle />

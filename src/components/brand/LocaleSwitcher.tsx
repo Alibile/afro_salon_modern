@@ -56,7 +56,7 @@ export function LocaleSwitcher({ tone = "default", className }: { tone?: Tone; c
             aria-current={current ? "true" : undefined}
             aria-label={`${t(`languages.${locale}`)} (${code})`}
             className={cn(
-              "flex h-8 min-w-8 items-center justify-center px-1.5 transition-colors",
+              "flex h-11 min-w-10 items-center justify-center px-1.5 transition-colors xl:h-8 xl:min-w-8",
               // Seçili dil alt çizgiyle işaretlenir: renk tek başına koyu
               // temada ve terrakota altbilgide yeterince ayırmıyordu.
               current && "underline decoration-2 underline-offset-4",

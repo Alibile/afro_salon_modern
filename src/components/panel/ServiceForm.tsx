@@ -1,5 +1,5 @@
 "use client";
-import { useState, useTransition } from "react";
+import { useId, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
@@ -24,6 +24,9 @@ export function ServiceForm({ initial, onDone }: { initial?: Initial; onDone?: (
   // `form.reset()` üç dilli alanı temizlemez (kendi durumunu tutar); yeni
   // hizmet eklendikten sonra anahtarı değişince bileşen sıfırdan kurulur.
   const [resetKey, setResetKey] = useState(0);
+  // Yeni kayıt paneli ve satır içi düzenleme aynı anda açık olabilir: alan
+  // id'leri forma özgü olmazsa etiketler öbür formun kutusuna bağlanırdı.
+  const id = useId();
   return (
     <form
       className="grid gap-4 sm:grid-cols-3"
@@ -55,14 +58,14 @@ export function ServiceForm({ initial, onDone }: { initial?: Initial; onDone?: (
       <div className="sm:col-span-3">
         <I18nTextField key={resetKey} name="name" label={t("services.name")} defaultValue={initial?.nameI18n} maxLength={60} required hint={t("i18nField.hint")} />
       </div>
-      <Field id="durationMinutes" label={t("services.duration")}>
-        <Input id="durationMinutes" name="durationMinutes" type="number" step={5} min={5} defaultValue={initial?.durationMinutes ?? 30} required />
+      <Field id={`${id}-durationMinutes`} label={t("services.duration")}>
+        <Input id={`${id}-durationMinutes`} name="durationMinutes" type="number" step={5} min={5} defaultValue={initial?.durationMinutes ?? 30} required />
       </Field>
-      <Field id="priceLira" label={t("services.price")}>
-        <Input id="priceLira" name="priceLira" type="number" step="0.01" min={0} defaultValue={initial ? initial.priceKurus / 100 : ""} required />
+      <Field id={`${id}-priceLira`} label={t("services.price")}>
+        <Input id={`${id}-priceLira`} name="priceLira" type="number" step="0.01" min={0} defaultValue={initial ? initial.priceKurus / 100 : ""} required />
       </Field>
-      <Field id="sortOrder" label={t("services.sortOrder")}>
-        <Input id="sortOrder" name="sortOrder" type="number" min={0} defaultValue={initial?.sortOrder ?? 0} />
+      <Field id={`${id}-sortOrder`} label={t("services.sortOrder")}>
+        <Input id={`${id}-sortOrder`} name="sortOrder" type="number" min={0} defaultValue={initial?.sortOrder ?? 0} />
       </Field>
       {error && <p className="text-sm text-destructive sm:col-span-3">{error}</p>}
       <div className="flex justify-end gap-2 sm:col-span-3">

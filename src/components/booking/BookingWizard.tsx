@@ -12,6 +12,7 @@ import { StepIndicator } from "./StepIndicator";
 import { StepSummary } from "./StepSummary";
 import { BookingSummary } from "./BookingSummary";
 import { useActionError } from "@/lib/use-action-error";
+import { servicesDoneAfterChange, wizardStep } from "@/lib/booking-steps";
 
 type Props = {
   services: ServiceItem[];
@@ -21,17 +22,22 @@ type Props = {
 };
 
 /**
- * Üç adımlı sihirbaz. Adım, seçimlerden türetilir (`step`): hizmet yoksa 1,
- * berber yoksa 2, yoksa 3. Tamamlanan adım tek satıra kapanır ve "Değiştir"
- * ile yeniden açılır; sonraki seçimler o anda düşer (hizmet değişince süre,
- * dolayısıyla uygun saatler de değişir). Özet ve onay düğmesi `BookingSummary`
- * içinde: telefonda alt çubuk, geniş ekranda sağ sütun.
+ * Üç adımlı sihirbaz. Adım `wizardStep` ile türetilir: hizmet adımı
+ * tamamlanmamışsa 1, berber yoksa 2, yoksa 3. Hizmet adımı seçimle değil
+ * tamamlanmayla kapanır (`servicesDone`): birden çok hizmet varsa ziyaretçi
+ * istediği kadarını işaretleyip "Devam" der; tek hizmette ilk dokunuş yeter.
+ * Tamamlanan adım tek satıra kapanır ve "Değiştir" ile yeniden açılır;
+ * hizmet listesi değişince seçili saat düşer (süre değişir), berber kalır.
+ * Özet ve onay düğmesi `BookingSummary` içinde: telefonda alt çubuk, geniş
+ * ekranda sağ sütun.
  */
 export function BookingWizard({ services, barbers, isLoggedIn, initial }: Props) {
   const t = useTranslations("booking");
   const showError = useActionError();
   const router = useRouter();
   const [serviceIds, setServiceIds] = useState<string[]>(initial.serviceIds.filter((id) => services.some((s) => s.id === id)));
+  // Adresten seçimle dönen ziyaretçi (giriş sonrası) hizmet adımını yeniden görmez.
+  const [servicesDone, setServicesDone] = useState(initial.serviceIds.length > 0);
   const [barberId, setBarberId] = useState<string | null>(initial.barberId);
   const [startsAt, setStartsAt] = useState<string | null>(initial.startsAt);
   /**
@@ -47,7 +53,7 @@ export function BookingWizard({ services, barbers, isLoggedIn, initial }: Props)
   const totalKurus = selected.reduce((a, s) => a + s.priceKurus, 0);
   const barber = barbers.find((b) => b.id === barberId) ?? null;
 
-  const step: 1 | 2 | 3 = serviceIds.length === 0 ? 1 : !barberId ? 2 : 3;
+  const step = wizardStep({ serviceIds, servicesDone, barberId });
 
   const stateQuery = () => {
     const q = new URLSearchParams();
@@ -87,8 +93,7 @@ export function BookingWizard({ services, barbers, isLoggedIn, initial }: Props)
             title={t("step1")}
             value={selected.map((s) => s.name).join(", ")}
             onChange={() => {
-              setServiceIds([]);
-              setBarberId(null);
+              setServicesDone(false);
               setStartsAt(null);
             }}
           />
@@ -99,7 +104,9 @@ export function BookingWizard({ services, barbers, isLoggedIn, initial }: Props)
             onChange={(ids) => {
               setServiceIds(ids);
               setStartsAt(null);
+              setServicesDone(servicesDoneAfterChange(services.length, ids));
             }}
+            onContinue={() => setServicesDone(true)}
           />
         )}
 

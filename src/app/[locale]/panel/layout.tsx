@@ -40,6 +40,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
             <span className="truncate text-sm font-semibold text-foreground">{settings.shopName}</span>
           </span>
           <div className="flex items-center gap-1 lg:hidden">
+            <LocaleSwitcher />
             <ThemeToggle />
             <form action={logoutAction}>
               <Button variant="ghost" size="sm">{t("logout")}</Button>

@@ -91,6 +91,12 @@ test.describe("bölüm biçimleri (Tur 8)", () => {
     await expect(page.locator("#sss").getByRole("heading", { level: 2 })).toHaveText("Sıkça sorulanlar");
   });
 
+  test("bölümlerde ve galeride giriş animasyonu yok", async ({ page }) => {
+    await page.goto("/#galeri");
+    await expect(page.locator("#galeri img").first()).toBeVisible();
+    await expect(page.locator("[data-reveal]")).toHaveCount(0);
+  });
+
   test("hero durum satırı tek düz cümledir, orta nokta yok", async ({ page }) => {
     await page.goto("/");
     const status = page.locator("h1").locator("xpath=preceding-sibling::p[1]");

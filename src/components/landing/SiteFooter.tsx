@@ -11,7 +11,8 @@ import type { SessionUser } from "@/lib/auth-helpers";
 
 const LINK = "border-b border-primary-foreground/40 pb-0.5 transition-colors hover:border-primary-foreground";
 /* Sütun başlıkları gövdeyle aynı yüz, cümle düzeni; yalnızca ağırlık ve ton ayırır. */
-const HEADING = "text-sm font-medium text-primary-foreground/70";
+// `h2` temel kuralı Fraunces verir; altbilgi sütun başlıkları gövde yüzüyle kalır.
+const HEADING = "font-sans text-sm font-medium text-primary-foreground/70";
 
 export async function SiteFooter({
   shopName,

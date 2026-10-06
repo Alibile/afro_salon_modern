@@ -1,6 +1,7 @@
 "use client";
 import { Check } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatKurus } from "@/lib/money";
 import type { AppLocale } from "@/i18n/routing";
@@ -10,8 +11,23 @@ export type ServiceItem = { id: string; name: string; durationMinutes: number; p
 /**
  * Hizmet kartları: ad ve süre solda, fiyat sağda; seçili kart sol kenar
  * çizgisi ve onay işaretiyle. Yükseklik en az 56 px: telefonda rahat hedef.
+ * Birden çok hizmet varsa altta "Devam": ziyaretçi birkaçını birlikte
+ * seçebilir, adım ancak onun kararıyla kapanır. Tek hizmette ilk dokunuş
+ * adımı kapatır (bkz. `servicesDoneAfterChange`); düğme yalnızca adım
+ * "Değiştir" ile seçim dururken yeniden açıldığında görünür, yoksa ziyaretçi
+ * aynı hizmeti kaldırıp yeniden seçmek zorunda kalırdı.
  */
-export function ServiceStep({ services, selectedIds, onChange }: { services: ServiceItem[]; selectedIds: string[]; onChange: (ids: string[]) => void }) {
+export function ServiceStep({
+  services,
+  selectedIds,
+  onChange,
+  onContinue,
+}: {
+  services: ServiceItem[];
+  selectedIds: string[];
+  onChange: (ids: string[]) => void;
+  onContinue: () => void;
+}) {
   const t = useTranslations("booking");
   const tCommon = useTranslations("common");
   const locale = useLocale() as AppLocale;
@@ -46,6 +62,13 @@ export function ServiceStep({ services, selectedIds, onChange }: { services: Ser
           );
         })}
       </ul>
+      {(services.length > 1 || selectedIds.length > 0) && (
+        <div className="mt-4 flex justify-end">
+          <Button size="lg" disabled={selectedIds.length === 0} onClick={onContinue}>
+            {t("continue")}
+          </Button>
+        </div>
+      )}
     </section>
   );
 }

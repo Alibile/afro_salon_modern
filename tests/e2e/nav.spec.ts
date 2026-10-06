@@ -27,6 +27,12 @@ test.describe("iç sayfa üst çubuğu", () => {
     // Çubuk tek satır: marka solda, düğmeler sağda; ikinci satıra kırılmaz.
     const box = await header.boundingBox();
     expect(box!.height).toBeLessThanOrEqual(80);
+    // Telefonda "Randevu al" rahat bir dokunma hedefi (≥ 44 px).
+    const cta = await header.getByRole("link", { name: "Randevu al", exact: true }).boundingBox();
+    expect(cta!.height).toBeGreaterThanOrEqual(44);
+    // Oturum açıkken çıkış menüdedir: müşteri altbilgiye inmek zorunda kalmaz.
+    await header.getByRole("button", { name: "Menüyü aç" }).click();
+    await expect(page.locator("#mobil-menu").getByRole("button", { name: "Çıkış" })).toBeVisible();
   });
 
   test("telefonda çubuk tek satır kalır ve sayfa yana kaymaz", async ({ page }) => {

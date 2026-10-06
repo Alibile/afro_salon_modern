@@ -195,12 +195,17 @@ test.describe("sihirbazda adım değiştirme", () => {
       await expect(page.getByRole("button", { name: "Giriş yap ve onayla" })).toBeEnabled();
     }
 
-    await serviceSummary.getByRole("button", { name: "Değiştir" }).click();
+    // "Değiştir" telefonda rahat bir dokunma hedefi (≥ 44 px).
+    const change = serviceSummary.getByRole("button", { name: "Değiştir" });
+    expect((await change.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    await change.click();
     await expect(bookingStep(page)).toHaveCount(0);
-    await expect(page.locator('[data-step="2"]')).toHaveCount(0);
-    await page.getByRole("button", { name: /Yıkama \+ Kesim \+ Sakal/ }).click();
-    // Berber adımı yeniden açıldı, saat seçili değil: onay kilitli.
-    await expect(page.getByRole("button", { name: /Kwame Mensah/ })).toBeVisible();
+    // Seçim durur (yeniden açılan adım seçimi düşürmez), berber özeti de kalır;
+    // saat düştüğü için onay kilitlenir. "Devam" adımı yeniden kapatır.
+    await expect(page.getByRole("button", { name: /Yıkama \+ Kesim \+ Sakal/ })).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByRole("button", { name: "Giriş yap ve onayla" })).toBeDisabled();
+    await page.getByRole("button", { name: "Devam" }).click();
+    await expect(bookingStep(page)).toBeVisible();
     await expect(page.getByRole("button", { name: "Giriş yap ve onayla" })).toBeDisabled();
   });
 });

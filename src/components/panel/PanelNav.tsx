@@ -52,7 +52,7 @@ export function PanelNav({ isAdmin }: { isAdmin: boolean }) {
         href={i.href}
         aria-current={active ? "page" : undefined}
         className={cn(
-          "flex h-10 shrink-0 items-center px-3 text-sm whitespace-nowrap transition-colors",
+          "flex h-11 shrink-0 items-center px-3 text-sm whitespace-nowrap transition-colors lg:h-10",
           // Telefon: alt çizgi. Geniş ekran: sol çizgi + zemin.
           "border-b-2 lg:border-b-0 lg:border-l-2",
           active ? "border-primary bg-primary/8 font-medium text-foreground" : "border-transparent text-muted-foreground hover:bg-muted hover:text-foreground",

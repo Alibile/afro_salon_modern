@@ -14,7 +14,7 @@ export function StepSummary({ step, title, value, onChange }: { step: 1 | 2; tit
         <p className="text-sm text-muted-foreground">{title}</p>
         <p className="truncate font-medium">{value}</p>
       </div>
-      <button type="button" onClick={onChange} className="shrink-0 text-sm text-primary underline underline-offset-4 hover:text-foreground">
+      <button type="button" onClick={onChange} className="-mr-2 inline-flex min-h-11 shrink-0 items-center px-2 text-sm text-primary underline underline-offset-4 hover:text-foreground">
         {t("change")}
       </button>
     </div>

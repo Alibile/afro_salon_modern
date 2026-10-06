@@ -34,6 +34,10 @@ test.describe("panel kabuğu", () => {
     const overflow = await nav.evaluate((el) => el.scrollWidth > el.clientWidth);
     expect(overflow).toBe(true);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(412);
+    // Şerit maddeleri dokunma hedefi (≥ 44 px); dil anahtarı telefonda da çubukta.
+    const link = await nav.getByRole("link", { name: "Randevular" }).boundingBox();
+    expect(link!.height).toBeGreaterThanOrEqual(44);
+    await expect(page.getByRole("group", { name: "Dil" })).toBeVisible();
   });
 
   test("koyu temada aktif menü maddesi zeminden ayrılır", async ({ page }) => {
@@ -85,5 +89,14 @@ test.describe("panel kabuğu", () => {
     await expect(table.getByRole("columnheader", { name: "Ad" })).toBeVisible();
     await expect(table.getByRole("columnheader", { name: "Fiyat (₺)" })).toBeVisible();
     await expect(table.getByRole("cell", { name: "Yıkama + Kesim + Sakal" })).toBeVisible();
+    // Yeni kayıt paneli ve satır içi düzenleme aynı anda açıkken alan id'leri çakışmaz.
+    await page.getByRole("button", { name: "Yeni hizmet" }).click();
+    await table.getByRole("button", { name: "Düzenle", exact: true }).first().click();
+    await expect(page.getByLabel("Fiyat (₺)")).toHaveCount(2);
+    const duplicates = await page.evaluate(() => {
+      const ids = Array.from(document.querySelectorAll("[id]")).map((el) => el.id);
+      return ids.filter((id, i) => ids.indexOf(id) !== i);
+    });
+    expect(duplicates).toEqual([]);
   });
 });
