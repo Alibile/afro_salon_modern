@@ -30,7 +30,10 @@ export default async function BerberDetayPage(props: { params: Promise<{ id: str
           description={t("deleteDescription", { name: barber.name })}
           disabled={hasHistory || isSelf}
           disabledReason={isSelf ? t("deleteSelf") : hasHistory ? t("deleteBlocked") : undefined}
-          onConfirm={() => deleteBarber(barber.id)}
+          // Sunucu bileşeninden istemciye düz bir ok fonksiyonu geçirilemez
+          // ("Event handlers cannot be passed to Client Component props");
+          // bağlanmış bir server action ise serileştirilebilir.
+          onConfirm={deleteBarber.bind(null, barber.id)}
           successMessage={t("deleted")}
           redirectTo="/panel/berberler"
         />

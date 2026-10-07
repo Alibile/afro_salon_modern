@@ -99,4 +99,19 @@ test.describe("panel kabuğu", () => {
     });
     expect(duplicates).toEqual([]);
   });
+
+  test("berber detayı Düzenle ile açılır ve formları gösterir", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    const errors: string[] = [];
+    page.on("pageerror", (e) => errors.push(e.message));
+    await loginAs(page, "admin@afrosalon.local");
+    await page.goto("/panel/berberler");
+    await page.getByRole("link", { name: "Düzenle" }).first().click();
+    await expect(page).toHaveURL(/\/panel\/berberler\/[^/]+$/);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(/Kwame Mensah|Yusuf Adeyemi/);
+    await expect(page.getByRole("heading", { name: "Çalışma saatleri" })).toBeVisible();
+    await expect(page.getByLabel("Ad Soyad")).toBeVisible();
+    await expect(page.getByRole("button", { name: /^Sil/ })).toBeVisible();
+    expect(errors).toEqual([]);
+  });
 });
