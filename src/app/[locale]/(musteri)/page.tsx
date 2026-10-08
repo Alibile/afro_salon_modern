@@ -5,6 +5,7 @@ import { getContentMap, getSiteImages } from "@/lib/queries/content";
 import { countOpenSlotsToday } from "@/lib/queries/today-slots";
 import { getSessionUser } from "@/lib/auth-helpers";
 import { preloadHero } from "@/lib/hero-image";
+import { peekSiteImages } from "@/lib/site-images-cache";
 import { shopDayOfWeek } from "@/lib/time";
 import { formatKurus } from "@/lib/money";
 import { serializeJsonLd } from "@/lib/json-ld";
@@ -54,10 +55,14 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 }
 
 export default async function LandingPage({ params }: { params: Promise<{ locale: string }> }) {
-  // Görsel yuvaları önce ve tek başına çekilir: LCP fotoğrafının duyurusu
-  // geri kalan veri beklenmeden `<head>`e girer (bkz. `preloadHero`).
+  // LCP fotoğrafının duyurusu ilk `await`ten önce yapılmalı, yoksa `<head>`e
+  // girmiyor. Yuvalar veritabanında: süreç içi son görüntü varsa onunla
+  // hemen duyurulur; yoksa (ilk istek, ya da panel az önce değiştirdi) gerçek
+  // veri okunduktan sonra, geç ama yine de duyurulur.
+  const early = peekSiteImages();
+  if (early) preloadHero(early);
   const images = await getSiteImages();
-  preloadHero(images);
+  if (!early) preloadHero(images);
   const now = new Date();
   const { locale } = await params;
   const [{ settings, status, services, barbers, gallery, testimonials, weeklyHours, content, faq }, openSlots, user, t] = await Promise.all([

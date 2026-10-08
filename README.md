@@ -150,29 +150,41 @@ korunur.
 - `/panel/yorumlar` — müşteri yorumları yönetimi: ekle/düzenle/aktif-pasif geçişi (admin)
 - `/panel/ayarlar` — salon ve site içeriği ayarları (admin)
 
-## İçerik yönetimi (Site ayarları)
+## İçerik yönetimi
 
-Panelden `/panel/ayarlar` sayfasında aşağıdaki bilgiler düzenlenebilir.
-Ziyaretçiye görünen metin alanları (aşağıda **üç dilli** işaretli olanlar)
-TR/EN/FR sekmeleriyle girilir: Türkçesi zorunlu, çeviriler isteğe bağlı, boş
-bırakılan çeviri yerine Türkçesi gösterilir (bkz. [Diller](#diller-trenfr)).
+Ziyaretçiye görünen metin alanları **üç dilli**dir: TR/EN/FR sekmeleriyle
+girilir, boş bırakılan çeviri yerine Türkçesi gösterilir (bkz.
+[Diller](#diller-trenfr)). İki panel sayfası vardır:
 
-**Salon bilgileri:**
-- Salon adı, adres, telefon
-- Randevu iptali için gerekli ön bildirim (dakika)
-- Minimum önceden randevu alma süresi (dakika)
-- Saat aralığı adımı (dakika)
-- Zaman dilimi
-- Berber bilgisi hakkında bildirim
+**Ayarlar (`/panel/ayarlar`):** salon adı, adres, telefon, e-posta;
+randevu kuralları (iptal sınırı, en erken randevu, slot adımı, berbere
+e-posta); bağlantılar (Instagram, Facebook, WhatsApp, harita); "Hakkımızda"
+başlığı ve metni, memnuniyet yüzdesi, deneyim yılı, "Neden biz" üç maddesi.
 
-**Site içeriği:**
-- E-posta (iletişim formu gönderimler için; boşsa `EMAIL_FROM` kullanılır)
-- İnstagram, Facebook, WhatsApp (sosyal medya bağlantıları; boşsa gösterilmez)
-- "Hakkımızda" başlığı ve metni (wysiwyg-style textarea) — **üç dilli**
-- "Neden biz" — 3 madde (başlık + metin) — **üç dilli**
-- Müşteri memnuniyet yüzdesi (istatistik)
-- İşletme deneyim yılı (istatistik)
-- Google Harita URL'si
+**İçerik (`/panel/icerik`, Tur 9):** ana sayfanın geri kalan metinleri ve
+fotoğrafları.
+
+| Bölüm | Alanlar |
+|---|---|
+| Hero | Manşetin iki satırı, alt metin (panelden yazıldığı gibi basılır) |
+| Görseller | Hero (geniş, 3:2, ≥ 1600 px), hero telefon (4:5, ≥ 1000 px), hakkımızda (serbest, ≥ 1000 px) |
+| Nasıl çalışır | Başlık, not, üç adım, iptal notu (`{minutes}` iptal sınırına dönüşür) |
+| Bölüm başlıkları ve notları | Hizmetler, paket notları, neden biz, ekip, galeri, yorumlar, SSS, iletişim, mesaj formu |
+| Sıkça sorulanlar | Serbest liste: ekle, düzenle, sırala, pasife al, sil |
+| Altbilgi ve arama | Altbilgi sloganı, sekme başlığı, arama açıklaması |
+
+Kural: **boş bırakılan alan çeviri dosyasındaki metinle görünür.** Metinler
+`ContentBlock` tablosunda anahtar/değer olarak durur; anahtar listesi ve dil
+başına üst sınırlar `src/lib/content-keys.ts`, okuma sırası (ziyaretçinin
+dili → panel Türkçesi → `messages/*.json`) `src/lib/content.ts: siteText`.
+Panelde her alanın yer tutucusu o dilin varsayılan metnidir. SSS cevapları ve
+iptal notu düz `{ad}` yer tutucuları taşıyabilir (`{minutes}`, `{open}`,
+`{close}`, `{price}`, `{duration}`); bilinmeyen ad olduğu gibi kalır, paket
+yoksa fiyat ve süre boş basılır ve panelde o sorunun yanında uyarı görünür.
+SSS `FaqItem` tablosundadır; seed çeviri dosyasındaki altı soruyu yalnızca boş
+tabloya yazar (silinen soru geri gelmez). Fotoğraflar `SiteImage` yuvalarında;
+boş yuva `public/landing/` dosyasına düşer, "Varsayılana dön" yüklenen
+dosyayı siler. Hero ön yüklemesi yuvadan beslenir (`src/lib/hero-image.ts`).
 
 ## İletişim Formu
 
@@ -358,9 +370,10 @@ bölüm paket kartına döner — büyük hizmet adı, "fiyata dahil" üç satı
 süre ve "Hemen randevu al". Panelden ikinci bir hizmet eklendiğinde aynı bölüm
 kendiliğinden eski fiyat listesi düzenine geçer.
 
-**SSS (`#sss`):** Altı soru, `<details>/<summary>` ile (JavaScript kapalıyken de
-açılır). Cevaplardaki iptal süresi, fiyat, paket süresi ve çalışma saatleri
-veriden gelir; aynı metinler sayfaya `FAQPage` JSON-LD olarak da yazılır
+**SSS (`#sss`):** Panelden yönetilen sorular (`FaqItem`; seed altı soruyla
+başlar), `<details>/<summary>` ile (JavaScript kapalıyken de açılır).
+Cevaplardaki `{minutes}`, `{open}`, `{close}`, `{price}`, `{duration}` yer
+tutucuları veriden doldurulur; aynı metinler sayfaya `FAQPage` JSON-LD olarak da yazılır
 (`serializeJsonLd` ile kaçırılarak: metinden gelen bir `</script>` etiketi
 kapatamaz). Fiyat/süre sorusu yalnızca **tek aktif hizmet** varken basılır —
 koşul `singlePackage` ile hizmetler bölümüyle ortaktır, ikinci bir hizmet
@@ -415,6 +428,14 @@ kalktı, tek üst çubuk) puanı değiştirmedi: üretim derlemesinde `/en` doğ
 tarayıcıyla `/` ölçümü (307 ile `/en`e yönlenir) **77** (3 koşu, LCP 5.8 sn):
 fark yönlendirmeden gelir, sayfanın kendisinden değil. Geliştirme sunucusunda
 alınan sayılar bu ölçümle karşılaştırılamaz.
+
+Tur 9 (panelden içerik ve görsel yuvaları) puanı korudu: üretim derlemesinde
+`/en` doğrudan **85–86** (2 koşu, FCP 1.2 sn, LCP 4.3 sn, CLS 0). Dikkat:
+`preloadHero()` sayfanın **ilk `await`inden önce** çağrılmalı, yoksa
+`<link rel=preload>` `<head>`e hiç girmiyor (ölçüldü: 83–84, LCP 4.6 sn).
+Yuvalar veritabanında olduğu için sayfa süreç içi son görüntüyle
+(`src/lib/site-images-cache.ts`) erken duyurur, gerçek veriyi sonra okur;
+panel yuvayı değiştirince görüntü unutulur ve bir sonraki istek geç duyurur.
 
 LCP için üç ayar:
 

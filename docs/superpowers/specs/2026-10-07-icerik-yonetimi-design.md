@@ -1,7 +1,7 @@
 # Afro Salon Modern: Panelden İçerik Yönetimi (Tur 9)
 
 Tarih: 2026-10-07
-Durum: Taslak, kullanıcı incelemesinde
+Durum: Uygulandı (2026-10-08, `tur9-icerik` dalı)
 
 ## 1. Amaç
 

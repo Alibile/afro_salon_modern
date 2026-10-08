@@ -4,6 +4,7 @@ import { firstIssueKey } from "@/lib/errors";
 import type { SessionUser } from "@/lib/auth-helpers";
 import { asAdminActor } from "@/lib/staff-scope";
 import { deleteObject } from "@/lib/storage";
+import { forgetSiteImages } from "@/lib/site-images-cache";
 import { siteImageSchema, siteImageSlotSchema, type SiteImageInput } from "@/schemas/site-image";
 
 /** Yuvaya yeni fotoğraf; öncekinin nesnesi depodan silinir (anahtar değiştiyse). */
@@ -14,6 +15,7 @@ export async function setSiteImageAs(actor: SessionUser | null, input: SiteImage
   const { slot, storageKey, width, height } = parsed.data;
   const previous = await prisma.siteImage.findUnique({ where: { slot } });
   await prisma.siteImage.upsert({ where: { slot }, update: { storageKey, width, height }, create: { slot, storageKey, width, height } });
+  forgetSiteImages();
   if (previous && previous.storageKey !== storageKey) await deleteObject(previous.storageKey);
   return ok(undefined);
 }
@@ -26,6 +28,7 @@ export async function clearSiteImageAs(actor: SessionUser | null, slot: string):
   const previous = await prisma.siteImage.findUnique({ where: { slot: parsed.data } });
   if (!previous) return ok(undefined);
   await prisma.siteImage.delete({ where: { slot: parsed.data } });
+  forgetSiteImages();
   await deleteObject(previous.storageKey);
   return ok(undefined);
 }

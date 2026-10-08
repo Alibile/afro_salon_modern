@@ -3,6 +3,7 @@ import { asI18nText, pick } from "@/lib/i18n-content";
 import { toContentMap, type ContentMap } from "@/lib/content";
 import { FAQ_ORDER } from "@/actions/impl/faq";
 import { SITE_IMAGE_SLOT_LIST, type SiteImageSlot } from "@/schemas/site-image";
+import { rememberSiteImages } from "@/lib/site-images-cache";
 
 export async function getContentMap(): Promise<ContentMap> {
   return toContentMap(await prisma.contentBlock.findMany({ select: { key: true, textI18n: true } }));
@@ -31,5 +32,6 @@ export async function getSiteImages(): Promise<SiteImages> {
   for (const r of rows) {
     if ((SITE_IMAGE_SLOT_LIST as string[]).includes(r.slot)) out[r.slot as SiteImageSlot] = { storageKey: r.storageKey, width: r.width, height: r.height };
   }
+  rememberSiteImages(out);
   return out;
 }

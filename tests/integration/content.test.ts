@@ -5,6 +5,7 @@ import { saveContentBlocksAs } from "@/actions/impl/content";
 import { upsertFaqItemAs, toggleFaqItemAs, moveFaqItemAs, deleteFaqItemAs } from "@/actions/impl/faq";
 import { setSiteImageAs, clearSiteImageAs } from "@/actions/impl/site-images";
 import { getContentMap, getActiveFaq, getSiteImages } from "@/lib/queries/content";
+import { peekSiteImages } from "@/lib/site-images-cache";
 import { deleteObject } from "@/lib/storage";
 import type { SessionUser } from "@/lib/auth-helpers";
 
@@ -56,7 +57,10 @@ describe("SSS", () => {
 describe("görsel yuvaları", () => {
   it("yazar, değiştirince eskisini depodan siler, temizler; boyut ve oran denetlenir", async () => {
     expect((await setSiteImageAs(admin, { slot: "hero", storageKey: KEY("aaaaaaaa"), width: 2400, height: 1600 })).ok).toBe(true);
+    // Yazım süreç içi anlık görüntüyü unutturur; okuma yeniden hatırlar (ön yükleme için).
+    expect(peekSiteImages()).toBeNull();
     expect((await getSiteImages()).hero).toMatchObject({ storageKey: KEY("aaaaaaaa"), width: 2400, height: 1600 });
+    expect(peekSiteImages()?.hero?.storageKey).toBe(KEY("aaaaaaaa"));
     expect((await setSiteImageAs(admin, { slot: "hero", storageKey: KEY("bbbbbbbb"), width: 3000, height: 2000 })).ok).toBe(true);
     expect(vi.mocked(deleteObject)).toHaveBeenCalledWith(KEY("aaaaaaaa"));
     // Çok küçük ve yanlış oran reddedilir; `uploads/site/` (yerel disk) kabul edilir.
@@ -65,6 +69,7 @@ describe("görsel yuvaları", () => {
     expect((await setSiteImageAs(admin, { slot: "about", storageKey: `uploads/${KEY("eeeeeeee")}`, width: 1200, height: 1500 })).ok).toBe(true);
     expect(await setSiteImageAs(admin, { slot: "logo" as never, storageKey: KEY("ffffffff"), width: 2400, height: 1600 })).toEqual({ ok: false, error: "errors.invalidImageSlot" });
     expect((await clearSiteImageAs(admin, "hero")).ok).toBe(true);
+    expect(peekSiteImages()).toBeNull();
     expect(vi.mocked(deleteObject)).toHaveBeenCalledWith(KEY("bbbbbbbb"));
     const images = await getSiteImages();
     expect(images.hero).toBeNull();
