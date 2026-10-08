@@ -70,6 +70,12 @@ export const ERROR_CODES = [
   "rangeNeedsAllDay",
   // Yorumlar
   "testimonialNotFound",
+  // İçerik (Tur 9)
+  "faqNotFound",
+  "faqQuestionMin3",
+  "faqAnswerMin10",
+  "invalidImageSlot",
+  "imageTooSmall",
   "testimonialTooShort",
   "ratingRange",
   // Form alanları

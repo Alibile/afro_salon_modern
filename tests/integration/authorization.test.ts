@@ -27,6 +27,9 @@ import { addGalleryPhotos, updateGalleryPhoto, moveGalleryPhoto, deleteGalleryPh
 import { setAppointmentStatus } from "@/actions/staff-appointments";
 import { createTimeOff, deleteTimeOff } from "@/actions/timeoff";
 import { addHaircutPhoto, deleteHaircutPhoto } from "@/actions/photos";
+import { saveContentBlocks } from "@/actions/content";
+import { upsertFaqItem, toggleFaqItem, moveFaqItem, deleteFaqItem } from "@/actions/faq";
+import { setSiteImage, clearSiteImage } from "@/actions/site-images";
 import { updateOwnProfile, changeOwnPassword, updateOwnLocale } from "@/actions/profile";
 import { sendContactMessage } from "@/actions/contact";
 import { resetRateLimit } from "@/lib/rate-limit";
@@ -95,6 +98,13 @@ const staffWrappers: [string, () => Promise<{ ok: boolean; error?: string }>][] 
   ["updateOwnProfile", () => updateOwnProfile({ name: "Yeni İsim", phone: "" })],
   ["changeOwnPassword", () => changeOwnPassword({ currentPassword: "eski", newPassword: "YeniSifre123" })],
   ["updateOwnLocale", () => updateOwnLocale("en")],
+  ["saveContentBlocks", () => saveContentBlocks({ "hero.headline1": { tr: "Manşet" } })],
+  ["upsertFaqItem", () => upsertFaqItem({ question: { tr: "Soru mu?" }, answer: { tr: "On karakterlik cevap." }, sortOrder: 0 })],
+  ["toggleFaqItem", () => toggleFaqItem("f1", false)],
+  ["moveFaqItem", () => moveFaqItem("f1", "up")],
+  ["deleteFaqItem", () => deleteFaqItem("f1")],
+  ["setSiteImage", () => setSiteImage({ slot: "hero", storageKey: "site/6f1b2c3d-1111-4222-8333-444455556666.jpg", width: 2400, height: 1600 })],
+  ["clearSiteImage", () => clearSiteImage("hero")],
 ];
 
 /** Müşteri oturumu gerektiren wrapper'lar. */
