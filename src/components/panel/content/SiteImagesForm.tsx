@@ -6,7 +6,7 @@ import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { setSiteImage, clearSiteImage } from "@/actions/site-images";
-import { SITE_IMAGE_SLOTS, SITE_IMAGE_SLOT_LIST, type SiteImageSlot } from "@/schemas/site-image";
+import { SITE_IMAGE_SLOTS, SITE_IMAGE_SLOT_LIST, checkSiteImageSize, type SiteImageSlot } from "@/schemas/site-image";
 import type { SiteImages } from "@/lib/queries/content";
 import { publicUrl } from "@/lib/storage-public";
 import { readImageDimensions } from "@/lib/read-image-dimensions";
@@ -37,6 +37,9 @@ export function SiteImagesForm({ images }: { images: SiteImages }) {
     setBusy(slot);
     try {
       const { width, height } = await readImageDimensions(file).catch(() => { throw new Error(t("unreadable")); });
+      // Boyut ve oran ağa çıkmadan denetlenir; sunucu aynı kuralı yeniden uygular.
+      const problem = checkSiteImageSize(slot, width, height);
+      if (problem) { toast.error(showError({ error: problem })); return; }
       const res = await fetch("/api/upload/presign", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ kind: "site", contentType: file.type, contentLength: file.size }) });
       if (!res.ok) throw new Error(tUpload("failed"));
       const { url, key } = await res.json();
@@ -65,7 +68,7 @@ export function SiteImagesForm({ images }: { images: SiteImages }) {
         return (
           <li key={slot} className="grid gap-3 rounded-[var(--radius)] border border-border p-4">
             <div className={tall ? "relative aspect-[4/5] w-full overflow-hidden rounded-[var(--radius)] bg-muted" : "relative aspect-[3/2] w-full overflow-hidden rounded-[var(--radius)] bg-muted"}>
-              <Image src={src} alt="" fill sizes="(min-width: 640px) 30vw, 90vw" className="object-cover" unoptimized={!current} />
+              <Image src={src} alt="" fill sizes="(min-width: 640px) 30vw, 90vw" className="object-cover" />
             </div>
             <div>
               <p className="font-medium">{t(slot)}</p>
@@ -78,6 +81,7 @@ export function SiteImagesForm({ images }: { images: SiteImages }) {
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
                 className="sr-only"
+                tabIndex={-1}
                 aria-label={t(slot)}
                 disabled={busy !== null}
                 onChange={(e) => e.target.files?.[0] && upload(slot, e.target.files[0])}
@@ -90,6 +94,7 @@ export function SiteImagesForm({ images }: { images: SiteImages }) {
                   title={t("resetTitle")}
                   description={t("resetDescription")}
                   confirmLabel={t("reset")}
+                  triggerLabel={t("reset")}
                   onConfirm={() => clearSiteImage(slot)}
                   successMessage={t("cleared")}
                 />

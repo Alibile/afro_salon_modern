@@ -17,7 +17,7 @@ import { DeleteButton } from "../DeleteButton";
 
 export type FaqRow = { id: string; question: I18nText; answer: I18nText; sortOrder: number; isActive: boolean };
 
-function FaqForm({ initial, onDone }: { initial?: FaqRow; onDone: () => void }) {
+function FaqForm({ initial, nextOrder, onDone }: { initial?: FaqRow; /** Yeni soru listenin sonuna girer. */ nextOrder: number; onDone: () => void }) {
   const t = useTranslations("panel");
   const showError = useActionError();
   const [pending, start] = useTransition();
@@ -43,7 +43,7 @@ function FaqForm({ initial, onDone }: { initial?: FaqRow; onDone: () => void }) 
         <I18nTextField name="question" label={t("content.faq.question")} defaultValue={initial?.question} maxLength={160} required />
       </div>
       <Field id={`faq-order-${initial?.id ?? "new"}`} label={t("content.faq.order")}>
-        <Input id={`faq-order-${initial?.id ?? "new"}`} name="sortOrder" type="number" min={0} defaultValue={initial?.sortOrder ?? 0} />
+        <Input id={`faq-order-${initial?.id ?? "new"}`} name="sortOrder" type="number" min={0} defaultValue={initial?.sortOrder ?? nextOrder} />
       </Field>
       <div className="sm:col-span-4">
         <I18nTextarea name="answer" label={t("content.faq.answer")} defaultValue={initial?.answer} maxLength={600} rows={3} required hint={t.raw("content.faq.placeholders")} />
@@ -77,6 +77,7 @@ export function FaqManager({ items, hasPackage }: { items: FaqRow[]; hasPackage:
       toast.success(success);
       router.refresh();
     });
+  const nextOrder = items.length ? Math.max(...items.map((i) => i.sortOrder)) + 1 : 0;
   const usesPackage = (row: FaqRow) => /\{(price|duration)\}/.test(row.answer.tr + (row.answer.en ?? "") + (row.answer.fr ?? ""));
 
   return (
@@ -89,7 +90,7 @@ export function FaqManager({ items, hasPackage }: { items: FaqRow[]; hasPackage:
       </div>
       {creating && (
         <div className="rounded-[var(--radius)] border border-border p-4">
-          <FaqForm onDone={() => setCreating(false)} />
+          <FaqForm nextOrder={nextOrder} onDone={() => setCreating(false)} />
         </div>
       )}
       {items.length === 0 ? (
@@ -99,7 +100,7 @@ export function FaqManager({ items, hasPackage }: { items: FaqRow[]; hasPackage:
           {items.map((row, index) => (
             <li key={row.id} className="p-4">
               {editingId === row.id ? (
-                <FaqForm initial={row} onDone={() => setEditingId(null)} />
+                <FaqForm initial={row} nextOrder={nextOrder} onDone={() => setEditingId(null)} />
               ) : (
                 <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-start">
                   <div className="min-w-0">

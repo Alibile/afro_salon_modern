@@ -22,6 +22,7 @@ export function DeleteButton({
   title,
   description,
   confirmLabel,
+  triggerLabel,
   disabled,
   disabledReason,
   onConfirm,
@@ -32,6 +33,8 @@ export function DeleteButton({
   description: string;
   /** Verilmezse `panel.common.delete`; başlık ve açıklama zaten çağıran taraftan çevrili gelir. */
   confirmLabel?: string;
+  /** Tetik düğmesinin metni; verilmezse `panel.common.delete` ("Varsayılana dön" gibi silmeden başka bir anlam taşıyan eylemler için). */
+  triggerLabel?: string;
   disabled?: boolean;
   disabledReason?: string;
   onConfirm: () => Promise<ActionResult<void>>;
@@ -47,8 +50,8 @@ export function DeleteButton({
   // açıklama metni tabloyu taşırırdı; üzerine gelince ya da odaklanınca okunur.
   if (disabled) {
     return (
-      <Button size="sm" variant="ghost" className="text-destructive" disabled title={disabledReason} aria-label={disabledReason ? `${t("delete")}: ${disabledReason}` : undefined}>
-        {t("delete")}
+      <Button size="sm" variant="ghost" className="text-destructive" disabled title={disabledReason} aria-label={disabledReason ? `${triggerLabel ?? t("delete")}: ${disabledReason}` : undefined}>
+        {triggerLabel ?? t("delete")}
       </Button>
     );
   }
@@ -57,7 +60,7 @@ export function DeleteButton({
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10 hover:text-destructive" disabled={pending}>
-          {t("delete")}
+          {triggerLabel ?? t("delete")}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
