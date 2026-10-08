@@ -7,6 +7,9 @@ import type { WeeklyHoursRow } from "@/lib/queries/landing";
 import { cn } from "@/lib/utils";
 
 export function ContactSection({
+  title,
+  note,
+  formNote,
   address,
   phone,
   email,
@@ -16,6 +19,9 @@ export function ContactSection({
   todayDayOfWeek,
   services,
 }: {
+  title: string;
+  note: string;
+  formNote: string;
   address: string;
   phone: string;
   email: string;
@@ -62,8 +68,8 @@ export function ContactSection({
     <section id="iletisim" className="scroll-mt-16 border-b border-border">
       <div className="mx-auto max-w-6xl px-5 py-14 md:px-10 md:py-24">
         <div className="max-w-2xl">
-          <h2 className="display-lg">{t("title")}</h2>
-          <p className="mt-3 text-muted-foreground">{t("note")}</p>
+          <h2 className="display-lg">{title}</h2>
+          <p className="mt-3 text-muted-foreground">{note}</p>
         </div>
 
         {/* Telefonda sıra DOM sırasıdır: adres ve telefon, bağlantılar, çalışma saatleri, harita, form. */}
@@ -140,7 +146,7 @@ export function ContactSection({
           <div className="md:col-span-7 md:pl-6">
             <h3 className="display-md">{t("formTitle")}</h3>
             <p className="measure mt-3 text-muted-foreground">
-              {t("formNote")}
+              {formNote}
             </p>
             <ContactForm services={services} />
           </div>

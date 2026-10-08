@@ -18,7 +18,7 @@ export type TeamMember = {
  * px'te 165 px genişlik), geniş ekranda kadroya göre iki ya da üç sütun. Tek
  * tek kaydırılmış kartlar (eski `lg:mt-16`) kalktı; sıra kadronun sırasıdır.
  */
-export function TeamSection({ barbers }: { barbers: TeamMember[] }) {
+export function TeamSection({ title, note, barbers }: { title: string; note: string; barbers: TeamMember[] }) {
   const t = useTranslations("landing.team");
   if (barbers.length === 0) return null;
   const wide = barbers.length < 3;
@@ -29,8 +29,8 @@ export function TeamSection({ barbers }: { barbers: TeamMember[] }) {
     <section id="ekip" className="scroll-mt-16 border-b border-border">
       <div className="mx-auto max-w-6xl px-5 py-14 md:px-10 md:py-24">
         <div className="max-w-2xl">
-          <h2 className="display-lg">{t("title")}</h2>
-          <p className="mt-3 text-muted-foreground">{t("note")}</p>
+          <h2 className="display-lg">{title}</h2>
+          <p className="mt-3 text-muted-foreground">{note}</p>
         </div>
         <ol
           className={cn(

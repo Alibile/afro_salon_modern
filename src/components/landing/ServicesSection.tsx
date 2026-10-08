@@ -53,9 +53,17 @@ const INCLUDES = [
  * düzenine döner — düzen içeriğin şeklinden çıkar.
  */
 export function ServicesSection({
+  title,
+  note,
+  packageSectionNote,
+  packageNote,
   services,
   phone,
 }: {
+  title: string;
+  note: string;
+  packageSectionNote: string;
+  packageNote: string;
   services: ServiceRowItem[];
   phone: string;
 }) {
@@ -68,9 +76,9 @@ export function ServicesSection({
     <section id="hizmetler" className="scroll-mt-16 border-b border-border">
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-5 py-14 md:grid-cols-12 md:px-10 md:py-24">
         <div className="md:col-span-4">
-          <h2 className="display-lg">{t("title")}</h2>
+          <h2 className="display-lg">{title}</h2>
           <p className="mt-3 text-muted-foreground">
-            {single ? tPackage("sectionNote") : t("note")}
+            {single ? packageSectionNote : note}
           </p>
         </div>
         {services.length === 0 ? (
@@ -110,7 +118,7 @@ export function ServicesSection({
               </div>
             </div>
             <p className="mt-10 border-t border-border pt-5 text-muted-foreground">
-              {tPackage("note")}
+              {packageNote}
             </p>
           </div>
         ) : (

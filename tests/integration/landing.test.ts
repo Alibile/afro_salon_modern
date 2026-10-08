@@ -146,4 +146,20 @@ describe("countOpenSlotsToday", () => {
     await createBarber();
     expect(await countOpenSlotsToday(MORNING)).toBeGreaterThan(0);
   });
+
+  it("içerik blokları ve aktif SSS ziyaretçinin dilinde gelir (Tur 9)", async () => {
+    await prisma.contentBlock.create({ data: { key: "hero.headline1", textI18n: { tr: "Panel manşeti", en: "Panel headline" } } });
+    await prisma.faqItem.createMany({
+      data: [
+        { questionI18n: { tr: "Birinci?", en: "First?" }, answerI18n: { tr: "{minutes} dakika." }, sortOrder: 1 },
+        { questionI18n: { tr: "Sıfırıncı?" }, answerI18n: { tr: "Cevap burada." }, sortOrder: 0 },
+        { questionI18n: { tr: "Pasif?" }, answerI18n: { tr: "Görünmez." }, sortOrder: 2, isActive: false },
+      ],
+    });
+    const data = await getLandingData("en", new Date("2026-09-17T07:00:00Z"));
+    expect(data.content["hero.headline1"]).toEqual({ tr: "Panel manşeti", en: "Panel headline" });
+    expect(data.faq.map((f) => f.question)).toEqual(["Sıfırıncı?", "First?"]);
+    // Yer tutucular ham kalır; doldurma sayfada (`renderFaq`) yapılır.
+    expect(data.faq[1].answer).toBe("{minutes} dakika.");
+  });
 });

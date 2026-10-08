@@ -16,6 +16,7 @@ const HEADING = "font-sans text-sm font-medium text-primary-foreground/70";
 
 export async function SiteFooter({
   shopName,
+  tagline,
   user,
   social,
   address,
@@ -24,6 +25,7 @@ export async function SiteFooter({
   status,
 }: {
   shopName: string;
+  tagline: string;
   user: SessionUser | null;
   social: SocialSettings;
   address: string;
@@ -48,7 +50,7 @@ export async function SiteFooter({
             {/* Altbilgide işaret ve yığılmış ad birlikte: sayfanın en altında
                 markanın tam hâli bir kez daha görünür. */}
             <BrandLogo name={shopName} variant="stacked" />
-            <p className="editorial-note mt-4 text-primary-foreground/90">{tFooter("tagline")}</p>
+            <p className="editorial-note mt-4 text-primary-foreground/90">{tagline}</p>
             <SocialLinks
               settings={social}
               className="-ml-2 mt-5"

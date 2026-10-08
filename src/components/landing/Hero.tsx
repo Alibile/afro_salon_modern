@@ -7,14 +7,6 @@ import { staggerDelay } from "@/lib/motion-utils";
 import { shopStatusText, type ShopStatus } from "@/lib/shop-status";
 
 /**
- * Manşet satır satır dizilir: kırılmayı tarayıcıya bırakmak yerine burada
- * belirlemek hem ölçüyü hem de sıralı girişi mümkün kılar. Satırların kendisi
- * çeviri dosyasında ayrı iki anahtardır (`hero.headline1`, `hero.headline2`):
- * kırılma noktası her dilde çevirmenin kararıdır.
- */
-const HEADLINE_KEYS = ["hero.headline1", "hero.headline2"] as const;
-
-/**
  * Açılış sırası: durum satırı, manşet satırları 60 ms arayla, ardından alt
  * metin ve düğmeler. Sıra `.rise` (CSS) ile kurulur: ilk ekran Motion'ın
  * hidrasyonunu beklemez. Sitedeki tek kendiliğinden hareket budur.
@@ -35,7 +27,18 @@ function riseDelay(index: number) {
  * Nokta işareti, aralıklı büyük harf etiket ve orta nokta ayırıcı yok;
  * ziyaretçi okur, çözmez.
  */
-export function Hero({ status, slots }: { status: ShopStatus; slots: number }) {
+export function Hero({
+  headline,
+  subtitle,
+  status,
+  slots,
+}: {
+  /** Manşetin iki satırı; kırılma noktası içeriğin sahibinin kararıdır. */
+  headline: [string, string];
+  subtitle: string;
+  status: ShopStatus;
+  slots: number;
+}) {
   const t = useTranslations("landing");
   const tStatus = useTranslations("common.status");
   const heroAlt = t("hero.photoAlt");
@@ -92,23 +95,23 @@ export function Hero({ status, slots }: { status: ShopStatus; slots: number }) {
         </p>
 
         <h1 className="display-cinema mt-5 md:mt-7">
-          {HEADLINE_KEYS.map((key, i) => (
-            <span key={key} className="rise block" style={riseDelay(i + 1)}>
-              {t(key)}
+          {headline.map((line, i) => (
+            <span key={i} className="rise block" style={riseDelay(i + 1)}>
+              {line}
             </span>
           ))}
         </h1>
 
         <p
           className="rise mt-6 max-w-[44ch] text-base text-hero-sand/80 md:text-lg"
-          style={riseDelay(HEADLINE_KEYS.length + 1)}
+          style={riseDelay(headline.length + 1)}
         >
-          {t("hero.subtitle")}
+          {subtitle}
         </p>
 
         <div
           className="rise mt-8 flex flex-wrap items-center gap-3"
-          style={riseDelay(HEADLINE_KEYS.length + 2)}
+          style={riseDelay(headline.length + 2)}
         >
           <Button asChild size="lg">
             <Link href="/randevu">{t("hero.book")}</Link>

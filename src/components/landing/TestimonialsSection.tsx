@@ -27,15 +27,15 @@ function Rating({ value, label }: { value: number; label: string }) {
 }
 
 /** Üç sütun, hizalı. Alıntı italik (gerçekten bir not), ad düz yazı. */
-export function TestimonialsSection({ items }: { items: TestimonialItem[] }) {
+export function TestimonialsSection({ title, note, items }: { title: string; note: string; items: TestimonialItem[] }) {
   const t = useTranslations("landing.testimonials");
   if (items.length === 0) return null;
   return (
     <section id="yorumlar" className="scroll-mt-16 border-b border-border">
       <div className="mx-auto max-w-6xl px-5 py-14 md:px-10 md:py-24">
         <div className="max-w-2xl">
-          <h2 className="display-lg">{t("title")}</h2>
-          <p className="mt-3 text-muted-foreground">{t("note")}</p>
+          <h2 className="display-lg">{title}</h2>
+          <p className="mt-3 text-muted-foreground">{note}</p>
         </div>
         <ul className="mt-10 grid gap-10 md:grid-cols-3">
           {items.map((item) => (

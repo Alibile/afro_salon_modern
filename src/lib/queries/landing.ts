@@ -4,6 +4,7 @@ import { getActiveBarbers, getActiveServices } from "@/lib/queries/booking";
 import { getShopStatus } from "@/lib/shop-status";
 import { getGalleryData } from "@/lib/queries/gallery";
 import { pick } from "@/lib/i18n-content";
+import { getActiveFaq, getContentMap } from "@/lib/queries/content";
 
 /** Hafta listesi pazartesiden başlar; `Date.getDay()` sıralaması pazardan. */
 const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
@@ -31,7 +32,7 @@ export type WeeklyHoursRow = { dayOfWeek: number; opensAt: string | null; closes
  * devam etsin.
  */
 export async function getLandingData(locale: string, now: Date = new Date()) {
-  const [settingsRow, services, barbers, hoursRows, gallery, testimonials] = await Promise.all([
+  const [settingsRow, services, barbers, hoursRows, gallery, testimonials, content, faq] = await Promise.all([
     getSettings(),
     getActiveServices(locale),
     getActiveBarbers(locale),
@@ -42,6 +43,8 @@ export async function getLandingData(locale: string, now: Date = new Date()) {
       orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
       select: { id: true, name: true, text: true, rating: true },
     }),
+    getContentMap(),
+    getActiveFaq(locale),
   ]);
   const settings = {
     ...settingsRow,
@@ -64,5 +67,5 @@ export async function getLandingData(locale: string, now: Date = new Date()) {
       closesAt: open.map((r) => r.endTime).sort().at(-1)!,
     };
   });
-  return { settings, status, services, barbers, gallery, testimonials, weeklyHours };
+  return { settings, status, services, barbers, gallery, testimonials, weeklyHours, content, faq };
 }
