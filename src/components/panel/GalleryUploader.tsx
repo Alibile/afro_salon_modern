@@ -7,31 +7,13 @@ import { addGalleryPhotos } from "@/actions/gallery";
 import { MAX_UPLOAD_BYTES } from "@/lib/upload-limits";
 import { MAX_GALLERY_BATCH } from "@/lib/gallery-utils";
 import { Input } from "@/components/ui/input";
+import { readImageDimensions } from "@/lib/read-image-dimensions";
 import { cn } from "@/lib/utils";
 import { useActionError } from "@/lib/use-action-error";
 
 const ACCEPTED = ["image/jpeg", "image/png", "image/webp"];
 
 type FileState = { name: string; status: string; failed: boolean };
-
-/** Fotoğrafın gerçek pikselleri; masonry oranı bu değerlere dayanır. */
-function readDimensions(file: File): Promise<{ width: number; height: number }> {
-  const url = URL.createObjectURL(file);
-  return new Promise((resolve, reject) => {
-    const img = new window.Image();
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      resolve({ width: img.naturalWidth, height: img.naturalHeight });
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      // Bu metin kullanıcıya hiç ulaşmaz: `uploadAll` hatayı yakalayıp satıra
-      // çevrilmiş `upload.unreadable` yazar. Yalnızca yığın izinde görünür.
-      reject(new Error("readDimensions failed"));
-    };
-    img.src = url;
-  });
-}
 
 export function GalleryUploader() {
   const t = useTranslations("panel");
@@ -61,7 +43,7 @@ export function GalleryUploader() {
       }
       try {
         update(i, t("upload.readingSize"));
-        const { width, height } = await readDimensions(file);
+        const { width, height } = await readImageDimensions(file);
         update(i, t("upload.uploading"));
         const res = await fetch("/api/upload/presign", {
           method: "POST",

@@ -13,7 +13,7 @@ test.describe("panel kabuğu", () => {
     const nav = page.getByRole("navigation", { name: "Panel menüsü" });
     await expect(nav.getByText("Günlük iş")).toBeVisible();
     await expect(nav.getByText("Yönetim")).toBeVisible();
-    await expect(nav.getByRole("link")).toHaveCount(10);
+    await expect(nav.getByRole("link")).toHaveCount(11);
     await expect(nav.getByRole("link", { name: "Bugün" })).toHaveAttribute("aria-current", "page");
     await expect(page.getByRole("heading", { level: 1 })).toContainText(/^Bugün, /);
   });

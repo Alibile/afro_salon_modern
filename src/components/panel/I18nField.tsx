@@ -35,7 +35,8 @@ type BaseProps = {
   /** Kontrolsüz kullanım (form gönderiminde `FormData`'dan okunur). */
   defaultValue?: I18nText;
   maxLength?: number;
-  placeholder?: string;
+  /** Tek metin ya da dil başına metin: boş alan o dilin varsayılanını gösterir. */
+  placeholder?: string | Partial<Record<AppLocale, string>>;
   /** Türkçe alan boş bırakılamaz. */
   required?: boolean;
   /** Alanın altında tek satır ipucu. */
@@ -51,6 +52,7 @@ function useTabState(props: BaseProps) {
   const [active, setActive] = useState<AppLocale>(routing.defaultLocale);
   const [internal, setInternal] = useState<I18nText>(props.value ?? props.defaultValue ?? { tr: "" });
   const current = props.value ?? internal;
+  const placeholderFor = (locale: AppLocale) => (typeof props.placeholder === "string" ? props.placeholder : props.placeholder?.[locale]);
 
   function set(locale: AppLocale, text: string) {
     const next: I18nText = { ...current, [locale]: text };
@@ -90,7 +92,7 @@ function useTabState(props: BaseProps) {
     </div>
   );
 
-  return { id, active, current, set, tabs };
+  return { id, active, current, set, tabs, placeholderFor };
 }
 
 function FieldShell({
@@ -114,7 +116,7 @@ function FieldShell({
 }
 
 export function I18nTextField(props: BaseProps) {
-  const { id, active, current, set, tabs } = useTabState(props);
+  const { id, active, current, set, tabs, placeholderFor } = useTabState(props);
   return (
     <FieldShell label={props.label} htmlFor={`${id}-${active}`} tabs={tabs} hint={props.hint}>
       {LOCALES.map((locale) => (
@@ -125,7 +127,7 @@ export function I18nTextField(props: BaseProps) {
           style={locale === active ? undefined : HIDDEN}
           value={current[locale] ?? ""}
           maxLength={props.maxLength}
-          placeholder={props.placeholder}
+          placeholder={placeholderFor(locale)}
           // Tarayıcı zorunluluğu yalnızca Türkçe sekmesi açıkken: gizli bir
           // `required` alan gönderimi görünmez biçimde engellerdi. Sunucu
           // doğrulaması (`errors.serviceNameMin2`) her durumda yakalar.
@@ -138,7 +140,7 @@ export function I18nTextField(props: BaseProps) {
 }
 
 export function I18nTextarea(props: BaseProps & { rows?: number }) {
-  const { id, active, current, set, tabs } = useTabState(props);
+  const { id, active, current, set, tabs, placeholderFor } = useTabState(props);
   return (
     <FieldShell label={props.label} htmlFor={`${id}-${active}`} tabs={tabs} hint={props.hint}>
       {LOCALES.map((locale) => (
@@ -150,7 +152,7 @@ export function I18nTextarea(props: BaseProps & { rows?: number }) {
           rows={props.rows ?? 3}
           value={current[locale] ?? ""}
           maxLength={props.maxLength}
-          placeholder={props.placeholder}
+          placeholder={placeholderFor(locale)}
           required={props.required && locale === routing.defaultLocale && active === routing.defaultLocale}
           onChange={(e) => set(locale, e.target.value)}
         />

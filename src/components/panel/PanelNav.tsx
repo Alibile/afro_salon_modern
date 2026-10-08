@@ -27,6 +27,7 @@ const GROUPS = [
       { href: "/panel/berberler", key: "barbers" },
       { href: "/panel/yorumlar", key: "testimonials" },
       { href: "/panel/galeri", key: "gallery" },
+      { href: "/panel/icerik", key: "content" },
       { href: "/panel/ayarlar", key: "settings" },
     ],
   },
