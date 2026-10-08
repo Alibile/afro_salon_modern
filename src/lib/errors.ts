@@ -66,6 +66,8 @@ export const ERROR_CODES = [
   "invalidTimeRange",
   "invalidTime",
   "endBeforeStart",
+  "rangeTooLong",
+  "rangeNeedsAllDay",
   // Yorumlar
   "testimonialNotFound",
   "testimonialTooShort",

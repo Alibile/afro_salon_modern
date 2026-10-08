@@ -27,6 +27,7 @@ export function TimeOffForm({ barbers, ownBarberId }: { barbers: { id: string; n
         const r = await createTimeOff({
           barberId: String(fd.get("barberId") ?? ownBarberId ?? ""),
           date: String(fd.get("date")),
+          endDate: allDay ? String(fd.get("endDate") ?? "") : "",
           allDay,
           startTime: allDay ? undefined : String(fd.get("startTime")),
           endTime: allDay ? undefined : String(fd.get("endTime")),
@@ -45,10 +46,17 @@ export function TimeOffForm({ barbers, ownBarberId }: { barbers: { id: string; n
           </Select>
         </Field>
       )}
-      <Field id="date" label={t("date")}>
+      <Field id="date" label={t("startDate")}>
         <Input id="date" name="date" type="date" defaultValue={today} min={today} required />
       </Field>
-      <label className="flex items-center gap-2 self-end pb-2.5 text-sm">
+      {allDay ? (
+        <Field id="endDate" label={t("endDate")} hint={t("endDateHint")}>
+          <Input id="endDate" name="endDate" type="date" min={today} />
+        </Field>
+      ) : (
+        <div className="hidden sm:block" />
+      )}
+      <label className="flex items-center gap-2 text-sm sm:col-span-2">
         <input type="checkbox" checked={allDay} onChange={(e) => setAllDay(e.target.checked)} className="size-4 accent-primary" /> {t("allDay")}
       </label>
       {!allDay && (

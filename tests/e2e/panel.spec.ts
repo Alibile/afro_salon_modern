@@ -131,4 +131,25 @@ test.describe("panel kabuğu", () => {
     expect(res.status()).toBe(200);
     expect(res.headers()["content-type"]).toContain("image/png");
   });
+
+  test("izin tarih aralığıyla girilir ve listede aralık görünür", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await loginAs(page, "admin@afrosalon.local");
+    await page.goto("/panel/izinler");
+    await page.getByRole("button", { name: "Yeni izin" }).click();
+    const day = (offset: number) => new Date(Date.now() + offset * 86_400_000).toLocaleDateString("sv-SE", { timeZone: "Europe/Istanbul" });
+    const reason = `E2E aralık ${Date.now()}`;
+    await page.getByLabel("Başlangıç tarihi").fill(day(30));
+    await page.getByLabel("Bitiş tarihi").fill(day(33));
+    await page.getByLabel("Sebep (isteğe bağlı)").fill(reason);
+    await page.getByRole("button", { name: "İzin ekle" }).click();
+    const row = page.locator("li").filter({ hasText: reason });
+    await expect(row).toBeVisible();
+    // İki tarih, aralık işaretiyle; tek günlük izindeki saat aralığı burada yok.
+    const fmt = (iso: string) => new Intl.DateTimeFormat("tr-TR", { timeZone: "Europe/Istanbul", day: "numeric", month: "long", year: "numeric", weekday: "long" }).format(new Date(`${iso}T12:00:00+03:00`));
+    await expect(row).toContainText(fmt(day(30)));
+    await expect(row).toContainText(fmt(day(33)));
+    await row.getByRole("button", { name: "Sil" }).click();
+    await expect(row).toHaveCount(0);
+  });
 });

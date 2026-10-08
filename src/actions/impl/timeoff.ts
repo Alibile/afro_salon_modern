@@ -11,14 +11,16 @@ export async function createTimeOffAs(actorInput: SessionUser | null, input: Tim
   if (!actor) return fail("errors.notAllowed");
   const parsed = timeOffSchema.safeParse(input);
   if (!parsed.success) return fail(firstIssueKey(parsed.error));
-  const { barberId, date, allDay, startTime, endTime, reason } = parsed.data;
+  const { barberId, date, endDate, allDay, startTime, endTime, reason } = parsed.data;
   if (actor.role === "BARBER" && actor.barberId !== barberId) return fail("errors.notAllowed");
 
   const barber = await prisma.barber.findUnique({ where: { id: barberId } });
   if (!barber) return fail("errors.barberNotFound");
 
+  // Tüm gün izin dükkan gününün 00:00'ında başlar ve son günün ertesi
+  // 00:00'ında biter (aralık yoksa son gün = ilk gün); saatli izin tek gün.
   const startsAt = allDay ? shopDateTime(date, "00:00") : shopDateTime(date, startTime!);
-  const endsAt = allDay ? addMinutes(shopDateTime(date, "00:00"), 24 * 60) : shopDateTime(date, endTime!);
+  const endsAt = allDay ? addMinutes(shopDateTime(endDate ?? date, "00:00"), 24 * 60) : shopDateTime(date, endTime!);
 
   const t = await prisma.timeOff.create({ data: { barberId, startsAt, endsAt, reason: reason || null } });
   const conflicts = await prisma.appointment.count({ where: { barberId, status: "SCHEDULED", startsAt: { lt: endsAt }, endsAt: { gt: startsAt } } });
