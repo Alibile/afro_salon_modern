@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { publicUrl } from "@/lib/storage-public";
 import { AfroPattern, type PatternVariant } from "./AfroPattern";
 
 /**
@@ -21,8 +22,11 @@ export function ImageSlot({
   sizes = "100vw",
   priority = false,
   label = null,
+  storageKey = null,
 }: {
   name: string;
+  /** Panelden yüklenen fotoğrafın depo anahtarı; verilirse dosya kontrolü yapılmaz. */
+  storageKey?: string | null;
   alt: string;
   className?: string;
   variant?: PatternVariant;
@@ -30,6 +34,9 @@ export function ImageSlot({
   priority?: boolean;
   label?: string | null;
 }) {
+  if (storageKey) {
+    return <Image src={publicUrl(storageKey)} alt={alt} fill sizes={sizes} priority={priority} className={cn("object-cover", className)} />;
+  }
   const exists = fs.existsSync(path.join(process.cwd(), "public", "landing", name));
   if (exists) {
     return <Image src={`/landing/${name}`} alt={alt} fill sizes={sizes} priority={priority} className={cn("object-cover", className)} />;

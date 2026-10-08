@@ -22,11 +22,14 @@ export function AboutSection({
   text,
   satisfactionPercent,
   yearsExperience,
+  photoKey = null,
 }: {
   title: string;
   text: string;
   satisfactionPercent: number;
   yearsExperience: number;
+  /** Panelden yüklenen hakkımızda fotoğrafı; boşsa `about.jpg`. */
+  photoKey?: string | null;
 }) {
   const t = useTranslations("landing.about");
   const locale = useLocale() as AppLocale;
@@ -39,6 +42,7 @@ export function AboutSection({
           <div className="relative aspect-[3/2] w-full overflow-hidden border border-border md:aspect-[4/5]">
             <ImageSlot
               name="about.jpg"
+              storageKey={photoKey}
               alt={t("photoAlt")}
               label={t("photoSoon")}
               variant="mud"

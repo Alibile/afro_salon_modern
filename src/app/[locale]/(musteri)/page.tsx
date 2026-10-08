@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { getLandingData } from "@/lib/queries/landing";
-import { getContentMap } from "@/lib/queries/content";
+import { getContentMap, getSiteImages } from "@/lib/queries/content";
 import { countOpenSlotsToday } from "@/lib/queries/today-slots";
 import { getSessionUser } from "@/lib/auth-helpers";
 import { preloadHero } from "@/lib/hero-image";
@@ -54,9 +54,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 }
 
 export default async function LandingPage({ params }: { params: Promise<{ locale: string }> }) {
-  // Veri beklenmeden önce: LCP fotoğrafının duyurusu `<head>`in en başına,
-  // satır içi stil bloğundan da önce girer (bkz. `preloadHero`).
-  preloadHero();
+  // Görsel yuvaları önce ve tek başına çekilir: LCP fotoğrafının duyurusu
+  // geri kalan veri beklenmeden `<head>`e girer (bkz. `preloadHero`).
+  const images = await getSiteImages();
+  preloadHero(images);
   const now = new Date();
   const { locale } = await params;
   const [{ settings, status, services, barbers, gallery, testimonials, weeklyHours, content, faq }, openSlots, user, t] = await Promise.all([
@@ -99,7 +100,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         <SiteNav shopName={settings.shopName} user={user} variant="hero" />
       </MotionProvider>
       <main>
-        <Hero headline={[text("hero.headline1"), text("hero.headline2")]} subtitle={text("hero.subtitle")} status={status} slots={openSlots} />
+        <Hero headline={[text("hero.headline1"), text("hero.headline2")]} subtitle={text("hero.subtitle")} images={images} status={status} slots={openSlots} />
         <HowItWorksSection
           title={text("howItWorks.title")}
           note={text("howItWorks.note")}
@@ -115,6 +116,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
           text={settings.aboutText}
           satisfactionPercent={settings.satisfactionPercent}
           yearsExperience={settings.yearsExperience}
+          photoKey={images.about?.storageKey ?? null}
         />
         <ServicesSection
           title={text("services.title")}

@@ -5,6 +5,7 @@ import { AfroPattern } from "@/components/brand/AfroPattern";
 import { heroSources } from "@/lib/hero-image";
 import { staggerDelay } from "@/lib/motion-utils";
 import { shopStatusText, type ShopStatus } from "@/lib/shop-status";
+import type { SiteImages } from "@/lib/queries/content";
 
 /**
  * Açılış sırası: durum satırı, manşet satırları 60 ms arayla, ardından alt
@@ -30,19 +31,22 @@ function riseDelay(index: number) {
 export function Hero({
   headline,
   subtitle,
+  images,
   status,
   slots,
 }: {
   /** Manşetin iki satırı; kırılma noktası içeriğin sahibinin kararıdır. */
   headline: [string, string];
   subtitle: string;
+  /** Panelden yüklenen hero yuvaları; boşsa `public/landing/` dosyaları. */
+  images: Pick<SiteImages, "hero" | "heroMobile">;
   status: ShopStatus;
   slots: number;
 }) {
   const t = useTranslations("landing");
   const tStatus = useTranslations("common.status");
   const heroAlt = t("hero.photoAlt");
-  const { wide, tall } = heroSources(heroAlt);
+  const { wide, tall } = heroSources(images, heroAlt);
   const photo = tall ?? wide;
   // Sayaç yalnızca dükkan **şu an** açıkken basılır: kapanış saatinden sonra
   // "bugün doluyuz" demek "Bugün kapandık" ile çelişirdi.

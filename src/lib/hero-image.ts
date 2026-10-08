@@ -2,6 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { getImageProps } from "next/image";
 import { preload } from "react-dom";
+import { publicUrl } from "@/lib/storage-public";
+import type { SiteImages, SiteImageView } from "@/lib/queries/content";
 
 /**
  * Hero fotoğrafının iki kırpımı — masaüstü için 3:2 (`hero.jpg`), telefon için
@@ -34,13 +36,16 @@ function landingFileExists(name: string) {
  * Metin gerçekten gereksizse (ön yükleme duyurusu `<img>` üretmez) çağıran
  * bunu açıkça `""` yazarak söyler.
  */
-export function heroSources(alt: string) {
-  const wide = landingFileExists("hero.jpg")
-    ? getImageProps({ ...SHARED, alt, src: "/landing/hero.jpg", width: 2000, height: 1333 }).props
-    : null;
-  const tall = landingFileExists("hero-mobile.jpg")
-    ? getImageProps({ ...SHARED, alt, src: "/landing/hero-mobile.jpg", width: 1200, height: 1500 }).props
-    : null;
+/** Yuva doluysa yuvanın fotoğrafı (kayıtlı ölçüsüyle), yoksa `public/landing/<file>`, o da yoksa `null`. */
+function source(slot: SiteImageView | null, file: string, width: number, height: number, alt: string) {
+  if (slot) return getImageProps({ ...SHARED, alt, src: publicUrl(slot.storageKey), width: slot.width, height: slot.height }).props;
+  if (landingFileExists(file)) return getImageProps({ ...SHARED, alt, src: `/landing/${file}`, width, height }).props;
+  return null;
+}
+
+export function heroSources(images: Pick<SiteImages, "hero" | "heroMobile">, alt: string) {
+  const wide = source(images.hero, "hero.jpg", 2000, 1333, alt);
+  const tall = source(images.heroMobile, "hero-mobile.jpg", 1200, 1500, alt);
   return { wide, tall };
 }
 
@@ -62,9 +67,9 @@ export function heroSources(alt: string) {
  * Tek kırpım varsa `media` yazılmaz — eşleşmeyen bir sorgu duyuruyu boşa
  * çıkarırdı.
  */
-export function preloadHero() {
+export function preloadHero(images: Pick<SiteImages, "hero" | "heroMobile">) {
   // Duyuru `<img>` üretmez, yalnızca `src`/`srcSet` okunur: alt metni yok.
-  const { wide, tall } = heroSources("");
+  const { wide, tall } = heroSources(images, "");
   const both = wide !== null && tall !== null;
   if (wide) {
     preload(wide.src, { as: "image", fetchPriority: "high", imageSrcSet: wide.srcSet, imageSizes: "100vw", media: both ? "(min-width: 768px)" : undefined });

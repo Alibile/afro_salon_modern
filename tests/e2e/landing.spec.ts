@@ -97,6 +97,13 @@ test.describe("bölüm biçimleri (Tur 8)", () => {
     await expect(page.locator("[data-reveal]")).toHaveCount(0);
   });
 
+  test("görsel yuvası boşken hero dosyadan gelir ve ön yüklenir (Review Focus 4)", async ({ page }) => {
+    await page.goto("/");
+    const src = await page.locator("section img").first().getAttribute("src");
+    expect(src).toContain("%2Flanding%2Fhero");
+    await expect(page.locator('link[rel="preload"][as="image"]').first()).toHaveAttribute("imagesrcset", /landing%2Fhero/);
+  });
+
   test("hero durum satırı tek düz cümledir, orta nokta yok", async ({ page }) => {
     await page.goto("/");
     const status = page.locator("h1").locator("xpath=preceding-sibling::p[1]");
