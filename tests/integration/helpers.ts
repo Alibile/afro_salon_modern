@@ -7,7 +7,7 @@ import type { I18nText } from "@/lib/i18n-content";
 
 export async function resetDb() {
   await prisma.$executeRawUnsafe(
-    `TRUNCATE "HaircutPhoto","AppointmentService","Appointment","TimeOff","WorkingHours","Barber","Service","User","Settings","Testimonial","GalleryPhoto" RESTART IDENTITY CASCADE`,
+    `TRUNCATE "HaircutPhoto","AppointmentService","Appointment","TimeOff","WorkingHours","Barber","Service","User","Settings","Testimonial","GalleryPhoto","ContentBlock","FaqItem","SiteImage" RESTART IDENTITY CASCADE`,
   );
   await prisma.settings.create({ data: { id: 1 } });
 }

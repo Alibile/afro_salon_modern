@@ -10,7 +10,7 @@ import { randomUUID } from "node:crypto";
 export const LOCAL_UPLOAD_PREFIX = "uploads/";
 
 /** Yükleme türü → klasör; `storage.ts` içindeki `UPLOAD_FOLDERS` ile birebir. */
-const FOLDERS = { barber: "barbers", haircut: "haircuts", gallery: "gallery" } as const;
+const FOLDERS = { barber: "barbers", haircut: "haircuts", gallery: "gallery", site: "site" } as const;
 export type LocalUploadKind = keyof typeof FOLDERS;
 
 const EXT: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
@@ -34,6 +34,6 @@ export function isLocalUploadKey(key: string): boolean {
  * bu iki parçadan kurulur, anahtardan değil.
  */
 export function parseLocalUploadKey(key: string): { folder: string; file: string } | null {
-  const m = /^uploads\/(barbers|haircuts|gallery)\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(?:jpg|png|webp))$/.exec(key);
+  const m = /^uploads\/(barbers|haircuts|gallery|site)\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(?:jpg|png|webp))$/.exec(key);
   return m ? { folder: m[1], file: m[2] } : null;
 }

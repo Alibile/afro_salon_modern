@@ -5,6 +5,9 @@ import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { asI18nText, pick, sameI18nText, type I18nText } from "../src/lib/i18n-content";
+import trMessages from "../messages/tr.json";
+import enMessages from "../messages/en.json";
+import frMessages from "../messages/fr.json";
 
 /** Salonun gerçek çalışma saatleri: Pazartesi–Cumartesi 11:00–22:30, Pazar kapalı. */
 const DEFAULT_HOURS = [0, 1, 2, 3, 4, 5, 6].map((d) => ({
@@ -251,6 +254,28 @@ function seedPassword(): string {
  * `client` parametre olarak alınır ki hem CLI girişi hem de entegrasyon testleri aynı
  * mantığı (test DB'sine bağlı) farklı bir PrismaClient örneğiyle çalıştırabilsin.
  */
+/**
+ * SSS'nin ilk hâli çeviri dosyalarındaki altı sorudur (`landing.faq.q1..a6`).
+ * Yalnızca **boş** tabloya yazılır: panelden silinen ya da değiştirilen soru
+ * bir sonraki seed'de geri gelmez.
+ */
+type FaqKey = "q1" | "a1" | "q2" | "a2" | "q3" | "a3" | "q4" | "a4" | "q5" | "a5" | "q6" | "a6";
+export const DEFAULT_FAQ: { question: I18nText; answer: I18nText }[] = ([1, 2, 3, 4, 5, 6] as const).map((n) => {
+  const q = `q${n}` as FaqKey;
+  const a = `a${n}` as FaqKey;
+  return {
+    question: { tr: trMessages.landing.faq[q], en: enMessages.landing.faq[q], fr: frMessages.landing.faq[q] },
+    answer: { tr: trMessages.landing.faq[a], en: enMessages.landing.faq[a], fr: frMessages.landing.faq[a] },
+  };
+});
+
+async function seedFaq(client: PrismaClient) {
+  if ((await client.faqItem.count()) > 0) return;
+  await client.faqItem.createMany({
+    data: DEFAULT_FAQ.map((item, i) => ({ questionI18n: item.question, answerI18n: item.answer, sortOrder: i })),
+  });
+}
+
 export async function runSeed(client: PrismaClient) {
   const password = seedPassword();
   const passwordHash = await bcrypt.hash(password, 10);
@@ -462,6 +487,8 @@ export async function runSeed(client: PrismaClient) {
     where: { storageKey: { in: LEGACY_GALLERY_KEYS }, isActive: true },
     data: { isActive: false },
   });
+
+  await seedFaq(client);
 
   const shown = process.env.SEED_PASSWORD?.trim() ? "SEED_PASSWORD değeri" : DEFAULT_SEED_PASSWORD;
   console.log(`Seed tamam. Admin: admin@afrosalon.local / ${shown}`);

@@ -18,11 +18,13 @@ describe("local-upload", () => {
     expect(key).toMatch(/^uploads\/barbers\/[0-9a-f-]{36}\.png$/);
     expect(localUploadKey("gallery", "image/jpeg")).toMatch(/^uploads\/gallery\/.*\.jpg$/);
     expect(localUploadKey("haircut", "image/webp")).toMatch(/^uploads\/haircuts\/.*\.webp$/);
+    expect(localUploadKey("site", "image/jpeg")).toMatch(/^uploads\/site\/.*\.jpg$/);
   });
 
   it("parseLocalUploadKey yalnızca beklenen biçimi kabul eder (yol gezinmesi yok)", () => {
     const ok = parseLocalUploadKey("uploads/barbers/6f1b2c3d-1111-4222-8333-444455556666.jpg");
     expect(ok).toEqual({ folder: "barbers", file: "6f1b2c3d-1111-4222-8333-444455556666.jpg" });
+    expect(parseLocalUploadKey("uploads/site/6f1b2c3d-1111-4222-8333-444455556666.webp")).toEqual({ folder: "site", file: "6f1b2c3d-1111-4222-8333-444455556666.webp" });
     for (const bad of ["uploads/../x.jpg", "uploads/barbers/../../etc/passwd", "barbers/a.jpg", "uploads/other/6f1b2c3d-1111-4222-8333-444455556666.jpg", "uploads/barbers/a.jpg", "uploads/barbers/6f1b2c3d-1111-4222-8333-444455556666.exe"]) {
       expect(parseLocalUploadKey(bad), bad).toBeNull();
     }

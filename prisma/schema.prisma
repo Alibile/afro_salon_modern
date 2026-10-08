@@ -203,3 +203,31 @@ model GalleryPhoto {
 
   @@index([isActive, sortOrder])
 }
+
+/// Panelden girilen ana sayfa metinleri: anahtar `src/lib/content-keys.ts`
+/// listesinden, değer `{ tr, en?, fr? }`. Satır yoksa çeviri dosyası konuşur.
+model ContentBlock {
+  key       String   @id
+  textI18n  Json
+  updatedAt DateTime @updatedAt
+}
+
+/// Sıkça sorulanlar: serbest liste, üç dilde soru ve cevap. Cevaplar düz
+/// `{minutes}`, `{open}`, `{close}`, `{price}`, `{duration}` yer tutucuları taşıyabilir.
+model FaqItem {
+  id           String   @id @default(cuid())
+  questionI18n Json
+  answerI18n   Json
+  sortOrder    Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+}
+
+/// Ana sayfanın sabit fotoğraf yuvaları: `hero`, `heroMobile`, `about`.
+/// Boş yuva `public/landing/` altındaki dosyaya düşer.
+model SiteImage {
+  slot       String @id
+  storageKey String
+  width      Int
+  height     Int
+}

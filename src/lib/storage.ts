@@ -30,7 +30,7 @@ const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp"]);
  * Yükleme türü -> depodaki klasör. Klasör adı türden türetilmez ("gallerys/"
  * olmasın diye) ve presign ucundaki `kind` listesiyle aynı kaynaktan gelir.
  */
-export const UPLOAD_FOLDERS = { barber: "barbers", haircut: "haircuts", gallery: "gallery" } as const;
+export const UPLOAD_FOLDERS = { barber: "barbers", haircut: "haircuts", gallery: "gallery", site: "site" } as const;
 export type UploadKind = keyof typeof UPLOAD_FOLDERS;
 
 /**

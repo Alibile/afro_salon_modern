@@ -573,4 +573,16 @@ describe("runSeed", () => {
     expect(after.tags).toEqual(target.tags);
     expect(await prisma.galleryPhoto.count()).toBe(DEFAULT_GALLERY.length);
   });
+
+  it("SSS seed'i yalnızca boş tabloya yazar; silinen soru geri gelmez", async () => {
+    await runSeed(prisma);
+    const first = await prisma.faqItem.findMany({ orderBy: { sortOrder: "asc" } });
+    expect(first).toHaveLength(6);
+    expect(asI18nText(first[0].questionI18n)).toMatchObject({ tr: "Randevu nasıl alınır?", en: "How do I book?" });
+    expect(asI18nText(first[1].answerI18n).tr).toContain("{minutes}");
+    expect(first.map((f) => f.sortOrder)).toEqual([0, 1, 2, 3, 4, 5]);
+    await prisma.faqItem.delete({ where: { id: first[2].id } });
+    await runSeed(prisma);
+    expect(await prisma.faqItem.count()).toBe(5);
+  });
 });

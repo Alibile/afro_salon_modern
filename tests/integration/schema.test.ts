@@ -56,4 +56,14 @@ describe("appointment_no_overlap constraint", () => {
     });
     expect(second.id).toBeTruthy();
   });
+
+  it("içerik tabloları: ContentBlock anahtarla, SiteImage yuvayla tekil; FaqItem sıralı", async () => {
+    await prisma.contentBlock.create({ data: { key: "hero.headline1", textI18n: { tr: "Deneme" } } });
+    await expect(prisma.contentBlock.create({ data: { key: "hero.headline1", textI18n: { tr: "İkinci" } } })).rejects.toThrow();
+    await prisma.siteImage.create({ data: { slot: "hero", storageKey: "site/x.jpg", width: 2000, height: 1333 } });
+    await expect(prisma.siteImage.create({ data: { slot: "hero", storageKey: "site/y.jpg", width: 2000, height: 1333 } })).rejects.toThrow();
+    const f = await prisma.faqItem.create({ data: { questionI18n: { tr: "Soru?" }, answerI18n: { tr: "Cevap, on karakter." } } });
+    expect(f.sortOrder).toBe(0);
+    expect(f.isActive).toBe(true);
+  });
 });
