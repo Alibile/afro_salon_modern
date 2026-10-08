@@ -1,7 +1,10 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { randomUUID } from "node:crypto";
+import fs from "node:fs/promises";
+import path from "node:path";
 import { MAX_UPLOAD_BYTES } from "@/lib/upload-limits";
+import { hasR2, localUploadKey, parseLocalUploadKey } from "@/lib/local-upload";
 
 /** İstemciye olduğu gibi gösterilebilecek doğrulama hatası (dosya tipi/boyutu). */
 export class UploadValidationError extends Error {
@@ -30,10 +33,20 @@ const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp"]);
 export const UPLOAD_FOLDERS = { barber: "barbers", haircut: "haircuts", gallery: "gallery" } as const;
 export type UploadKind = keyof typeof UPLOAD_FOLDERS;
 
+/**
+ * İstemcinin `PUT` ile yükleyeceği adres ve kayıt anahtarı. R2 ayarlıysa
+ * imzalı R2 adresi; değilse aynı uygulamanın `/api/upload/local` ucu (dosya
+ * `public/uploads/` altına iner). İstemci iki durumda da aynı şeyi yapar:
+ * adrese `PUT`, sonra anahtarı forma yazar.
+ */
 export async function createPresignedUpload(kind: UploadKind, contentType: string, contentLength: number): Promise<{ url: string; key: string }> {
   if (!ALLOWED.has(contentType)) throw new UploadValidationError("Sadece JPEG, PNG veya WebP yüklenebilir");
   if (!Number.isInteger(contentLength) || contentLength <= 0) throw new UploadValidationError("Dosya boyutu okunamadı");
   if (contentLength > MAX_UPLOAD_BYTES) throw new UploadValidationError("Dosya en fazla 8 MB olabilir");
+  if (!hasR2()) {
+    const key = localUploadKey(kind, contentType);
+    return { url: `/api/upload/local?key=${encodeURIComponent(key)}`, key };
+  }
   const ext = contentType === "image/png" ? "png" : contentType === "image/webp" ? "webp" : "jpg";
   const key = `${UPLOAD_FOLDERS[kind]}/${randomUUID()}.${ext}`;
   // ContentLength imzaya dahil: yüklenen dosya bildirilen boyuttan büyük olamaz.
@@ -42,7 +55,19 @@ export async function createPresignedUpload(kind: UploadKind, contentType: strin
   return { url, key };
 }
 
+/** Yerel yüklemelerin kök dizini; anahtarın klasör/dosya parçaları buna eklenir. */
+export function localUploadPath(key: string): string | null {
+  const parsed = parseLocalUploadKey(key);
+  if (!parsed) return null;
+  return path.join(process.cwd(), "public", "uploads", parsed.folder, parsed.file);
+}
+
 export async function deleteObject(key: string): Promise<void> {
+  const local = localUploadPath(key);
+  if (local) {
+    await fs.unlink(local).catch(() => undefined);
+    return;
+  }
   try {
     await client().send(new DeleteObjectCommand({ Bucket: process.env.R2_BUCKET, Key: key }));
   } catch (e) {

@@ -202,6 +202,17 @@ Landing page'deki iletişim formundan (`#iletisim`) gelen mesajlar:
 | R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET | Cloudflare R2; bucket public erişim açık ve CORS'ta PUT izinli olmalı |
 | NEXT_PUBLIC_R2_PUBLIC_URL | R2 public alan adı; tarayıcıda da okunduğu için NEXT_PUBLIC_ önekli. `next.config.ts` içindeki `remotePatterns` ile uyumlu olmalı. Boşsa yalnızca `landing/` ve `seed/` anahtarları yerelden servis edilir; panelden yüklenen fotoğraflar için R2 gerekir |
 
+## Fotoğraf depolama: R2 ya da yerel disk
+
+Panelden yüklenen fotoğraflar (berber, galeri, müşteri kesimi) normalde
+Cloudflare R2'ye gider (`R2_*` ve `NEXT_PUBLIC_R2_PUBLIC_URL`). `R2_ACCOUNT_ID`
+boşsa aynı akış **yerel diske** düşer: presign ucu `/api/upload/local` adresini
+verir, dosya `public/uploads/<klasör>/<uuid>.<uzantı>` olarak yazılır ve
+`/uploads/...` yolundan servis edilir (`src/lib/local-upload.ts`). Böylece R2
+hesabı açmadan yerelde berber eklenebilir ve galeri doldurulabilir. Klasör
+`.gitignore` içindedir; Vercel gibi salt okunur ortamlarda bu yol açılmaz, R2
+zorunludur. Silme de aynı ayrımı izler (`deleteObject`).
+
 ## R2 CORS
 
 Cloudflare R2 bucket ayarlarında CORS örneği:

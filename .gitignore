@@ -46,3 +46,6 @@ yarn-error.log*
 next-env.d.ts
 src/generated
 .superpowers
+
+# R2 yokken yerel diske inen panel yüklemeleri
+/public/uploads/

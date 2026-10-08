@@ -114,4 +114,21 @@ test.describe("panel kabuğu", () => {
     await expect(page.getByRole("button", { name: /^Sil/ })).toBeVisible();
     expect(errors).toEqual([]);
   });
+
+  test("R2 yokken berber fotoğrafı yerel diske yüklenir ve servis edilir", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await loginAs(page, "admin@afrosalon.local");
+    await page.goto("/panel/berberler");
+    await page.getByRole("button", { name: "Yeni berber" }).click();
+    // 1x1 PNG; test ortamında R2 ayarlı değil (.env.test), yükleme yerel yedeğe düşmeli.
+    const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==", "base64");
+    await page.locator('input[type=file]').setInputFiles({ name: "qa.png", mimeType: "image/png", buffer: png });
+    const form = page.locator("form").filter({ hasText: "Geçici şifre" });
+    await expect(form.getByText("Yüklendi")).toBeVisible();
+    const key = await form.locator('input[name="photoKey"]').inputValue();
+    expect(key).toMatch(/^uploads\/barbers\/.+\.png$/);
+    const res = await page.request.get("/" + key);
+    expect(res.status()).toBe(200);
+    expect(res.headers()["content-type"]).toContain("image/png");
+  });
 });
