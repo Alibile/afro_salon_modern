@@ -1,0 +1,12 @@
+# Netlify, Next.js'i OpenNext tabanlı çalışma zamanıyla sıfır ayarla tanır:
+# SSR/route handler/server action'lar Netlify Functions'a, `src/proxy.ts`
+# Edge Function'a, `next/image` Netlify Image CDN'e bağlanır. Bu dosya yalnızca
+# derleme komutunu (prisma generate dahil) ve Node sürümünü sabitler.
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # Playwright tarayıcı indirmesi derlemede gereksiz; `npm ci` süresini kısaltır.
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1"

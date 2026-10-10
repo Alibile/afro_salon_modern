@@ -2,6 +2,15 @@ import { describe, it, expect } from "vitest";
 import { clientIp } from "@/lib/client-ip";
 
 describe("clientIp", () => {
+  it("önce Netlify'ın x-nf-client-connection-ip başlığına bakar", () => {
+    const h = new Headers({
+      "x-nf-client-connection-ip": "8.8.8.8",
+      "x-vercel-forwarded-for": "1.1.1.1",
+      "x-forwarded-for": "3.3.3.3",
+    });
+    expect(clientIp(h)).toBe("8.8.8.8");
+  });
+
   it("önce x-vercel-forwarded-for başlığına bakar", () => {
     const h = new Headers({
       "x-vercel-forwarded-for": "1.1.1.1",

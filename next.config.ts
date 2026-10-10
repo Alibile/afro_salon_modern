@@ -2,6 +2,15 @@ import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const nextConfig: NextConfig = {
+  // `src/lib/hero-image.ts` hero kırpımlarının varlığını diskten (`fs.existsSync`)
+  // denetler. Netlify/Vercel gibi sunucusuz ortamlarda `public/` CDN'den servis
+  // edilir, fonksiyon paketine girmez; dosya izleyici de dinamik bir `fs`
+  // çağrısını göremez. Ana sayfanın izine bu iki dosya elle eklenir, yoksa yuva
+  // boşken hero desenli yer tutucuya düşerdi. Anahtar picomatch deseni olduğu
+  // için köşeli parantezler kaçışlıdır.
+  outputFileTracingIncludes: {
+    "/\\[locale\\]": ["./public/landing/hero.jpg", "./public/landing/hero-mobile.jpg"],
+  },
   experimental: {
     // Tailwind çıktısı 14 KB'lık tek bir dosya ve render'ı kilitliyordu; HTML ile
     // birlikte gelince o tur (Lighthouse'un ölçtüğü ~0.76 sn) ortadan kalkıyor.

@@ -191,7 +191,7 @@ dosyayı siler. Hero ön yüklemesi yuvadan beslenir (`src/lib/hero-image.ts`).
 Landing page'deki iletişim formundan (`#iletisim`) gelen mesajlar:
 - Doğrulama: ad (2-60 karakter), telefon (opsiyonel), mesaj (10-1000 karakter), honeypot alan (`website`)
 - Rate limit: IP başına dakikada 3 istek, ek olarak tüm form için saatte 60 istek (hafıza içi)
-- IP anahtarı sırayla `x-vercel-forwarded-for`, `x-real-ip` ve `x-forwarded-for`'un **son** hop'undan okunur (istemcinin uydurabildiği ilk hop kullanılmaz); hiçbiri yoksa `local`
+- IP anahtarı sırayla `x-nf-client-connection-ip`, `x-vercel-forwarded-for`, `x-real-ip` ve `x-forwarded-for`'un **son** hop'undan okunur (istemcinin uydurabildiği ilk hop kullanılmaz); hiçbiri yoksa `local`
 - E-posta gönderimi: `settings.email` hedefine (boşsa `EMAIL_FROM`); test/env yoksa `[email:skipped]` loglanır
 - Bu endpoint anonim erişime açık (yetki kontrolü yok)
 - Sayaçlar hafıza içidir ve tek sunucu örneği varsayar; birden fazla örnekle (ya da her isteği yeni bir sunucusuz örnekte çalıştıran ortamlarda) çalıştırılacaksa ortak bir depoya (Redis vb.) taşınmalıdır. Süreç yeniden başladığında sayaç sıfırlanır
@@ -222,7 +222,7 @@ boşsa aynı akış **yerel diske** düşer: presign ucu `/api/upload/local` adr
 verir, dosya `public/uploads/<klasör>/<uuid>.<uzantı>` olarak yazılır ve
 `/uploads/...` yolundan servis edilir (`src/lib/local-upload.ts`). Böylece R2
 hesabı açmadan yerelde berber eklenebilir ve galeri doldurulabilir. Klasör
-`.gitignore` içindedir; Vercel gibi salt okunur ortamlarda bu yol açılmaz, R2
+`.gitignore` içindedir; Netlify/Vercel gibi salt okunur ortamlarda bu yol açılmaz, R2
 zorunludur. Silme de aynı ayrımı izler (`deleteObject`).
 
 ## R2 CORS
@@ -232,12 +232,39 @@ Cloudflare R2 bucket ayarlarında CORS örneği:
 - **AllowedMethods:** `["PUT"]`
 - **AllowedHeaders:** `["content-type"]`
 
-## Deploy (Vercel + Neon + R2)
+## Deploy (Netlify + Neon + R2)
 
-1. Neon'da Postgres oluştur, `DATABASE_URL`'i Vercel env'e ekle.
-2. Vercel'de tüm env değişkenlerini gir, `AUTH_URL` canlı alan adı olsun.
-3. Build komutu `npm run build` (prisma generate içerir). İlk deploy sonrası `npx prisma migrate deploy` ve `npx prisma db seed` lokal makineden canlı `DATABASE_URL` ile çalıştır.
-4. Seed'deki admin şifresini panelden değiştir (berber şifresi gibi admin için de "Şifreyi sıfırla" yoksa, DB'den bcrypt hash güncelle).
+Depo `netlify.toml` ile gelir: derleme `npm run build` (prisma generate dahil),
+yayın dizini `.next`, Node 22. Netlify Next.js'i sıfır ayarla tanır: sayfalar ve
+server action'lar Netlify Functions'ta, `src/proxy.ts` Edge Function'da,
+`next/image` Netlify Image CDN'de çalışır.
+
+1. **Veritabanı.** Netlify DB (`npx netlify-cli db init`) ya da Neon'da elle bir
+   Postgres aç. Uygulama `DATABASE_URL` yoksa Netlify DB'nin verdiği
+   `NETLIFY_DATABASE_URL`'e düşer; Prisma CLI (`migrate`, `seed`) ise yalnızca
+   `DATABASE_URL` okur. Sunucusuz ortamda **pooled** (`-pooler`) adresi kullan.
+2. **Ortam değişkenleri** (Site configuration → Environment variables):
+   `AUTH_SECRET` (`openssl rand -base64 32`), `AUTH_URL` ve
+   `NEXT_PUBLIC_SITE_URL` canlı alan adı (`https://<site>.netlify.app`),
+   `RESEND_API_KEY`, `EMAIL_FROM`, `R2_*`, `NEXT_PUBLIC_R2_PUBLIC_URL`.
+   `NEXT_PUBLIC_*` derlemede gömülür; değiştirince yeniden deploy gerekir.
+3. **R2 zorunlu.** Netlify Functions diski salt okunurdur; `R2_ACCOUNT_ID`
+   boşsa panelden fotoğraf yüklenemez (yerel disk yolu açılmaz). R2 CORS'a
+   canlı alan adını ekle.
+4. **İlk deploy sonrası** lokal makineden canlı adresle şema ve tohum:
+   ```sh
+   DATABASE_URL="postgresql://..." npx prisma migrate deploy
+   DATABASE_URL="postgresql://..." NODE_ENV=production SEED_PASSWORD="<güçlü-şifre>" npx prisma db seed
+   ```
+   Sonraki şema değişikliklerinde yalnızca `migrate deploy` tekrarlanır.
+5. Seed'deki admin şifresini panelden değiştir (berber şifresi gibi admin için de "Şifreyi sıfırla" yoksa, DB'den bcrypt hash güncelle).
+
+Bilinen sınırlar: hız sınırı (`src/lib/rate-limit.ts`) bellek içidir, her
+fonksiyon örneği kendi sayacını tutar. İstemci IP'si Netlify'ın
+`x-nf-client-connection-ip` başlığından okunur (`src/lib/client-ip.ts`).
+Hero kırpımlarının dosya denetimi (`src/lib/hero-image.ts`) fonksiyon
+paketinde çalışabilsin diye bu iki dosya `next.config.ts` içinde
+`outputFileTracingIncludes` ile ana sayfanın izine eklenir.
 
 ## Roller
 
