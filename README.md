@@ -239,10 +239,14 @@ yayın dizini `.next`, Node 22. Netlify Next.js'i sıfır ayarla tanır: sayfala
 server action'lar Netlify Functions'ta, `src/proxy.ts` Edge Function'da,
 `next/image` Netlify Image CDN'de çalışır.
 
-1. **Veritabanı.** Netlify DB (`npx netlify-cli db init`) ya da Neon'da elle bir
-   Postgres aç. Uygulama `DATABASE_URL` yoksa Netlify DB'nin verdiği
-   `NETLIFY_DATABASE_URL`'e düşer; Prisma CLI (`migrate`, `seed`) ise yalnızca
-   `DATABASE_URL` okur. Sunucusuz ortamda **pooled** (`-pooler`) adresi kullan.
+1. **Veritabanı.** Netlify panelinde Data & Storage → Database → "Create a
+   database manually" ile Netlify Database (Neon) aç ya da Neon'da elle bir
+   Postgres oluştur. Uygulama ve Prisma CLI, `DATABASE_URL` yoksa Netlify'ın
+   verdiği `NETLIFY_DB_URL`'e düşer. Netlify'ın kendi otomatik göçleri
+   (`netlify/database/migrations/`) kullanılmaz; şema Prisma ile aşağıdaki gibi
+   lokalden uygulanır. Deploy preview'lar üretimden kopyalanan kendi dalını
+   alır, şemayı da onunla miras alır. Neon kullanılıyorsa sunucusuz ortamda
+   **pooled** (`-pooler`) adresi seç.
 2. **Ortam değişkenleri** (Site configuration → Environment variables):
    `AUTH_SECRET` (`openssl rand -base64 32`), `AUTH_URL` ve
    `NEXT_PUBLIC_SITE_URL` canlı alan adı (`https://<site>.netlify.app`),
